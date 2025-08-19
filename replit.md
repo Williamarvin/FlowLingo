@@ -1,0 +1,77 @@
+# MandarinMaster - Chinese Language Learning Platform
+
+## Overview
+
+MandarinMaster is a comprehensive Chinese language learning platform that provides interactive tools for studying Mandarin. The application offers text generation, AI-powered conversations, PDF document processing, and vocabulary management with spaced repetition learning. Built as a full-stack web application with a React frontend and Express backend, it integrates OpenAI's API for intelligent language features and uses PostgreSQL for data persistence.
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+## System Architecture
+
+### Frontend Architecture
+- **Framework**: React 18 with TypeScript for type safety and modern development
+- **Build Tool**: Vite for fast development and optimized production builds
+- **Routing**: Wouter for lightweight client-side routing
+- **Styling**: Tailwind CSS with shadcn/ui component library for consistent design
+- **State Management**: TanStack Query (React Query) for server state management and caching
+- **Component Architecture**: Modular components with shared UI library following atomic design principles
+
+### Backend Architecture
+- **Framework**: Express.js with TypeScript for RESTful API development
+- **Development Server**: TSX for TypeScript execution in development
+- **Middleware**: Custom logging, JSON parsing, and error handling middleware
+- **Storage Layer**: Abstracted storage interface with both memory and database implementations
+- **API Design**: RESTful endpoints for vocabulary, conversations, text generation, and PDF processing
+
+### Database Schema
+- **ORM**: Drizzle ORM for type-safe database operations
+- **Database**: PostgreSQL with connection via Neon serverless
+- **Tables**:
+  - `users`: User authentication and profiles
+  - `vocabulary_words`: Spaced repetition vocabulary system with HSK levels
+  - `conversations`: AI chat history with topic and difficulty tracking
+  - `generated_texts`: Chinese text content with character segmentation
+  - `pdf_documents`: Processed PDF content with text extraction
+
+### Authentication & Session Management
+- Session-based authentication using PostgreSQL session store
+- User identification through session cookies
+- Demo mode with mock user for development
+
+### AI Integration Architecture
+- **OpenAI API**: GPT-4o integration for text generation and translation
+- **Text Generation**: Topic-based Chinese content creation with difficulty levels
+- **Translation**: Character and phrase translation with pinyin support
+- **Conversation**: AI-powered Mandarin conversation practice
+- **Speech**: Browser-based text-to-speech and speech recognition APIs
+
+## External Dependencies
+
+### Core Infrastructure
+- **Database**: Neon PostgreSQL serverless database
+- **Session Store**: connect-pg-simple for PostgreSQL session management
+- **File Processing**: Browser-based PDF text extraction (placeholder for PDF.js integration)
+
+### AI Services
+- **OpenAI API**: GPT-4o model for text generation, translation, and conversation
+- **Browser Speech APIs**: Web Speech API for text-to-speech and speech recognition
+
+### UI Framework
+- **shadcn/ui**: Complete component library built on Radix UI primitives
+- **Radix UI**: Accessible, unstyled UI components
+- **Tailwind CSS**: Utility-first CSS framework
+- **Lucide React**: Icon library
+
+### Development Tools
+- **Vite**: Build tool with HMR and development server
+- **TypeScript**: Type safety across frontend and backend
+- **Drizzle Kit**: Database migrations and schema management
+- **ESBuild**: Fast JavaScript bundling for production
+- **Replit Integration**: Development environment with runtime error overlay
+
+### Form & Validation
+- **React Hook Form**: Form state management
+- **Zod**: Schema validation for type-safe data handling
+- **Drizzle Zod**: Integration between Drizzle ORM and Zod validation
