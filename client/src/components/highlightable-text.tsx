@@ -54,8 +54,13 @@ export default function HighlightableText({ text, onSaveWord }: HighlightableTex
       } else {
         currentPhrase += char;
         
-        // Break phrases at reasonable lengths (2-4 characters)
-        if (currentPhrase.length >= 2 && (i === chars.length - 1 || /[。！？，、；：""''（）《》【】\s]/.test(chars[i + 1]))) {
+        // Break into meaningful 2-3 character phrases
+        if (currentPhrase.length === 2) {
+          // Most Chinese words are 2 characters (你好, 朋友, 学习, etc.)
+          segments.push(currentPhrase.trim());
+          currentPhrase = '';
+        } else if (currentPhrase.length === 3) {
+          // Some compounds are 3 characters (电脑, 学生, 老师, etc.)
           segments.push(currentPhrase.trim());
           currentPhrase = '';
         }

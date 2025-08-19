@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { insertVocabularyWordSchema, insertConversationSchema, insertGeneratedTextSchema, insertPdfDocumentSchema } from "@shared/schema";
 import OpenAI from "openai";
 
-// Function to segment Chinese text into meaningful phrases
+// Function to segment Chinese text into meaningful phrases (2-3 character compounds)
 function segmentChineseText(text: string) {
   const segments = [];
   const chars = text.split('');
@@ -40,8 +40,19 @@ function segmentChineseText(text: string) {
     } else {
       currentPhrase += char;
       
-      // Break phrases at reasonable lengths (2-4 characters for common phrases)
-      if (currentPhrase.length >= 2 && Math.random() > 0.7) {
+      // Break into 2-3 character meaningful phrases
+      if (currentPhrase.length === 2) {
+        // Most Chinese words are 2 characters, so break here
+        segments.push({
+          text: currentPhrase.trim(),
+          index: index,
+          translation: null,
+          pinyin: null
+        });
+        index++;
+        currentPhrase = '';
+      } else if (currentPhrase.length === 3) {
+        // Some compounds are 3 characters, break here too
         segments.push({
           text: currentPhrase.trim(),
           index: index,
