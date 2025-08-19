@@ -130,8 +130,8 @@ export default function Vocabulary() {
             </CardHeader>
             <CardContent>
               <div className="text-center mb-6">
-                <div className="w-24 h-24 bg-brand-blue bg-opacity-20 border-2 border-brand-blue border-opacity-30 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-2xl font-bold text-brand-blue">{learnedWords}</span>
+                <div className="w-24 h-24 bg-brand-blue border-2 border-brand-blue-dark rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                  <span className="text-2xl font-bold text-white">{learnedWords}</span>
                 </div>
                 <p className="text-text-secondary">Words Learned</p>
               </div>
@@ -143,7 +143,7 @@ export default function Vocabulary() {
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-3 border border-gray-300">
                   <div 
-                    className="bg-brand-blue h-2 rounded-full transition-all mx-0.5 mt-0.5" 
+                    className="bg-brand-blue h-2 rounded-full transition-all mx-0.5 mt-0.5 shadow-sm" 
                     style={{width: `${Math.min(100, (currentCardIndex / 10) * 100)}%`}}
                   ></div>
                 </div>
@@ -174,7 +174,7 @@ export default function Vocabulary() {
                     key={index}
                     className={`w-full text-left p-3 rounded-lg font-medium transition-colors border ${
                       mode.active 
-                        ? "bg-brand-blue bg-opacity-15 text-brand-blue border-brand-blue border-opacity-30" 
+                        ? "bg-brand-blue text-white border-brand-blue-dark shadow-md" 
                         : "bg-gray-50 text-text-secondary hover:bg-gray-100 border-gray-200 hover:border-gray-300"
                     }`}
                   >

@@ -51,9 +51,9 @@
   --spacing: 0.25rem;
   
   /* Brand colors inspired by Falou's design */
-  --brand-blue: hsl(215 85% 55%);
-  --brand-blue-dark: hsl(215 85% 45%);
-  --brand-blue-light: hsl(215 90% 65%);
+  --brand-blue: hsl(215 95% 50%);
+  --brand-blue-dark: hsl(215 95% 40%);
+  --brand-blue-light: hsl(215 95% 60%);
   --brand-yellow: hsl(45 95% 58%);
   --brand-yellow-light: hsl(45 95% 68%);
   --brand-green: hsl(145 75% 50%);
