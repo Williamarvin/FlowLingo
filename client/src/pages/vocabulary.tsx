@@ -69,30 +69,32 @@ export default function Vocabulary() {
     setShowAnswer(!showAnswer);
   };
 
+  const [activeStudyMode, setActiveStudyMode] = useState(0);
+  
   const studyModes = [
     { 
       icon: "fas fa-brain", 
       title: "Smart Review", 
       subtitle: `${dueWords.length} words`,
-      active: true 
+      onClick: () => setActiveStudyMode(0)
     },
     { 
       icon: "fas fa-plus", 
       title: "Learn New Words", 
       subtitle: "Expand vocabulary",
-      active: false 
+      onClick: () => setActiveStudyMode(1)
     },
     { 
       icon: "fas fa-gamepad", 
       title: "Vocabulary Games", 
       subtitle: "Fun practice",
-      active: false 
+      onClick: () => setActiveStudyMode(2)
     },
     { 
       icon: "fas fa-chart-line", 
       title: "Progress Stats", 
       subtitle: "View analytics",
-      active: false 
+      onClick: () => setActiveStudyMode(3)
     }
   ];
 
@@ -172,14 +174,20 @@ export default function Vocabulary() {
                 {studyModes.map((mode, index) => (
                   <button
                     key={index}
-                    className={`w-full text-left p-3 rounded-lg font-medium transition-colors border ${
-                      mode.active 
+                    onClick={mode.onClick}
+                    className={`w-full text-left p-3 rounded-lg font-medium transition-all duration-200 border hover:scale-105 active:scale-95 ${
+                      activeStudyMode === index
                         ? "bg-brand-blue text-white border-brand-blue-dark shadow-md" 
-                        : "bg-gray-50 text-text-secondary hover:bg-gray-100 border-gray-200 hover:border-gray-300"
+                        : "bg-gray-50 text-text-secondary hover:bg-gray-100 border-gray-200 hover:border-gray-300 hover:text-text-primary"
                     }`}
                   >
-                    <i className={`${mode.icon} mr-2`}></i>
-                    {mode.title} {mode.subtitle && `(${mode.subtitle})`}
+                    <div className="flex items-center">
+                      <i className={`${mode.icon} mr-3`}></i>
+                      <div>
+                        <div className="font-semibold">{mode.title}</div>
+                        <div className="text-xs opacity-75">{mode.subtitle}</div>
+                      </div>
+                    </div>
                   </button>
                 ))}
               </div>
