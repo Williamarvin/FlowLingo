@@ -283,12 +283,14 @@ Create substantially more comprehensive responses with extensive vocabulary prac
           break;
       }
 
-      const updatedWord = await storage.updateVocabularyWord(id, {
-        difficulty,
-        successRate,
-        timesReviewed,
-        nextReview
-      });
+      const updates = { 
+        difficulty, 
+        successRate, 
+        timesReviewed, 
+        nextReview: nextReview
+      };
+      
+      const updatedWord = await storage.updateVocabularyWord(id, updates);
 
       res.json(updatedWord);
     } catch (error) {

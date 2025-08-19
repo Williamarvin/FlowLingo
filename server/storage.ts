@@ -56,15 +56,96 @@ export class MemStorage implements IStorage {
   }
 
   async getVocabularyWords(userId: string): Promise<VocabularyWord[]> {
-    return Array.from(this.vocabularyWords.values()).filter(
+    const words = Array.from(this.vocabularyWords.values()).filter(
       word => word.userId === userId
     );
+    
+    // Add sample words if empty for demonstration
+    if (words.length === 0) {
+      const sampleWords = [
+        {
+          id: "1",
+          userId: userId,
+          character: "你好",
+          pinyin: "nǐ hǎo",
+          english: "hello",
+          hskLevel: 1,
+          difficulty: "new",
+          successRate: 0,
+          timesReviewed: 0,
+          nextReview: new Date(),
+          createdAt: new Date()
+        },
+        {
+          id: "2",
+          userId: userId,
+          character: "谢谢",
+          pinyin: "xiè xiè",
+          english: "thank you",
+          hskLevel: 1,
+          difficulty: "new",
+          successRate: 0,
+          timesReviewed: 0,
+          nextReview: new Date(),
+          createdAt: new Date()
+        },
+        {
+          id: "3",
+          userId: userId,
+          character: "学习",
+          pinyin: "xué xí",
+          english: "to study, to learn",
+          hskLevel: 2,
+          difficulty: "new",
+          successRate: 0,
+          timesReviewed: 0,
+          nextReview: new Date(),
+          createdAt: new Date()
+        },
+        {
+          id: "4",
+          userId: userId,
+          character: "朋友",
+          pinyin: "péng yǒu",
+          english: "friend",
+          hskLevel: 2,
+          difficulty: "new",
+          successRate: 0,
+          timesReviewed: 0,
+          nextReview: new Date(),
+          createdAt: new Date()
+        },
+        {
+          id: "5",
+          userId: userId,
+          character: "中国",
+          pinyin: "zhōng guó",
+          english: "China",
+          hskLevel: 1,
+          difficulty: "new",
+          successRate: 0,
+          timesReviewed: 0,
+          nextReview: new Date(),
+          createdAt: new Date()
+        }
+      ];
+      
+      // Add to storage
+      sampleWords.forEach(word => {
+        this.vocabularyWords.set(word.id, word);
+      });
+      
+      return sampleWords;
+    }
+    
+    return words;
   }
 
   async getVocabularyWordsDue(userId: string): Promise<VocabularyWord[]> {
+    const allWords = await this.getVocabularyWords(userId);
     const now = new Date();
-    return Array.from(this.vocabularyWords.values()).filter(
-      word => word.userId === userId && word.nextReview && new Date(word.nextReview) <= now
+    return allWords.filter(word => 
+      word.nextReview && new Date(word.nextReview) <= now
     );
   }
 
