@@ -79,16 +79,16 @@ export default function TranslationPopup({ isOpen, onClose, translation, onSaveW
     }
   };
 
-  const handleSave = () => {
-    if (onSaveWord) {
-      onSaveWord(translation);
+  const handleCopy = () => {
+    if (translation) {
+      navigator.clipboard.writeText(translation.character);
     }
     onClose();
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center" onClick={onClose}>
-      <div className="bg-white rounded-2xl p-6 max-w-md mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white rounded-2xl p-8 max-w-lg mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-text-primary">Translation</h3>
           <button onClick={onClose} className="text-text-secondary hover:text-text-primary">
@@ -98,16 +98,16 @@ export default function TranslationPopup({ isOpen, onClose, translation, onSaveW
         
         <div className="space-y-4">
           <div className="text-center">
-            <div className="text-3xl font-bold text-text-primary mb-2">{translation.character}</div>
-            <div className="text-lg text-brand-blue mb-1">{translation.pinyin}</div>
-            <div className="text-text-secondary">{translation.english}</div>
+            <div className="text-5xl font-bold text-text-primary mb-4">{translation.character}</div>
+            <div className="text-xl text-brand-blue mb-2">{translation.pinyin}</div>
+            <div className="text-lg text-text-secondary">{translation.english}</div>
           </div>
           
-          <div className="flex space-x-2">
+          <div className="flex space-x-3">
             <button 
               onClick={handleSpeak}
               disabled={isPlaying}
-              className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
+              className={`flex-1 py-3 rounded-lg font-medium transition-colors ${
                 isPlaying 
                   ? 'bg-gray-400 text-white cursor-not-allowed'
                   : 'bg-brand-blue text-white hover:bg-brand-blue-dark'
@@ -117,10 +117,10 @@ export default function TranslationPopup({ isOpen, onClose, translation, onSaveW
               {isPlaying ? 'Playing...' : 'Pronounce'}
             </button>
             <button 
-              onClick={handleSave}
-              className="flex-1 bg-brand-yellow text-white py-2 rounded-lg font-medium hover:bg-brand-yellow-light transition-colors"
+              onClick={handleCopy}
+              className="flex-1 bg-brand-yellow text-white py-3 rounded-lg font-medium hover:bg-brand-yellow-light transition-colors"
             >
-              <i className="fas fa-bookmark mr-2"></i>Save Word
+              <i className="fas fa-copy mr-2"></i>Copy
             </button>
           </div>
         </div>
