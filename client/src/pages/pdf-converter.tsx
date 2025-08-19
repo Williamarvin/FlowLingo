@@ -131,7 +131,17 @@ export default function PdfConverter() {
                       <span><i className="fas fa-font mr-1"></i>Characters: {selectedDocument.content.length}</span>
                       <span><i className="fas fa-language mr-1"></i>Chinese detected: 98%</span>
                     </div>
-                    <Button>
+                    <Button onClick={() => {
+                      const blob = new Blob([selectedDocument.content], { type: 'text/plain' });
+                      const url = window.URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `${selectedDocument.filename.replace('.pdf', '')}_chinese.txt`;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      window.URL.revokeObjectURL(url);
+                    }}>
                       <i className="fas fa-download mr-2"></i>Export
                     </Button>
                   </div>

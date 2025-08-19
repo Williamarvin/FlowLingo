@@ -28,11 +28,7 @@ export default function AiConversation() {
 
   const conversationMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest("/api/conversation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      const response = await apiRequest("POST", "/api/conversation", data);
       return response.json();
     },
     onSuccess: (response) => {

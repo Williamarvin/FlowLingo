@@ -205,7 +205,20 @@ export default function Vocabulary() {
                   <span className="text-sm text-text-secondary">
                     Card {currentCardIndex + 1} of {dueWords.length}
                   </span>
-                  <Button variant="ghost" size="sm" title="Settings" className="text-text-secondary hover:text-text-primary hover:bg-gray-100">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => {
+                      // Toggle between different review modes
+                      const modes = ['standard', 'speed', 'typing'];
+                      const currentMode = localStorage.getItem('reviewMode') || 'standard';
+                      const nextIndex = (modes.indexOf(currentMode) + 1) % modes.length;
+                      localStorage.setItem('reviewMode', modes[nextIndex]);
+                      window.location.reload();
+                    }}
+                    title="Settings" 
+                    className="text-text-secondary hover:text-text-primary hover:bg-gray-100"
+                  >
                     <i className="fas fa-cog"></i>
                   </Button>
                 </div>

@@ -71,17 +71,46 @@ export default function Navigation() {
                     <p className="text-sm font-medium text-gray-900">Demo User</p>
                     <p className="text-xs text-gray-600">demo@mandarinmaster.com</p>
                   </div>
-                  <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                  <button 
+                    onClick={() => {
+                      localStorage.setItem('userSettings', JSON.stringify({
+                        theme: 'light',
+                        speechRate: 0.8,
+                        reviewGoal: 10,
+                        notifications: true
+                      }));
+                      setShowUserMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                  >
                     <i className="fas fa-cog mr-2"></i>Settings
                   </button>
-                  <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                  <Link 
+                    href="/vocabulary"
+                    onClick={() => setShowUserMenu(false)}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors block"
+                  >
                     <i className="fas fa-chart-bar mr-2"></i>Progress
-                  </button>
-                  <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                  </Link>
+                  <button 
+                    onClick={() => {
+                      const bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+                      console.log('Your bookmarks:', bookmarks);
+                      setShowUserMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                  >
                     <i className="fas fa-heart mr-2"></i>Favorites
                   </button>
                   <hr className="my-1" />
-                  <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                  <button 
+                    onClick={() => {
+                      localStorage.clear();
+                      sessionStorage.clear();
+                      window.location.href = '/';
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  >
                     <i className="fas fa-sign-out-alt mr-2"></i>Sign Out
                   </button>
                 </div>

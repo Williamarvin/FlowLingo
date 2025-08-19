@@ -171,10 +171,32 @@ export default function TextGenerator() {
                     <Button variant="ghost" size="sm" onClick={handleSpeak} title="Text to Speech">
                       <i className="fas fa-volume-up"></i>
                     </Button>
-                    <Button variant="ghost" size="sm" title="Copy Text">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => {
+                        navigator.clipboard.writeText(generatedText.content);
+                      }}
+                      title="Copy Text"
+                    >
                       <i className="fas fa-copy"></i>
                     </Button>
-                    <Button variant="ghost" size="sm" title="Bookmark">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => {
+                        // Save to localStorage as a simple bookmark system
+                        const bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+                        bookmarks.push({
+                          content: generatedText.content,
+                          topic,
+                          difficulty,
+                          date: new Date().toISOString()
+                        });
+                        localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+                      }}
+                      title="Bookmark"
+                    >
                       <i className="fas fa-bookmark"></i>
                     </Button>
                   </div>
