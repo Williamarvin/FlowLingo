@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Button } from "@/components/ui/button";
 
 export default function Vocabulary() {
@@ -126,13 +126,10 @@ export default function Vocabulary() {
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Progress Overview */}
         <div className="lg:col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Learning Progress</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div className="card-duo">
+            <h3 className="text-xl font-bold text-text-primary mb-6">Learning Progress</h3>
               <div className="text-center mb-6">
-                <div className="w-24 h-24 bg-brand-blue border-2 border-brand-blue-dark rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                <div className="w-24 h-24 bg-brand-primary border-2 border-brand-primary-dark rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
                   <span className="text-2xl font-bold text-white">{learnedWords}</span>
                 </div>
                 <p className="text-text-secondary">Words Learned</p>
@@ -141,11 +138,11 @@ export default function Vocabulary() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-text-secondary">Today's Goal</span>
-                  <span className="font-semibold text-brand-blue">{Math.max(0, 10 - currentCardIndex)}/10</span>
+                  <span className="font-semibold text-brand-primary">{Math.max(0, 10 - currentCardIndex)}/10</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-3 border border-gray-300">
                   <div 
-                    className="bg-brand-blue h-2 rounded-full transition-all mx-0.5 mt-0.5 shadow-sm" 
+                    className="bg-brand-primary h-2 rounded-full transition-all mx-0.5 mt-0.5 shadow-sm" 
                     style={{width: `${Math.min(100, (currentCardIndex / 10) * 100)}%`}}
                   ></div>
                 </div>
@@ -156,20 +153,16 @@ export default function Vocabulary() {
                     <div className="text-xs text-text-secondary">Streak Days</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-brand-yellow">{dueWords.length}</div>
+                    <div className="text-2xl font-bold text-brand-secondary">{dueWords.length}</div>
                     <div className="text-xs text-text-secondary">Review Due</div>
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
 
           {/* Study Options */}
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle className="text-lg">Study Mode</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div className="card-duo mt-6">
+            <h3 className="text-xl font-bold text-text-primary mb-6">Study Mode</h3>
               <div className="space-y-3">
                 {studyModes.map((mode, index) => (
                   <button
@@ -177,7 +170,7 @@ export default function Vocabulary() {
                     onClick={mode.onClick}
                     className={`w-full text-left p-3 rounded-lg font-medium transition-all duration-200 border hover:scale-105 active:scale-95 ${
                       activeStudyMode === index
-                        ? "bg-brand-blue text-white border-brand-blue-dark shadow-md" 
+                        ? "bg-brand-primary text-white border-brand-primary-dark shadow-md" 
                         : "bg-gray-50 text-text-secondary hover:bg-gray-100 border-gray-200 hover:border-gray-300 hover:text-text-primary"
                     }`}
                   >
@@ -191,16 +184,15 @@ export default function Vocabulary() {
                   </button>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
         {/* Flashcard Area */}
         <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Vocabulary Review</CardTitle>
+          <div className="card-duo">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-text-primary">Vocabulary Review</h3>
                 <div className="flex items-center space-x-4">
                   <span className="text-sm text-text-secondary">
                     Card {currentCardIndex + 1} of {dueWords.length}
@@ -223,8 +215,7 @@ export default function Vocabulary() {
                   </Button>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent>
+              
               {dueWords.length === 0 ? (
                 <div className="text-center py-20">
                   <i className="fas fa-check-circle text-4xl text-green-500 mb-4"></i>
@@ -235,7 +226,7 @@ export default function Vocabulary() {
                 <>
                   {/* Flashcard */}
                   <div 
-                    className="bg-gradient-to-br from-brand-blue to-brand-blue-dark rounded-2xl p-8 text-center text-white mb-6 min-h-64 flex flex-col justify-center cursor-pointer hover:shadow-lg transition-shadow"
+                    className="bg-gradient-to-br from-brand-primary to-brand-primary-dark rounded-2xl p-8 text-center text-white mb-6 min-h-64 flex flex-col justify-center cursor-pointer hover:shadow-lg transition-shadow"
                     onClick={handleCardClick}
                   >
                     <div className="text-6xl font-bold mb-4">{currentCard.character}</div>
@@ -274,7 +265,7 @@ export default function Vocabulary() {
                     <div className="grid md:grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="text-text-secondary">HSK Level:</span>
-                        <span className="ml-2 font-medium text-brand-blue">Level {currentCard.hskLevel}</span>
+                        <span className="ml-2 font-medium text-brand-primary">Level {currentCard.hskLevel}</span>
                       </div>
                       <div>
                         <span className="text-text-secondary">Last Reviewed:</span>
@@ -299,8 +290,6 @@ export default function Vocabulary() {
                   <p className="text-text-secondary">No vocabulary words available</p>
                 </div>
               )}
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>

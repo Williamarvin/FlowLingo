@@ -24,14 +24,17 @@ export default function Navigation() {
         ></div>
       )}
       
-      <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+      <nav className="bg-white shadow-lg border-b-2 border-gray-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          <Link href="/" className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-brand-blue to-brand-blue-dark rounded-2xl flex items-center justify-center shadow-md">
-              <span className="text-white font-bold text-lg">中</span>
+          <Link href="/" className="flex items-center space-x-3 group">
+            <div className="w-12 h-12 bg-gradient-to-br from-brand-primary to-brand-primary-light rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-all duration-200">
+              <span className="text-2xl">🐉</span>
             </div>
-            <span className="text-2xl font-bold text-gray-900">MandarinMaster</span>
+            <div>
+              <span className="text-2xl font-bold text-text-primary">MandarinMaster</span>
+              <div className="text-xs text-text-secondary -mt-1 font-medium">Learn Chinese with AI</div>
+            </div>
           </Link>
           
           <div className="hidden md:flex items-center space-x-2">

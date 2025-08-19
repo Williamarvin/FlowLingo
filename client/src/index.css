@@ -50,18 +50,33 @@
   --tracking-normal: 0em;
   --spacing: 0.25rem;
   
-  /* Brand colors inspired by Falou's design */
-  --brand-blue: hsl(215 95% 50%);
-  --brand-blue-dark: hsl(215 95% 40%);
-  --brand-blue-light: hsl(215 95% 60%);
-  --brand-yellow: hsl(45 95% 58%);
-  --brand-yellow-light: hsl(45 95% 68%);
-  --brand-green: hsl(145 75% 50%);
-  --brand-orange: hsl(25 90% 58%);
-  --text-primary: hsl(0 0% 9%);
-  --text-secondary: hsl(0 0% 35%);
-  --background-soft: hsl(220 15% 97%);
-  --card-elevated: hsl(0 0% 100%);
+  /* MandarinMaster Brand Colors - Blue Theme Inspired by Duolingo */
+  --brand-primary: hsl(215 100% 50%);
+  --brand-primary-light: hsl(215 100% 60%);
+  --brand-primary-dark: hsl(215 100% 40%);
+  --brand-secondary: hsl(45 100% 55%);
+  --brand-secondary-light: hsl(45 100% 65%);
+  --brand-accent: hsl(145 60% 45%);
+  --brand-success: hsl(145 60% 45%);
+  --brand-warning: hsl(35 95% 55%);
+  --brand-error: hsl(0 85% 55%);
+  
+  /* Duolingo-inspired color palette with blue theme */
+  --surface-1: hsl(0 0% 100%);
+  --surface-2: hsl(220 20% 98%);
+  --surface-3: hsl(220 15% 95%);
+  --surface-4: hsl(220 10% 92%);
+  
+  /* Text Colors */
+  --text-primary: hsl(220 30% 15%);
+  --text-secondary: hsl(220 15% 40%);
+  --text-muted: hsl(220 10% 55%);
+  --text-light: hsl(220 5% 70%);
+  
+  /* Gradient backgrounds */
+  --gradient-primary: linear-gradient(135deg, hsl(215 100% 50%) 0%, hsl(215 100% 60%) 100%);
+  --gradient-secondary: linear-gradient(135deg, hsl(45 100% 55%) 0%, hsl(45 100% 65%) 100%);
+  --gradient-surface: linear-gradient(135deg, hsl(220 20% 99%) 0%, hsl(220 15% 97%) 100%);
 }
 
 .dark {
@@ -117,31 +132,136 @@
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans antialiased text-foreground;
     font-family: Inter, sans-serif;
+    background: var(--gradient-surface);
+    min-height: 100vh;
   }
 }
 
-/* Falou-inspired brand color utilities */
-.text-brand-blue { color: hsl(215, 85%, 55%); }
-.text-brand-blue-dark { color: hsl(215, 85%, 45%); }
-.text-brand-blue-light { color: hsl(215, 90%, 65%); }
-.text-brand-yellow { color: hsl(45, 95%, 58%); }
-.text-brand-yellow-light { color: hsl(45, 95%, 68%); }
-.text-brand-green { color: hsl(145, 75%, 50%); }
-.text-brand-orange { color: hsl(25, 90%, 58%); }
-.text-text-primary { color: hsl(220, 18%, 20%); }
-.text-text-secondary { color: hsl(220, 12%, 50%); }
+/* Duolingo-inspired utility classes */
+.btn-primary {
+  @apply font-bold py-4 px-8 rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 text-white;
+  background: var(--gradient-primary);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
 
-.bg-brand-blue { background-color: hsl(215, 85%, 55%); }
-.bg-brand-blue-dark { background-color: hsl(215, 85%, 45%); }
-.bg-brand-blue-light { background-color: hsl(215, 90%, 65%); }
-.bg-brand-yellow { background-color: hsl(45, 95%, 58%); }
-.bg-brand-yellow-light { background-color: hsl(45, 95%, 68%); }
-.bg-brand-green { background-color: hsl(145, 75%, 50%); }
-.bg-brand-orange { background-color: hsl(25, 90%, 58%); }
-.bg-background-soft { background-color: hsl(220, 15%, 97%); }
-.bg-card-elevated { background-color: hsl(0, 0%, 100%); }
+.btn-secondary {
+  @apply font-bold py-4 px-8 rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 text-white;
+  background: var(--gradient-secondary);
+}
+
+.btn-outline {
+  @apply border-2 font-bold py-4 px-8 rounded-2xl transition-all duration-200 transform hover:scale-105 active:scale-95;
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+}
+
+.btn-outline:hover {
+  background-color: var(--brand-primary);
+  color: white;
+}
+
+.card-duo {
+  @apply bg-white rounded-3xl shadow-xl p-6 transition-all duration-200 hover:shadow-2xl;
+  background: var(--surface-1);
+  border: 3px solid hsl(220 15% 92%);
+  transform: scale(1);
+}
+
+.card-duo:hover {
+  transform: scale(1.02);
+}
+
+.card-progress {
+  @apply text-white rounded-2xl p-6 shadow-lg;
+  background: var(--gradient-primary);
+}
+
+.text-brand-primary { color: var(--brand-primary); }
+.text-brand-secondary { color: var(--brand-secondary); }
+.text-brand-accent { color: var(--brand-accent); }
+.text-brand-success { color: var(--brand-success); }
+.text-brand-warning { color: var(--brand-warning); }
+.text-brand-error { color: var(--brand-error); }
+.text-text-primary { color: var(--text-primary); }
+.text-text-secondary { color: var(--text-secondary); }
+.text-text-muted { color: var(--text-muted); }
+.text-text-light { color: var(--text-light); }
+
+.bg-brand-primary { background-color: var(--brand-primary); }
+.bg-brand-primary-light { background-color: var(--brand-primary-light); }
+.bg-brand-primary-dark { background-color: var(--brand-primary-dark); }
+.bg-brand-secondary { background-color: var(--brand-secondary); }
+.bg-brand-accent { background-color: var(--brand-accent); }
+.bg-surface-1 { background-color: var(--surface-1); }
+.bg-surface-2 { background-color: var(--surface-2); }
+.bg-surface-3 { background-color: var(--surface-3); }
+.bg-surface-4 { background-color: var(--surface-4); }
+
+/* Progress bars inspired by Duolingo */
+.progress-bar {
+  @apply bg-gray-200 rounded-full h-3 overflow-hidden;
+}
+
+.progress-fill {
+  @apply h-full rounded-full transition-all duration-500 ease-out;
+  background: linear-gradient(90deg, var(--brand-primary) 0%, var(--brand-primary-light) 100%);
+}
+
+/* Achievement badges */
+.badge-achievement {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium text-white;
+  background: linear-gradient(135deg, var(--brand-secondary) 0%, var(--brand-secondary-light) 100%);
+}
+
+/* Character display styling */
+.chinese-character {
+  font-family: 'Noto Sans CJK SC', 'Source Han Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  @apply text-6xl font-bold;
+  color: var(--text-primary);
+}
+
+.pinyin-text {
+  @apply text-xl font-medium;
+  color: var(--brand-primary);
+}
+
+.english-text {
+  @apply text-lg;
+  color: var(--text-secondary);
+}
+
+/* Button animations inspired by Duolingo */
+.btn-bounce {
+  @apply transition-all duration-200 transform hover:scale-105 active:scale-95;
+}
+
+.btn-bounce:hover {
+  animation: gentle-bounce 0.6s ease-in-out;
+}
+
+@keyframes gentle-bounce {
+  0%, 100% { transform: scale(1.05); }
+  50% { transform: scale(1.1); }
+}
+
+/* Floating elements */
+.floating-element {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Streak counter styling */
+.streak-counter {
+  @apply text-white rounded-full px-4 py-2 font-bold shadow-lg;
+  background: linear-gradient(135deg, hsl(35 95% 55%) 0%, hsl(35 95% 65%) 100%);
+}
 
 .hover\:bg-brand-blue:hover { background-color: hsl(215, 85%, 55%); }
 .hover\:bg-brand-blue-dark:hover { background-color: hsl(215, 85%, 45%); }

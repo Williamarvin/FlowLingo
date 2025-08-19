@@ -89,7 +89,7 @@ export default function TextGenerator() {
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Text Generation Controls */}
         <div className="lg:col-span-1">
-          <div className="card-falou p-6">
+          <div className="card-duo">
             <h3 className="text-xl font-bold text-text-primary mb-6">Generate Text</h3>
             <div className="space-y-5">
               <div>
@@ -139,7 +139,7 @@ export default function TextGenerator() {
               
               <button 
                 onClick={handleGenerate} 
-                className="w-full bg-gradient-to-r from-brand-blue to-brand-blue-light hover:from-brand-blue-dark hover:to-brand-blue text-white py-4 rounded-2xl font-bold transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
+                className="w-full btn-primary disabled:opacity-50"
                 disabled={generateTextMutation.isPending}
               >
                 {generateTextMutation.isPending ? (
@@ -152,7 +152,7 @@ export default function TextGenerator() {
           </div>
 
           {/* Translation Panel */}
-          <div className="card-falou p-6 mt-6">
+          <div className="card-duo mt-6">
             <h3 className="text-xl font-bold text-text-primary mb-6">Translation</h3>
             <div className="text-center text-text-secondary py-8">
               <i className="fas fa-hand-pointer text-4xl mb-4 opacity-50"></i>
@@ -163,7 +163,7 @@ export default function TextGenerator() {
 
         {/* Generated Text Area */}
         <div className="lg:col-span-2">
-          <div className="card-falou p-6">
+          <div className="card-duo">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-text-primary">Generated Text</h3>
                 {generatedText && (

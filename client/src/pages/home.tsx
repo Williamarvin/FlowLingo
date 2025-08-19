@@ -44,54 +44,111 @@ export default function Home() {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      {/* Hero Section */}
-      <div className="text-center mb-16">
-        <div className="mb-8">
-          <img 
-            src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" 
-            alt="Chinese language learning" 
-            className="w-64 h-48 object-cover rounded-2xl mx-auto shadow-lg" 
-          />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Hero Section - Duolingo Inspired */}
+      <div className="text-center mb-20">
+        <div className="mb-12 relative">
+          {/* Main mascot area */}
+          <div className="relative w-80 h-64 mx-auto mb-8">
+            <div className="absolute inset-0 bg-gradient-to-br from-brand-primary to-brand-primary-light rounded-full opacity-10 floating-element"></div>
+            <div className="relative z-10 flex items-center justify-center h-full">
+              <div className="text-8xl floating-element">🐉</div>
+            </div>
+            {/* Floating elements around mascot */}
+            <div className="absolute -top-4 -right-4 w-12 h-12 bg-brand-secondary rounded-full flex items-center justify-center floating-element text-2xl">
+              📖
+            </div>
+            <div className="absolute -bottom-2 -left-6 w-10 h-10 bg-brand-accent rounded-full flex items-center justify-center floating-element text-lg">
+              ✨
+            </div>
+          </div>
         </div>
-        <h1 className="text-4xl md:text-5xl font-bold text-text-primary mb-6">
-          Master Mandarin with <span className="text-brand-blue">AI-Powered</span> Learning
+        
+        <h1 className="text-5xl md:text-6xl font-bold text-text-primary mb-6 leading-tight">
+          The fun, effective way to learn <span className="text-brand-primary">Mandarin!</span>
         </h1>
-        <p className="text-xl text-text-secondary mb-8 max-w-3xl mx-auto">
-          Transform your Chinese learning journey with interactive text translation, AI conversations, PDF processing, and smart vocabulary building.
+        <p className="text-xl text-text-secondary mb-12 max-w-2xl mx-auto leading-relaxed">
+          Master Chinese with AI-powered conversations, interactive text translation, and smart vocabulary practice.
         </p>
-        <Link href="/text-generator">
-          <button className="bg-gradient-to-r from-brand-blue to-brand-blue-light hover:from-brand-blue-dark hover:to-brand-blue text-white px-10 py-5 rounded-2xl font-bold text-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
-            Start Learning Now <i className="fas fa-arrow-right ml-3"></i>
+        
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+          <Link href="/text-generator">
+            <button className="btn-primary px-12 py-5 text-xl font-bold">
+              GET STARTED
+            </button>
+          </Link>
+          <button className="btn-outline px-8 py-4 text-lg">
+            I ALREADY HAVE AN ACCOUNT
           </button>
-        </Link>
+        </div>
+        
+        {/* Streak counter */}
+        <div className="inline-flex items-center streak-counter">
+          <span className="mr-2">🔥</span>
+          <span>Keep your 5-day streak going!</span>
+        </div>
       </div>
 
-      {/* Feature Cards */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-        {features.map((feature) => (
+      {/* Feature Cards - Duolingo Style */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
+        {features.map((feature, index) => (
           <Link key={feature.href} href={feature.href}>
-            <div className="card-falou p-8 cursor-pointer group">
-              <div className={`w-16 h-16 ${feature.bgColor} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-105 transition-transform`}>
-                <i className={`${feature.icon} ${feature.iconColor} text-2xl`}></i>
+            <div className="card-duo cursor-pointer group relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-brand-secondary to-brand-secondary-light rounded-bl-3xl flex items-center justify-center">
+                <span className="text-2xl">{['🎯', '💬', '📄', '📚'][index]}</span>
+              </div>
+              <div className={`w-20 h-20 ${feature.bgColor} rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                <i className={`${feature.icon} ${feature.iconColor} text-3xl`}></i>
               </div>
               <h3 className="text-xl font-bold text-text-primary mb-3">{feature.title}</h3>
-              <p className="text-text-secondary leading-relaxed">{feature.description}</p>
+              <p className="text-text-secondary leading-relaxed text-sm">{feature.description}</p>
+              <div className="mt-4 flex items-center text-brand-primary font-medium text-sm">
+                <span>Start learning</span>
+                <i className="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+              </div>
             </div>
           </Link>
         ))}
       </div>
 
-      {/* Stats Section */}
-      <div className="card-falou p-10">
-        <h3 className="text-2xl font-bold text-text-primary text-center mb-8">Learning Progress</h3>
+      {/* Progress & Stats Section */}
+      <div className="bg-white rounded-3xl shadow-xl p-8 mb-12 border-3 border-gray-100">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-text-primary mb-4">personalized learning</h2>
+          <p className="text-text-secondary text-lg max-w-2xl mx-auto">
+            AI-powered lessons adapt to your pace and learning style, making Chinese accessible and fun.
+          </p>
+        </div>
+        
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((stat, index) => (
-            <div key={index} className="text-center">
-              <div className={`text-4xl font-bold ${stat.color} mb-3`}>{stat.value}</div>
-              <div className="text-text-secondary font-medium">{stat.label}</div>
+            <div key={index} className="text-center group">
+              <div className="w-16 h-16 bg-gradient-to-br from-brand-primary to-brand-primary-light rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <span className="text-2xl text-white">{['📈', '💬', '📚', '⭐'][index]}</span>
+              </div>
+              <div className="text-3xl font-bold text-brand-primary mb-2">{stat.value}</div>
+              <div className="text-text-secondary font-medium text-sm">{stat.label}</div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Achievement Badges */}
+      <div className="text-center">
+        <h3 className="text-2xl font-bold text-text-primary mb-6">Your Achievements</h3>
+        <div className="flex flex-wrap justify-center gap-3">
+          <span className="badge-achievement">
+            <i className="fas fa-star mr-2"></i>First Lesson
+          </span>
+          <span className="badge-achievement">
+            <i className="fas fa-fire mr-2"></i>5 Day Streak
+          </span>
+          <span className="badge-achievement">
+            <i className="fas fa-trophy mr-2"></i>HSK Level 1
+          </span>
+          <span className="badge-achievement">
+            <i className="fas fa-comments mr-2"></i>Conversationalist
+          </span>
         </div>
       </div>
     </div>

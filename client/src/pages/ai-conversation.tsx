@@ -205,7 +205,7 @@ export default function AiConversation() {
 
         {/* Settings and Progress */}
         <div className="lg:col-span-1">
-          <div className="card-falou p-6">
+          <div className="card-duo">
             <h3 className="text-xl font-bold text-text-primary mb-6">Conversation Settings</h3>
             <div className="space-y-5">
               <div>
@@ -279,7 +279,7 @@ export default function AiConversation() {
           </div>
 
           {/* Progress Stats */}
-          <div className="card-falou p-6 mt-6">
+          <div className="card-duo mt-6">
             <h3 className="text-xl font-bold text-text-primary mb-6">Today's Progress</h3>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
