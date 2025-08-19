@@ -130,7 +130,7 @@ export default function Vocabulary() {
             </CardHeader>
             <CardContent>
               <div className="text-center mb-6">
-                <div className="w-24 h-24 bg-brand-blue bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-3">
+                <div className="w-24 h-24 bg-brand-blue bg-opacity-20 border-2 border-brand-blue border-opacity-30 rounded-full flex items-center justify-center mx-auto mb-3">
                   <span className="text-2xl font-bold text-brand-blue">{learnedWords}</span>
                 </div>
                 <p className="text-text-secondary">Words Learned</p>
@@ -141,9 +141,9 @@ export default function Vocabulary() {
                   <span className="text-text-secondary">Today's Goal</span>
                   <span className="font-semibold text-brand-blue">{Math.max(0, 10 - currentCardIndex)}/10</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-gray-200 rounded-full h-3 border border-gray-300">
                   <div 
-                    className="bg-brand-blue h-2 rounded-full transition-all" 
+                    className="bg-brand-blue h-2 rounded-full transition-all mx-0.5 mt-0.5" 
                     style={{width: `${Math.min(100, (currentCardIndex / 10) * 100)}%`}}
                   ></div>
                 </div>
@@ -172,10 +172,10 @@ export default function Vocabulary() {
                 {studyModes.map((mode, index) => (
                   <button
                     key={index}
-                    className={`w-full text-left p-3 rounded-lg font-medium transition-colors ${
+                    className={`w-full text-left p-3 rounded-lg font-medium transition-colors border ${
                       mode.active 
-                        ? "bg-brand-blue bg-opacity-10 text-brand-blue" 
-                        : "bg-gray-50 text-text-secondary hover:bg-gray-100"
+                        ? "bg-brand-blue bg-opacity-15 text-brand-blue border-brand-blue border-opacity-30" 
+                        : "bg-gray-50 text-text-secondary hover:bg-gray-100 border-gray-200 hover:border-gray-300"
                     }`}
                   >
                     <i className={`${mode.icon} mr-2`}></i>
@@ -197,7 +197,7 @@ export default function Vocabulary() {
                   <span className="text-sm text-text-secondary">
                     Card {currentCardIndex + 1} of {dueWords.length}
                   </span>
-                  <Button variant="ghost" size="sm" title="Settings">
+                  <Button variant="ghost" size="sm" title="Settings" className="text-text-secondary hover:text-text-primary hover:bg-gray-100">
                     <i className="fas fa-cog"></i>
                   </Button>
                 </div>
@@ -248,7 +248,7 @@ export default function Vocabulary() {
                   )}
                   
                   {/* Word Details */}
-                  <div className="p-4 bg-gray-50 rounded-xl">
+                  <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
                     <h4 className="font-medium text-text-primary mb-2">Word Details</h4>
                     <div className="grid md:grid-cols-2 gap-4 text-sm">
                       <div>
@@ -257,17 +257,17 @@ export default function Vocabulary() {
                       </div>
                       <div>
                         <span className="text-text-secondary">Last Reviewed:</span>
-                        <span className="ml-2 font-medium">
+                        <span className="ml-2 font-medium text-text-primary">
                           {currentCard.timesReviewed === 0 ? "Never" : "3 days ago"}
                         </span>
                       </div>
                       <div>
                         <span className="text-text-secondary">Success Rate:</span>
-                        <span className="ml-2 font-medium text-green-500">{currentCard.successRate}%</span>
+                        <span className="ml-2 font-medium text-green-600">{currentCard.successRate}%</span>
                       </div>
                       <div>
                         <span className="text-text-secondary">Times Reviewed:</span>
-                        <span className="ml-2 font-medium">{currentCard.timesReviewed}</span>
+                        <span className="ml-2 font-medium text-text-primary">{currentCard.timesReviewed}</span>
                       </div>
                     </div>
                   </div>
