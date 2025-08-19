@@ -54,9 +54,15 @@ export default function Navigation() {
             <div className="relative">
               <button 
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="w-10 h-10 rounded-xl bg-brand-blue hover:bg-brand-blue-dark text-white transition-colors flex items-center justify-center shadow-md"
+                className="w-10 h-10 rounded-xl bg-white border-2 border-brand-blue hover:bg-brand-blue hover:text-white text-brand-blue transition-all duration-200 flex items-center justify-center shadow-md"
               >
-                <i className="fas fa-user text-lg"></i>
+                <svg 
+                  className="w-5 h-5" 
+                  fill="currentColor" 
+                  viewBox="0 0 20 20"
+                >
+                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                </svg>
               </button>
               
               {showUserMenu && (
