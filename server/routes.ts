@@ -4,6 +4,69 @@ import { storage } from "./storage";
 import { insertVocabularyWordSchema, insertConversationSchema, insertGeneratedTextSchema, insertPdfDocumentSchema } from "@shared/schema";
 import OpenAI from "openai";
 
+// Function to segment Chinese text into meaningful phrases
+function segmentChineseText(text: string) {
+  const segments = [];
+  const chars = text.split('');
+  let currentPhrase = '';
+  let index = 0;
+
+  for (let i = 0; i < chars.length; i++) {
+    const char = chars[i];
+    
+    // Check if character is punctuation or whitespace
+    if (/[。！？，、；：""''（）《》【】\s]/.test(char)) {
+      if (currentPhrase.trim()) {
+        segments.push({
+          text: currentPhrase.trim(),
+          index: index,
+          translation: null,
+          pinyin: null
+        });
+        index++;
+      }
+      
+      // Add punctuation as separate segment if not whitespace
+      if (char.trim()) {
+        segments.push({
+          text: char,
+          index: index,
+          translation: null,
+          pinyin: null
+        });
+        index++;
+      }
+      currentPhrase = '';
+    } else {
+      currentPhrase += char;
+      
+      // Break phrases at reasonable lengths (2-4 characters for common phrases)
+      if (currentPhrase.length >= 2 && Math.random() > 0.7) {
+        segments.push({
+          text: currentPhrase.trim(),
+          index: index,
+          translation: null,
+          pinyin: null
+        });
+        index++;
+        currentPhrase = '';
+      }
+    }
+  }
+  
+  // Add final phrase if exists
+  if (currentPhrase.trim()) {
+    segments.push({
+      text: currentPhrase.trim(),
+      index: index,
+      translation: null,
+      pinyin: null
+    });
+  }
+  
+  return segments;
+}
+
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -40,13 +103,8 @@ Return only the Chinese text without any additional formatting or explanations.`
 
       const content = response.choices[0].message.content || "";
       
-      // Split content into segments for highlighting
-      const segments = content.split('').map((char, index) => ({
-        character: char,
-        index,
-        translation: null,
-        pinyin: null
-      }));
+      // Split content into phrase segments for better translation
+      const segments = segmentChineseText(content);
 
       const generatedText = await storage.createGeneratedText({
         userId: DEMO_USER_ID,
@@ -68,7 +126,7 @@ Return only the Chinese text without any additional formatting or explanations.`
     try {
       const { text } = req.body;
       
-      const prompt = `Translate this Chinese text to English and provide pinyin pronunciation. Return as JSON: {"character": "${text}", "pinyin": "pronunciation", "english": "translation"}`;
+      const prompt = `Translate this Chinese text/phrase to English and provide pinyin pronunciation. For phrases, provide the complete meaning and context. Return as JSON: {"character": "${text}", "pinyin": "pronunciation with tone marks", "english": "complete translation with context"}`;
 
       const response = await openai.chat.completions.create({
         model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user

@@ -34,20 +34,57 @@ export default function HighlightableText({ text, onSaveWord }: HighlightableTex
     }
   };
 
+  const segmentTextForTranslation = (text: string) => {
+    const segments = [];
+    const chars = text.split('');
+    let currentPhrase = '';
+    
+    for (let i = 0; i < chars.length; i++) {
+      const char = chars[i];
+      
+      // Check if character is punctuation or whitespace
+      if (/[。！？，、；：""''（）《》【】\s]/.test(char)) {
+        if (currentPhrase.trim()) {
+          segments.push(currentPhrase.trim());
+        }
+        if (char.trim()) {
+          segments.push(char);
+        }
+        currentPhrase = '';
+      } else {
+        currentPhrase += char;
+        
+        // Break phrases at reasonable lengths (2-4 characters)
+        if (currentPhrase.length >= 2 && (i === chars.length - 1 || /[。！？，、；：""''（）《》【】\s]/.test(chars[i + 1]))) {
+          segments.push(currentPhrase.trim());
+          currentPhrase = '';
+        }
+      }
+    }
+    
+    if (currentPhrase.trim()) {
+      segments.push(currentPhrase.trim());
+    }
+    
+    return segments;
+  };
+
   const renderHighlightableText = () => {
-    return text.split('').map((char, index) => {
-      if (char.trim() === '') return char; // Preserve whitespace
+    const segments = segmentTextForTranslation(text);
+    
+    return segments.map((segment, index) => {
+      if (segment.trim() === '') return segment; // Preserve whitespace
       
       return (
         <span
           key={index}
           className="highlightable cursor-pointer hover:bg-brand-blue hover:bg-opacity-10 transition-colors px-1 rounded"
           onClick={() => {
-            setSelectedText(char);
-            translateMutation.mutate(char);
+            setSelectedText(segment);
+            translateMutation.mutate(segment);
           }}
         >
-          {char}
+          {segment}
         </span>
       );
     });

@@ -29,8 +29,8 @@ export default function Navigation() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "px-4 py-2 rounded-xl text-text-secondary hover:text-brand-blue hover:bg-brand-blue hover:bg-opacity-8 transition-all font-medium",
-                  location === item.href && "text-brand-blue bg-brand-blue bg-opacity-10 font-semibold"
+                  "px-4 py-2 rounded-xl text-text-secondary hover:text-brand-blue hover:bg-blue-50 transition-all font-medium",
+                  location === item.href && "text-white bg-brand-blue font-semibold shadow-md"
                 )}
               >
                 {item.label}
