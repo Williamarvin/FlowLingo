@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface TranslationData {
   character: string;
@@ -14,6 +14,7 @@ interface TranslationPopupProps {
 }
 
 export default function TranslationPopup({ isOpen, onClose, translation, onSaveWord }: TranslationPopupProps) {
+  const [isPlaying, setIsPlaying] = useState(false);
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -34,9 +35,47 @@ export default function TranslationPopup({ isOpen, onClose, translation, onSaveW
 
   const handleSpeak = () => {
     if ('speechSynthesis' in window) {
+      // Stop any current speech
+      speechSynthesis.cancel();
+      setIsPlaying(true);
+      
       const utterance = new SpeechSynthesisUtterance(translation.character);
       utterance.lang = 'zh-CN';
-      speechSynthesis.speak(utterance);
+      utterance.rate = 0.8; // Slower rate for learning
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+      
+      // Event handlers for speech synthesis
+      utterance.onstart = () => setIsPlaying(true);
+      utterance.onend = () => setIsPlaying(false);
+      utterance.onerror = () => setIsPlaying(false);
+      
+      // Load voices and try to use a Chinese voice
+      const loadVoicesAndSpeak = () => {
+        const voices = speechSynthesis.getVoices();
+        const chineseVoice = voices.find(voice => 
+          voice.lang.includes('zh') || 
+          voice.lang.includes('cmn') ||
+          voice.name.toLowerCase().includes('chinese')
+        );
+        
+        if (chineseVoice) {
+          utterance.voice = chineseVoice;
+        }
+        
+        speechSynthesis.speak(utterance);
+      };
+      
+      // Check if voices are already loaded
+      if (speechSynthesis.getVoices().length > 0) {
+        loadVoicesAndSpeak();
+      } else {
+        // Wait for voices to load
+        speechSynthesis.onvoiceschanged = loadVoicesAndSpeak;
+      }
+    } else {
+      // Fallback notification if speech synthesis not supported
+      alert('Speech synthesis is not supported in your browser. Please try a different browser.');
     }
   };
 
@@ -100,10 +139,15 @@ export default function TranslationPopup({ isOpen, onClose, translation, onSaveW
           <div className="flex space-x-3">
             <button 
               onClick={handleSpeak}
-              className="flex-1 bg-gradient-to-r from-brand-blue to-brand-blue-light text-white py-4 rounded-2xl font-bold transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 flex items-center justify-center space-x-2"
+              disabled={isPlaying}
+              className={`flex-1 text-white py-4 rounded-2xl font-bold transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 flex items-center justify-center space-x-2 ${
+                isPlaying 
+                  ? 'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed' 
+                  : 'bg-gradient-to-r from-brand-blue to-brand-blue-light'
+              }`}
             >
-              <i className="fas fa-play text-lg"></i>
-              <span>Listen</span>
+              <i className={`fas ${isPlaying ? 'fa-spinner fa-spin' : 'fa-play'} text-lg`}></i>
+              <span>{isPlaying ? 'Playing...' : 'Listen'}</span>
             </button>
             <button 
               onClick={handleSave}
