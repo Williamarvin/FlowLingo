@@ -23,6 +23,312 @@ export interface IStorage {
   createPdfDocument(document: InsertPdfDocument): Promise<PdfDocument>;
 }
 
+export interface IStorageExtended extends IStorage {
+  // User progress methods
+  updateUserProgress(userId: string, updates: Partial<User>): Promise<User | undefined>;
+  updateUserStreak(userId: string): Promise<User | undefined>;
+  addXpToUser(userId: string, xp: number): Promise<User | undefined>;
+  
+  // Assessment methods
+  getAssessmentQuestions(difficulty?: number): Promise<any[]>;
+  saveAssessmentResult(result: any): Promise<any>;
+  getAssessmentResult(userId: string): Promise<any | undefined>;
+  
+  // Practice session methods
+  createPracticeSession(session: any): Promise<any>;
+  getPracticeSessions(userId: string): Promise<any[]>;
+  
+  // Achievement methods
+  getAchievements(): Promise<any[]>;
+  getUserAchievements(userId: string): Promise<any[]>;
+  unlockAchievement(userId: string, achievementId: string): Promise<any>;
+}
+
+export class DatabaseStorage implements IStorageExtended {
+  async getUser(id: string): Promise<User | undefined> {
+    const { db } = await import("./db");
+    const { users } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const { db } = await import("./db");
+    const { users } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const { db } = await import("./db");
+    const { users } = await import("@shared/schema");
+    
+    const [user] = await db.insert(users).values(insertUser).returning();
+    return user;
+  }
+
+  async updateUserProgress(userId: string, updates: Partial<User>): Promise<User | undefined> {
+    const { db } = await import("./db");
+    const { users } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const [user] = await db.update(users)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
+  async updateUserStreak(userId: string): Promise<User | undefined> {
+    const { db } = await import("./db");
+    const { users } = await import("@shared/schema");
+    const { eq, sql } = await import("drizzle-orm");
+    
+    const [user] = await db.select().from(users).where(eq(users.id, userId));
+    if (!user) return undefined;
+    
+    const today = new Date().toISOString().split('T')[0];
+    const lastActive = user.lastActiveDate?.toString();
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+    
+    let newStreak = user.streakDays;
+    if (lastActive === yesterday) {
+      newStreak = user.streakDays + 1;
+    } else if (lastActive !== today) {
+      newStreak = 1;
+    }
+    
+    const [updatedUser] = await db.update(users)
+      .set({ 
+        streakDays: newStreak,
+        lastActiveDate: sql`CURRENT_DATE`,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId))
+      .returning();
+      
+    return updatedUser;
+  }
+
+  async addXpToUser(userId: string, xp: number): Promise<User | undefined> {
+    const { db } = await import("./db");
+    const { users } = await import("@shared/schema");
+    const { eq, sql } = await import("drizzle-orm");
+    
+    const [user] = await db.select().from(users).where(eq(users.id, userId));
+    if (!user) return undefined;
+    
+    const newXp = user.xp + xp;
+    let newLevel = user.level;
+    let newXpToNextLevel = user.xpToNextLevel;
+    
+    // Check for level up
+    if (newXp >= user.xpToNextLevel) {
+      newLevel = user.level + 1;
+      newXpToNextLevel = user.xpToNextLevel + (50 * newLevel); // Progressive XP requirement
+    }
+    
+    const [updatedUser] = await db.update(users)
+      .set({ 
+        xp: newXp,
+        level: newLevel,
+        xpToNextLevel: newXpToNextLevel,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId))
+      .returning();
+      
+    return updatedUser;
+  }
+
+  async getVocabularyWords(userId: string): Promise<VocabularyWord[]> {
+    const { db } = await import("./db");
+    const { vocabularyWords } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    return await db.select().from(vocabularyWords).where(eq(vocabularyWords.userId, userId));
+  }
+
+  async getVocabularyWordsDue(userId: string): Promise<VocabularyWord[]> {
+    const { db } = await import("./db");
+    const { vocabularyWords } = await import("@shared/schema");
+    const { eq, lte } = await import("drizzle-orm");
+    
+    return await db.select()
+      .from(vocabularyWords)
+      .where(eq(vocabularyWords.userId, userId));
+  }
+
+  async createVocabularyWord(word: InsertVocabularyWord): Promise<VocabularyWord> {
+    const { db } = await import("./db");
+    const { vocabularyWords } = await import("@shared/schema");
+    
+    const [newWord] = await db.insert(vocabularyWords).values(word).returning();
+    return newWord;
+  }
+
+  async updateVocabularyWord(id: string, updates: Partial<VocabularyWord>): Promise<VocabularyWord | undefined> {
+    const { db } = await import("./db");
+    const { vocabularyWords } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const [updated] = await db.update(vocabularyWords)
+      .set(updates)
+      .where(eq(vocabularyWords.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteVocabularyWord(id: string): Promise<boolean> {
+    const { db } = await import("./db");
+    const { vocabularyWords } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const result = await db.delete(vocabularyWords).where(eq(vocabularyWords.id, id));
+    return true;
+  }
+
+  async getConversations(userId: string): Promise<Conversation[]> {
+    const { db } = await import("./db");
+    const { conversations } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    return await db.select().from(conversations).where(eq(conversations.userId, userId));
+  }
+
+  async createConversation(conversation: InsertConversation): Promise<Conversation> {
+    const { db } = await import("./db");
+    const { conversations } = await import("@shared/schema");
+    
+    const [newConv] = await db.insert(conversations).values(conversation).returning();
+    return newConv;
+  }
+
+  async updateConversation(id: string, updates: Partial<Conversation>): Promise<Conversation | undefined> {
+    const { db } = await import("./db");
+    const { conversations } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const [updated] = await db.update(conversations)
+      .set(updates)
+      .where(eq(conversations.id, id))
+      .returning();
+    return updated;
+  }
+
+  async getGeneratedTexts(userId: string): Promise<GeneratedText[]> {
+    const { db } = await import("./db");
+    const { generatedTexts } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    return await db.select().from(generatedTexts).where(eq(generatedTexts.userId, userId));
+  }
+
+  async createGeneratedText(text: InsertGeneratedText): Promise<GeneratedText> {
+    const { db } = await import("./db");
+    const { generatedTexts } = await import("@shared/schema");
+    
+    const [newText] = await db.insert(generatedTexts).values(text).returning();
+    return newText;
+  }
+
+  async getPdfDocuments(userId: string): Promise<PdfDocument[]> {
+    const { db } = await import("./db");
+    const { pdfDocuments } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    return await db.select().from(pdfDocuments).where(eq(pdfDocuments.userId, userId));
+  }
+
+  async createPdfDocument(document: InsertPdfDocument): Promise<PdfDocument> {
+    const { db } = await import("./db");
+    const { pdfDocuments } = await import("@shared/schema");
+    
+    const [newDoc] = await db.insert(pdfDocuments).values(document).returning();
+    return newDoc;
+  }
+
+  async getAssessmentQuestions(difficulty?: number): Promise<any[]> {
+    const { db } = await import("./db");
+    const { assessmentQuestions } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    if (difficulty) {
+      return await db.select().from(assessmentQuestions).where(eq(assessmentQuestions.difficulty, difficulty));
+    }
+    return await db.select().from(assessmentQuestions);
+  }
+
+  async saveAssessmentResult(result: any): Promise<any> {
+    const { db } = await import("./db");
+    const { assessmentResults } = await import("@shared/schema");
+    
+    const [newResult] = await db.insert(assessmentResults).values(result).returning();
+    return newResult;
+  }
+
+  async getAssessmentResult(userId: string): Promise<any | undefined> {
+    const { db } = await import("./db");
+    const { assessmentResults } = await import("@shared/schema");
+    const { eq, desc } = await import("drizzle-orm");
+    
+    const [result] = await db.select()
+      .from(assessmentResults)
+      .where(eq(assessmentResults.userId, userId))
+      .orderBy(desc(assessmentResults.completedAt))
+      .limit(1);
+    return result;
+  }
+
+  async createPracticeSession(session: any): Promise<any> {
+    const { db } = await import("./db");
+    const { practiceSessions } = await import("@shared/schema");
+    
+    const [newSession] = await db.insert(practiceSessions).values(session).returning();
+    return newSession;
+  }
+
+  async getPracticeSessions(userId: string): Promise<any[]> {
+    const { db } = await import("./db");
+    const { practiceSessions } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    return await db.select().from(practiceSessions).where(eq(practiceSessions.userId, userId));
+  }
+
+  async getAchievements(): Promise<any[]> {
+    const { db } = await import("./db");
+    const { achievements } = await import("@shared/schema");
+    
+    return await db.select().from(achievements);
+  }
+
+  async getUserAchievements(userId: string): Promise<any[]> {
+    const { db } = await import("./db");
+    const { userAchievements, achievements } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    return await db.select()
+      .from(userAchievements)
+      .innerJoin(achievements, eq(userAchievements.achievementId, achievements.id))
+      .where(eq(userAchievements.userId, userId));
+  }
+
+  async unlockAchievement(userId: string, achievementId: string): Promise<any> {
+    const { db } = await import("./db");
+    const { userAchievements } = await import("@shared/schema");
+    
+    const [newAchievement] = await db.insert(userAchievements)
+      .values({ userId, achievementId })
+      .returning();
+    return newAchievement;
+  }
+}
+
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
   private vocabularyWords: Map<string, VocabularyWord>;
@@ -243,4 +549,5 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Switch to DatabaseStorage for production
+export const storage: IStorageExtended = new DatabaseStorage();

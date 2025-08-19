@@ -2,7 +2,7 @@
 
 ## Overview
 
-MandarinMaster is a comprehensive Chinese language learning platform that provides interactive tools for studying Mandarin. The application offers text generation, AI-powered conversations, PDF document processing, and vocabulary management with spaced repetition learning. Built as a full-stack web application with a React frontend and Express backend, it integrates OpenAI's API for intelligent language features and uses PostgreSQL for data persistence.
+MandarinMaster is a comprehensive Chinese language learning platform that provides interactive tools for studying Mandarin. The application features a complete progress tracking system with user levels, XP points, streak tracking, and adaptive difficulty. Key features include text generation with click-to-translate, AI-powered conversations that adapt to user level, PDF document processing, vocabulary management with spaced repetition, initial assessment testing, and progressive practice sessions. Built as a full-stack web application with a React frontend and Express backend using PostgreSQL for complete data persistence.
 
 ## User Preferences
 
@@ -29,11 +29,16 @@ Preferred communication style: Simple, everyday language.
 - **ORM**: Drizzle ORM for type-safe database operations
 - **Database**: PostgreSQL with connection via Neon serverless
 - **Tables**:
-  - `users`: User authentication and profiles
+  - `users`: User authentication, profiles with level, XP, streak tracking, learning statistics
   - `vocabulary_words`: Spaced repetition vocabulary system with HSK levels
   - `conversations`: AI chat history with topic and difficulty tracking
   - `generated_texts`: Chinese text content with character segmentation
   - `pdf_documents`: Processed PDF content with text extraction
+  - `assessment_questions`: Question bank for level assessment tests
+  - `assessment_results`: User assessment history and recommended levels
+  - `practice_sessions`: Practice session tracking with XP and accuracy
+  - `achievements`: Gamification badges and rewards
+  - `user_achievements`: User's unlocked achievements
 
 ### Authentication & Session Management
 - Session-based authentication using PostgreSQL session store
@@ -44,8 +49,9 @@ Preferred communication style: Simple, everyday language.
 - **OpenAI API**: GPT-4o integration for text generation and translation
 - **Text Generation**: Topic-based Chinese content creation with difficulty levels
 - **Translation**: Character and phrase translation with pinyin support
-- **Conversation**: AI-powered Mandarin conversation practice
+- **Conversation**: AI-powered Mandarin conversation practice with adaptive difficulty based on user level
 - **Speech**: Browser-based text-to-speech and speech recognition APIs
+- **Progress Tracking**: XP system, level progression, streak tracking, achievement unlocking
 
 ## External Dependencies
 

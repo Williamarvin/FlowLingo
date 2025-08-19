@@ -1,0 +1,327 @@
+import { useState, useEffect } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Button } from "@/components/ui/button";
+
+export default function ProgressivePractice() {
+  const [currentLevel, setCurrentLevel] = useState(1);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [userAnswer, setUserAnswer] = useState("");
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(false);
+  const [sessionStats, setSessionStats] = useState({
+    questionsAnswered: 0,
+    correctAnswers: 0,
+    xpEarned: 0,
+    startTime: Date.now()
+  });
+
+  // Get user profile to determine level
+  const { data: userProfile } = useQuery({
+    queryKey: ["/api/user/profile"],
+  });
+
+  useEffect(() => {
+    if (userProfile?.level) {
+      setCurrentLevel(userProfile.level);
+    }
+  }, [userProfile]);
+
+  // Generate practice questions based on level
+  const generateQuestion = () => {
+    const questionTypes = ["vocabulary", "grammar", "pronunciation", "sentence"];
+    const type = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+    
+    // Level-based difficulty
+    const difficulties = {
+      1: ["你好", "谢谢", "再见", "早上好"],
+      2: ["学习", "朋友", "工作", "喜欢"],
+      3: ["电脑", "咖啡", "办公室", "周末"],
+      4: ["会议", "项目", "经理", "客户"],
+      5: ["发展", "经济", "文化", "社会"]
+    };
+
+    const words = difficulties[Math.min(currentLevel, 5)] || difficulties[1];
+    const word = words[Math.floor(Math.random() * words.length)];
+
+    const questions = {
+      vocabulary: {
+        question: `What does "${word}" mean in English?`,
+        answer: "friend", // This would be dynamic in production
+        type: "translation",
+        xp: 10 * currentLevel
+      },
+      grammar: {
+        question: `Complete the sentence: 我___${word}。`,
+        answer: "喜欢",
+        type: "fill-blank",
+        xp: 15 * currentLevel
+      },
+      pronunciation: {
+        question: `What is the correct pinyin for "${word}"?`,
+        answer: "péng yǒu",
+        type: "pinyin",
+        xp: 12 * currentLevel
+      },
+      sentence: {
+        question: `Create a sentence using "${word}"`,
+        answer: "open-ended",
+        type: "sentence",
+        xp: 20 * currentLevel
+      }
+    };
+
+    return questions[type];
+  };
+
+  const [currentPracticeQuestion, setCurrentPracticeQuestion] = useState(generateQuestion());
+
+  const submitAnswerMutation = useMutation({
+    mutationFn: async (correct: boolean) => {
+      const xpEarned = correct ? currentPracticeQuestion.xp : 5;
+      
+      // Update session stats
+      const newStats = {
+        ...sessionStats,
+        questionsAnswered: sessionStats.questionsAnswered + 1,
+        correctAnswers: sessionStats.correctAnswers + (correct ? 1 : 0),
+        xpEarned: sessionStats.xpEarned + xpEarned
+      };
+      setSessionStats(newStats);
+
+      // Save to database
+      await apiRequest("POST", "/api/practice/answer", {
+        userId: "demo-user",
+        questionType: currentPracticeQuestion.type,
+        level: currentLevel,
+        correct,
+        xpEarned
+      });
+
+      return { xpEarned, correct };
+    },
+    onSuccess: (data) => {
+      if (data.correct) {
+        // Check if user should level up
+        if (sessionStats.correctAnswers > 0 && sessionStats.correctAnswers % 10 === 0) {
+          setCurrentLevel(prev => Math.min(prev + 1, 10));
+        }
+      }
+      queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+    }
+  });
+
+  const handleSubmit = () => {
+    // Simple check - in production this would be more sophisticated
+    const correct = userAnswer.toLowerCase().includes("friend") || 
+                   userAnswer.includes("朋友") ||
+                   userAnswer.includes("péng yǒu");
+    
+    setIsCorrect(correct);
+    setShowFeedback(true);
+    submitAnswerMutation.mutate(correct);
+  };
+
+  const handleNext = () => {
+    setCurrentPracticeQuestion(generateQuestion());
+    setUserAnswer("");
+    setShowFeedback(false);
+    setCurrentQuestion(prev => prev + 1);
+  };
+
+  const accuracy = sessionStats.questionsAnswered > 0 
+    ? Math.round((sessionStats.correctAnswers / sessionStats.questionsAnswered) * 100)
+    : 0;
+
+  const getProgressMessage = () => {
+    if (accuracy >= 80) return "Excellent! You're mastering this level!";
+    if (accuracy >= 60) return "Good job! Keep practicing!";
+    if (accuracy >= 40) return "You're learning! Don't give up!";
+    return "Take your time, you'll get there!";
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mb-8">
+        <h2 className="text-3xl font-bold text-text-primary mb-4">Progressive Practice</h2>
+        <p className="text-text-secondary">
+          Practice adapts to your level and helps you improve step by step
+        </p>
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Practice Area */}
+        <div className="lg:col-span-2">
+          <div className="card-duo">
+            {/* Level Indicator */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <span className="text-sm text-text-secondary">Level</span>
+                <div className="flex space-x-1">
+                  {[...Array(10)].map((_, i) => (
+                    <div
+                      key={i}
+                      className={`w-8 h-2 rounded-full ${
+                        i < currentLevel 
+                          ? "bg-brand-primary" 
+                          : "bg-gray-200"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="font-bold text-brand-primary">{currentLevel}</span>
+              </div>
+              <span className="text-sm text-text-secondary">
+                Question #{sessionStats.questionsAnswered + 1}
+              </span>
+            </div>
+
+            {/* Question */}
+            <div className="bg-gradient-to-br from-brand-primary to-brand-primary-dark rounded-2xl p-8 text-white mb-6">
+              <div className="text-sm opacity-75 mb-2">
+                {currentPracticeQuestion.type.toUpperCase()} • {currentPracticeQuestion.xp} XP
+              </div>
+              <h3 className="text-2xl font-bold mb-6">
+                {currentPracticeQuestion.question}
+              </h3>
+              
+              {!showFeedback && (
+                <div className="bg-white bg-opacity-20 rounded-xl p-4">
+                  <input
+                    type="text"
+                    value={userAnswer}
+                    onChange={(e) => setUserAnswer(e.target.value)}
+                    placeholder="Type your answer..."
+                    className="w-full bg-transparent placeholder-white placeholder-opacity-75 text-white text-lg outline-none"
+                    onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
+                  />
+                </div>
+              )}
+
+              {showFeedback && (
+                <div className={`rounded-xl p-4 ${
+                  isCorrect ? "bg-green-500 bg-opacity-30" : "bg-red-500 bg-opacity-30"
+                }`}>
+                  <div className="flex items-center mb-2">
+                    <i className={`fas ${isCorrect ? "fa-check-circle" : "fa-times-circle"} text-2xl mr-3`}></i>
+                    <span className="text-xl font-semibold">
+                      {isCorrect ? "Correct!" : "Not quite right"}
+                    </span>
+                  </div>
+                  {!isCorrect && (
+                    <p className="text-sm opacity-90">
+                      Example answer: "friend" or "péng yǒu"
+                    </p>
+                  )}
+                  <p className="text-sm mt-2 opacity-90">
+                    +{isCorrect ? currentPracticeQuestion.xp : 5} XP earned
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-between">
+              {!showFeedback ? (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPracticeQuestion(generateQuestion())}
+                  >
+                    <i className="fas fa-random mr-2"></i>
+                    Skip
+                  </Button>
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={!userAnswer.trim()}
+                    className="btn-primary"
+                  >
+                    Submit Answer
+                    <i className="fas fa-arrow-right ml-2"></i>
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  onClick={handleNext}
+                  className="btn-primary w-full"
+                >
+                  Next Question
+                  <i className="fas fa-arrow-right ml-2"></i>
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Panel */}
+        <div className="lg:col-span-1">
+          <div className="card-duo mb-6">
+            <h3 className="text-xl font-bold text-text-primary mb-6">Session Stats</h3>
+            
+            <div className="space-y-4">
+              <div className="text-center p-4 bg-brand-primary bg-opacity-10 rounded-xl">
+                <div className="text-3xl font-bold text-brand-primary mb-1">
+                  {sessionStats.xpEarned}
+                </div>
+                <div className="text-sm text-text-secondary">XP Earned</div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-500">
+                    {sessionStats.correctAnswers}
+                  </div>
+                  <div className="text-xs text-text-secondary">Correct</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-text-primary">
+                    {sessionStats.questionsAnswered}
+                  </div>
+                  <div className="text-xs text-text-secondary">Total</div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-text-secondary">Accuracy</span>
+                  <span className="font-semibold text-brand-primary">{accuracy}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-gradient-to-r from-brand-primary to-brand-secondary h-2 rounded-full transition-all"
+                    style={{ width: `${accuracy}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <p className="text-sm text-text-secondary text-center">
+                  {getProgressMessage()}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Tips */}
+          <div className="card-duo">
+            <h3 className="text-lg font-bold text-text-primary mb-4">Tips</h3>
+            <ul className="space-y-2 text-sm text-text-secondary">
+              <li className="flex items-start">
+                <i className="fas fa-lightbulb text-brand-secondary mr-2 mt-1"></i>
+                <span>Questions get harder as you level up</span>
+              </li>
+              <li className="flex items-start">
+                <i className="fas fa-trophy text-brand-secondary mr-2 mt-1"></i>
+                <span>Maintain 80% accuracy to level up faster</span>
+              </li>
+              <li className="flex items-start">
+                <i className="fas fa-brain text-brand-secondary mr-2 mt-1"></i>
+                <span>Take breaks to retain information better</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

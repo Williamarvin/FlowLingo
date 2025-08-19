@@ -175,7 +175,17 @@ Return only the Chinese text without any additional formatting or explanations.`
 
       const messages = Array.isArray(conversation.messages) ? conversation.messages : [];
       
-      const systemPrompt = `You are Xiao Li (小李), a friendly and enthusiastic Chinese language tutor. Respond in comprehensive Chinese at ${difficulty} level (HSK 1-2 for beginner, 3-4 for intermediate, 5-6 for advanced).
+      // Get user level to adjust difficulty
+      const user = await storage.getUser(DEMO_USER_ID);
+      const userLevel = user?.level || 1;
+      
+      // Adjust difficulty based on user level
+      let adjustedDifficulty = difficulty;
+      if (userLevel <= 3) adjustedDifficulty = "beginner";
+      else if (userLevel <= 6) adjustedDifficulty = "intermediate";
+      else adjustedDifficulty = "advanced";
+      
+      const systemPrompt = `You are Xiao Li (小李), a friendly and enthusiastic Chinese language tutor. Respond in comprehensive Chinese at ${adjustedDifficulty} level (HSK 1-2 for beginner, 3-4 for intermediate, 5-6 for advanced). The user is at level ${userLevel}.
 
 Guidelines:
 - Use rich, varied vocabulary appropriate for the ${difficulty} level
@@ -334,6 +344,83 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     } catch (error) {
       console.error("Get PDF documents error:", error);
       res.status(500).json({ error: "Failed to get PDF documents" });
+    }
+  });
+
+  // User profile endpoints
+  app.get("/api/user/profile", async (req, res) => {
+    try {
+      const userId = DEMO_USER_ID;
+      let user = await storage.getUser(userId);
+      
+      if (!user) {
+        // Create default user if doesn't exist
+        user = await storage.createUser({
+          username: "demo",
+          password: "demo"
+        });
+      }
+      
+      // Update streak if needed
+      user = await storage.updateUserStreak(userId) || user;
+      
+      res.json(user);
+    } catch (error) {
+      console.error("Error getting user profile:", error);
+      res.status(500).json({ error: "Failed to get user profile" });
+    }
+  });
+  
+  // Assessment endpoints
+  app.post("/api/assessment/complete", async (req, res) => {
+    try {
+      const { userId, score, totalQuestions, correctAnswers, recommendedLevel, strengths, weaknesses } = req.body;
+      
+      // Save assessment result
+      const result = await storage.saveAssessmentResult({
+        userId,
+        score,
+        totalQuestions,
+        correctAnswers,
+        recommendedLevel,
+        strengths,
+        weaknesses
+      });
+      
+      // Update user profile with assessment results
+      await storage.updateUserProgress(userId, {
+        assessmentCompleted: true,
+        initialLevel: recommendedLevel,
+        level: recommendedLevel
+      });
+      
+      res.json(result);
+    } catch (error) {
+      console.error("Error saving assessment:", error);
+      res.status(500).json({ error: "Failed to save assessment" });
+    }
+  });
+  
+  // Practice endpoints
+  app.post("/api/practice/answer", async (req, res) => {
+    try {
+      const { userId, questionType, level, correct, xpEarned } = req.body;
+      
+      // Add XP to user
+      await storage.addXpToUser(userId, xpEarned);
+      
+      // Update statistics
+      const user = await storage.getUser(userId);
+      if (user) {
+        await storage.updateUserProgress(userId, {
+          lessonsCompleted: user.lessonsCompleted + 1
+        });
+      }
+      
+      res.json({ success: true, xpEarned });
+    } catch (error) {
+      console.error("Error recording practice answer:", error);
+      res.status(500).json({ error: "Failed to record answer" });
     }
   });
 

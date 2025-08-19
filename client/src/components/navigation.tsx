@@ -8,6 +8,8 @@ export default function Navigation() {
 
   const navItems = [
     { href: "/", label: "Home", icon: "fas fa-home" },
+    { href: "/assessment", label: "Assessment", icon: "fas fa-clipboard-check" },
+    { href: "/practice", label: "Practice", icon: "fas fa-graduation-cap" },
     { href: "/text-generator", label: "Text Practice", icon: "fas fa-highlighter" },
     { href: "/ai-conversation", label: "AI Chat", icon: "fas fa-robot" },
     { href: "/pdf-converter", label: "PDF Reader", icon: "fas fa-file-pdf" },

@@ -9,6 +9,8 @@ import TextGenerator from "@/pages/text-generator";
 import AiConversation from "@/pages/ai-conversation";
 import PdfConverter from "@/pages/pdf-converter";
 import Vocabulary from "@/pages/vocabulary";
+import Assessment from "@/pages/assessment";
+import ProgressivePractice from "@/pages/progressive-practice";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -19,6 +21,8 @@ function Router() {
       <Route path="/ai-conversation" component={AiConversation} />
       <Route path="/pdf-converter" component={PdfConverter} />
       <Route path="/vocabulary" component={Vocabulary} />
+      <Route path="/assessment" component={Assessment} />
+      <Route path="/practice" component={ProgressivePractice} />
       <Route component={NotFound} />
     </Switch>
   );

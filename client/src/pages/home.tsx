@@ -1,6 +1,22 @@
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 export default function Home() {
+  const [greeting, setGreeting] = useState("");
+  
+  // Get user profile data
+  const { data: userProfile } = useQuery({
+    queryKey: ["/api/user/profile"],
+  });
+
+  useEffect(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) setGreeting("Good morning");
+    else if (hour < 18) setGreeting("Good afternoon");
+    else setGreeting("Good evening");
+  }, []);
+
   const features = [
     {
       href: "/text-generator",
@@ -45,6 +61,64 @@ export default function Home() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* User Progress Header */}
+      {userProfile && (
+        <div className="bg-gradient-to-br from-brand-primary to-brand-primary-dark rounded-3xl shadow-xl p-6 mb-8 text-white">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="mb-4 md:mb-0">
+              <h2 className="text-2xl font-bold mb-2">{greeting}!</h2>
+              <div className="flex items-center space-x-6">
+                <div className="flex items-center">
+                  <span className="text-3xl mr-2">🔥</span>
+                  <div>
+                    <div className="text-2xl font-bold">{userProfile.streakDays || 0}</div>
+                    <div className="text-xs opacity-75">day streak</div>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-3xl mr-2">⭐</span>
+                  <div>
+                    <div className="text-2xl font-bold">Level {userProfile.level || 1}</div>
+                    <div className="text-xs opacity-75">{userProfile.xp || 0} XP</div>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-3xl mr-2">📚</span>
+                  <div>
+                    <div className="text-2xl font-bold">{userProfile.wordsLearned || 0}</div>
+                    <div className="text-xs opacity-75">words learned</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex flex-col items-end">
+              <div className="mb-2 text-sm opacity-90">XP Progress</div>
+              <div className="w-48 bg-white bg-opacity-20 rounded-full h-3 mb-1">
+                <div 
+                  className="bg-brand-secondary h-3 rounded-full transition-all duration-500"
+                  style={{ width: `${Math.min(((userProfile.xp || 0) / (userProfile.xpToNextLevel || 100)) * 100, 100)}%` }}
+                />
+              </div>
+              <div className="text-xs opacity-75">
+                {userProfile.xp || 0} / {userProfile.xpToNextLevel || 100} XP to Level {(userProfile.level || 1) + 1}
+              </div>
+            </div>
+          </div>
+          
+          {!userProfile.assessmentCompleted && (
+            <div className="mt-4 p-3 bg-white bg-opacity-20 rounded-xl">
+              <p className="text-sm mb-2">🎯 Take the assessment test to determine your starting level!</p>
+              <Link href="/assessment">
+                <button className="btn-secondary text-sm px-4 py-2">
+                  Start Assessment
+                </button>
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Hero Section - Duolingo Inspired */}
       <div className="text-center mb-20">
         <div className="mb-12 relative">
