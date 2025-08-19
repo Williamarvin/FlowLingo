@@ -13,11 +13,13 @@ export default function ProgressivePractice() {
     questionsAnswered: 0,
     correctAnswers: 0,
     xpEarned: 0,
-    startTime: Date.now()
+    startTime: Date.now(),
+    consecutiveCorrect: 0,
+    levelSkipped: false
   });
 
   // Get user profile to determine level
-  const { data: userProfile } = useQuery({
+  const { data: userProfile } = useQuery<any>({
     queryKey: ["/api/user/profile"],
   });
 
@@ -33,7 +35,7 @@ export default function ProgressivePractice() {
     const type = questionTypes[Math.floor(Math.random() * questionTypes.length)];
     
     // Level-based difficulty
-    const difficulties = {
+    const difficulties: Record<number, string[]> = {
       1: ["你好", "谢谢", "再见", "早上好"],
       2: ["学习", "朋友", "工作", "喜欢"],
       3: ["电脑", "咖啡", "办公室", "周末"],
@@ -44,7 +46,7 @@ export default function ProgressivePractice() {
     const words = difficulties[Math.min(currentLevel, 5)] || difficulties[1];
     const word = words[Math.floor(Math.random() * words.length)];
 
-    const questions = {
+    const questions: Record<string, any> = {
       vocabulary: {
         question: `What does "${word}" mean in English?`,
         answer: "friend", // This would be dynamic in production
@@ -100,13 +102,41 @@ export default function ProgressivePractice() {
 
       return { xpEarned, correct };
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       if (data.correct) {
-        // Check if user should level up
-        if (sessionStats.correctAnswers > 0 && sessionStats.correctAnswers % 10 === 0) {
-          setCurrentLevel(prev => Math.min(prev + 1, 10));
+        const newConsecutive = sessionStats.consecutiveCorrect + 1;
+        
+        // Auto-skip level if user demonstrates mastery
+        // Skip after 5 consecutive correct answers with 100% accuracy in current session
+        if (newConsecutive >= 5 && sessionStats.correctAnswers >= 5) {
+          const accuracy = ((sessionStats.correctAnswers + 1) / (sessionStats.questionsAnswered + 1)) * 100;
+          
+          if (accuracy >= 90 && currentLevel < 10) {
+            // Skip to next level
+            const newLevel = Math.min(currentLevel + 1, 10);
+            setCurrentLevel(newLevel);
+            
+            // Update user level in database
+            await apiRequest("POST", "/api/user/level-up", {
+              userId: "demo-user",
+              newLevel,
+              reason: "performance"
+            });
+            
+            // Show level skip notification
+            setSessionStats(prev => ({ ...prev, levelSkipped: true }));
+            
+            // Reset consecutive counter
+            setSessionStats(prev => ({ ...prev, consecutiveCorrect: 0 }));
+          }
+        } else {
+          setSessionStats(prev => ({ ...prev, consecutiveCorrect: newConsecutive }));
         }
+      } else {
+        // Reset consecutive on wrong answer
+        setSessionStats(prev => ({ ...prev, consecutiveCorrect: 0 }));
       }
+      
       queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
     }
   });
@@ -134,6 +164,15 @@ export default function ProgressivePractice() {
     : 0;
 
   const getProgressMessage = () => {
+    // Check for level skip eligibility
+    if (sessionStats.consecutiveCorrect >= 3 && accuracy >= 90) {
+      return `🚀 Amazing! ${5 - sessionStats.consecutiveCorrect} more correct answers to skip to Level ${currentLevel + 1}!`;
+    }
+    
+    if (sessionStats.levelSkipped) {
+      return `🎉 Level skipped! You've advanced to Level ${currentLevel}!`;
+    }
+    
     if (accuracy >= 80) return "Excellent! You're mastering this level!";
     if (accuracy >= 60) return "Good job! Keep practicing!";
     if (accuracy >= 40) return "You're learning! Don't give up!";
@@ -259,6 +298,21 @@ export default function ProgressivePractice() {
             <h3 className="text-xl font-bold text-gray-900 mb-6">Session Stats</h3>
             
             <div className="space-y-4">
+              {sessionStats.levelSkipped && (
+                <div className="p-4 bg-gradient-to-r from-brand-secondary to-brand-secondary-light rounded-xl text-white text-center animate-fade-in">
+                  <div className="text-xl font-bold mb-2">🎉 Level Skipped!</div>
+                  <div className="text-sm">Outstanding performance! Advanced to Level {currentLevel}</div>
+                </div>
+              )}
+              
+              {sessionStats.consecutiveCorrect >= 3 && (
+                <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-center">
+                  <div className="text-sm font-medium text-green-800">
+                    🔥 {sessionStats.consecutiveCorrect} correct in a row!
+                  </div>
+                </div>
+              )}
+              
               <div className="text-center p-4 bg-brand-primary bg-opacity-10 rounded-xl">
                 <div className="text-3xl font-bold text-brand-primary mb-1">
                   {sessionStats.xpEarned}

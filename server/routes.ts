@@ -393,10 +393,14 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       });
       
       // Update user profile with assessment results
+      // Only update level if it's higher than current level or if never assessed
+      const currentUser = await storage.getUser(userId);
+      const shouldUpdateLevel = !currentUser?.assessmentCompleted || recommendedLevel > (currentUser?.level || 1);
+      
       await storage.updateUserProgress(userId, {
         assessmentCompleted: true,
         initialLevel: recommendedLevel,
-        level: recommendedLevel
+        level: shouldUpdateLevel ? recommendedLevel : currentUser?.level || recommendedLevel
       });
       
       res.json(result);
@@ -407,6 +411,23 @@ Create substantially more comprehensive responses with extensive vocabulary prac
   });
   
   // Practice endpoints
+  // Level up endpoint for auto-advancement
+  app.post("/api/user/level-up", async (req, res) => {
+    try {
+      const { userId, newLevel, reason } = req.body;
+      
+      // Update user level
+      await storage.updateUserProgress(userId, {
+        level: newLevel
+      });
+      
+      res.json({ success: true, newLevel, reason });
+    } catch (error) {
+      console.error("Level up error:", error);
+      res.status(500).json({ error: "Failed to update level" });
+    }
+  });
+
   app.post("/api/practice/answer", async (req, res) => {
     try {
       const { userId, questionType, level, correct, xpEarned } = req.body;
