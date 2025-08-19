@@ -45,11 +45,38 @@ export default function TextGenerator() {
   };
 
   const handleSpeak = () => {
-    if (generatedText && 'speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(generatedText.content);
-      utterance.lang = 'zh-CN';
-      speechSynthesis.speak(utterance);
+    if (!generatedText) return;
+    
+    if (!('speechSynthesis' in window)) {
+      alert('Speech synthesis is not supported in your browser. Please try using Chrome or Edge.');
+      return;
     }
+
+    // Cancel any ongoing speech
+    speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(generatedText.content);
+    
+    // Try to find a Chinese voice
+    const voices = speechSynthesis.getVoices();
+    const chineseVoice = voices.find(voice => 
+      voice.lang.includes('zh') || voice.lang.includes('cmn')
+    );
+    
+    if (chineseVoice) {
+      utterance.voice = chineseVoice;
+    }
+    
+    utterance.lang = 'zh-CN';
+    utterance.rate = 0.8;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+
+    utterance.onerror = (event) => {
+      console.error('Speech synthesis error:', event);
+    };
+
+    speechSynthesis.speak(utterance);
   };
 
   return (
