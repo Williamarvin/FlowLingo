@@ -52,7 +52,7 @@ export default function Home() {
           <div className="relative w-80 h-64 mx-auto mb-8">
             <div className="absolute inset-0 bg-gradient-to-br from-brand-primary to-brand-primary-light rounded-full opacity-10 floating-element"></div>
             <div className="relative z-10 flex items-center justify-center h-full">
-              <div className="text-8xl floating-element">🐉</div>
+              <div className="text-8xl floating-element">📚</div>
             </div>
             {/* Floating elements around mascot */}
             <div className="absolute -top-4 -right-4 w-12 h-12 bg-brand-secondary rounded-full flex items-center justify-center floating-element text-2xl">
