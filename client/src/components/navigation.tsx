@@ -1,8 +1,10 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 export default function Navigation() {
   const [location] = useLocation();
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   const navItems = [
     { href: "/", label: "Home", icon: "fas fa-home" },
@@ -13,7 +15,16 @@ export default function Navigation() {
   ];
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+    <>
+      {/* Overlay to close dropdown when clicking outside */}
+      {showUserMenu && (
+        <div 
+          className="fixed inset-0 z-40" 
+          onClick={() => setShowUserMenu(false)}
+        ></div>
+      )}
+      
+      <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <Link href="/" className="flex items-center space-x-3">
@@ -39,9 +50,38 @@ export default function Navigation() {
           </div>
           
           <div className="flex items-center space-x-3">
-            <button className="w-10 h-10 rounded-xl bg-brand-blue hover:bg-brand-blue-dark text-white transition-colors flex items-center justify-center shadow-md">
-              <i className="fas fa-user text-lg"></i>
-            </button>
+            {/* User Profile Dropdown */}
+            <div className="relative">
+              <button 
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="w-10 h-10 rounded-xl bg-brand-blue hover:bg-brand-blue-dark text-white transition-colors flex items-center justify-center shadow-md"
+              >
+                <i className="fas fa-user text-lg"></i>
+              </button>
+              
+              {showUserMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
+                  <div className="px-4 py-2 border-b border-gray-100">
+                    <p className="text-sm font-medium text-text-primary">Demo User</p>
+                    <p className="text-xs text-text-secondary">demo@mandarinmaster.com</p>
+                  </div>
+                  <button className="w-full text-left px-4 py-2 text-sm text-text-secondary hover:bg-gray-50 hover:text-text-primary transition-colors">
+                    <i className="fas fa-cog mr-2"></i>Settings
+                  </button>
+                  <button className="w-full text-left px-4 py-2 text-sm text-text-secondary hover:bg-gray-50 hover:text-text-primary transition-colors">
+                    <i className="fas fa-chart-bar mr-2"></i>Progress
+                  </button>
+                  <button className="w-full text-left px-4 py-2 text-sm text-text-secondary hover:bg-gray-50 hover:text-text-primary transition-colors">
+                    <i className="fas fa-heart mr-2"></i>Favorites
+                  </button>
+                  <hr className="my-1" />
+                  <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                    <i className="fas fa-sign-out-alt mr-2"></i>Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
+            
             <button className="md:hidden w-10 h-10 rounded-xl bg-gray-200 hover:bg-gray-300 text-text-primary border border-gray-300 transition-colors flex items-center justify-center">
               <i className="fas fa-bars text-lg"></i>
             </button>
@@ -49,5 +89,6 @@ export default function Navigation() {
         </div>
       </div>
     </nav>
+    </>
   );
 }
