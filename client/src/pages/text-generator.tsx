@@ -102,9 +102,10 @@ export default function TextGenerator() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Short (50-100 characters)">Short (50-100 characters)</SelectItem>
-                    <SelectItem value="Medium (100-200 characters)">Medium (100-200 characters)</SelectItem>
-                    <SelectItem value="Long (200-300 characters)">Long (200-300 characters)</SelectItem>
+                    <SelectItem value="Short (300-400 characters)">Short (300-400 characters)</SelectItem>
+                    <SelectItem value="Medium (500-700 characters)">Medium (500-700 characters)</SelectItem>
+                    <SelectItem value="Long (800-1200 characters)">Long (800-1200 characters)</SelectItem>
+                    <SelectItem value="Extra Long (1500-2000 characters)">Extra Long (1500-2000 characters)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -15,12 +15,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { topic, difficulty, length } = req.body;
       
-      const prompt = `Generate Chinese text about "${topic}" at ${difficulty} level (HSK 1-2 for beginner, 3-4 for intermediate, 5-6 for advanced) with approximately ${length} characters. Make it conversational and practical. Return only the Chinese text without any additional formatting.`;
+      const prompt = `Generate comprehensive, engaging Chinese text about "${topic}" at ${difficulty} level (HSK 1-2 for beginner, 3-4 for intermediate, 5-6 for advanced) with approximately ${length} characters. 
+
+Requirements:
+- Create rich, varied content with diverse vocabulary and sentence structures
+- Include practical expressions, idioms, and colloquialisms used by native speakers
+- Incorporate multiple grammatical patterns, tenses, and complex sentence structures
+- Mix narrative, dialogue, and descriptive elements for engaging content
+- Add cultural references, specific details (numbers, dates, places, names)
+- Use advanced vocabulary appropriate for the difficulty level
+- Include question forms, exclamations, and varied punctuation
+- Make content contextually rich and educationally valuable
+- Ensure natural flow and authentic Chinese expression patterns
+
+Generate substantially more content than typical - create comprehensive, detailed text that provides extensive learning material.
+
+Return only the Chinese text without any additional formatting or explanations.`;
 
       const response = await openai.chat.completions.create({
         model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 500,
+        max_tokens: 800,
       });
 
       const content = response.choices[0].message.content || "";
@@ -91,7 +106,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const messages = Array.isArray(conversation.messages) ? conversation.messages : [];
       
-      const systemPrompt = `You are Xiao Li (小李), a friendly Chinese language tutor. Respond in Chinese at ${difficulty} level. Keep responses conversational and helpful. Always provide pinyin and English translation for your responses.`;
+      const systemPrompt = `You are Xiao Li (小李), a friendly and enthusiastic Chinese language tutor. Respond in comprehensive Chinese at ${difficulty} level (HSK 1-2 for beginner, 3-4 for intermediate, 5-6 for advanced).
+
+Guidelines:
+- Use rich, varied vocabulary appropriate for the ${difficulty} level
+- Incorporate diverse sentence structures, idioms, and natural expressions  
+- Include cultural context and practical, real-world phrases
+- Ask engaging follow-up questions to encourage conversation
+- Use descriptive language and varied grammatical patterns
+- Make responses longer and more detailed than typical chatbot responses
+- Include emotional expressions and conversational fillers for authenticity
+- Provide educational value while maintaining natural conversation flow
+
+Topic focus: ${topic || "Free Conversation"}
+Create substantially more comprehensive responses with extensive vocabulary practice.`;
 
       const chatMessages = [
         { role: "system", content: systemPrompt },
@@ -102,7 +130,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const response = await openai.chat.completions.create({
         model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
         messages: chatMessages,
-        max_tokens: 200,
+        max_tokens: 400,
       });
 
       const aiResponse = response.choices[0].message.content || "";
