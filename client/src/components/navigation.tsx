@@ -39,10 +39,10 @@ export default function Navigation() {
           </div>
           
           <div className="flex items-center space-x-3">
-            <button className="w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 text-text-secondary hover:text-brand-blue transition-colors flex items-center justify-center">
+            <button className="w-10 h-10 rounded-xl bg-brand-blue hover:bg-brand-blue-dark text-white transition-colors flex items-center justify-center shadow-md">
               <i className="fas fa-user text-lg"></i>
             </button>
-            <button className="md:hidden w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 text-text-secondary transition-colors flex items-center justify-center">
+            <button className="md:hidden w-10 h-10 rounded-xl bg-gray-200 hover:bg-gray-300 text-text-primary border border-gray-300 transition-colors flex items-center justify-center">
               <i className="fas fa-bars text-lg"></i>
             </button>
           </div>
