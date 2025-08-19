@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { speakChinese } from "@/services/openai";
 import TranslationPopup from "./translation-popup";
 
 interface HighlightableTextProps {
@@ -12,6 +13,8 @@ export default function HighlightableText({ text, onSaveWord }: HighlightableTex
   const [selectedText, setSelectedText] = useState<string>("");
   const [showPopup, setShowPopup] = useState(false);
   const [translation, setTranslation] = useState<any>(null);
+  const [isReadingAll, setIsReadingAll] = useState(false);
+  const [currentReadingIndex, setCurrentReadingIndex] = useState(-1);
 
   const translateMutation = useMutation({
     mutationFn: async (text: string) => {
@@ -95,13 +98,111 @@ export default function HighlightableText({ text, onSaveWord }: HighlightableTex
     });
   };
 
+  const readAllText = () => {
+    if (isReadingAll) {
+      // Stop reading
+      speechSynthesis.cancel();
+      setIsReadingAll(false);
+      setCurrentReadingIndex(-1);
+      return;
+    }
+
+    const segments = segmentTextForTranslation(text).filter(segment => 
+      segment.trim() && !/[。！？，、；：""''（）《》【】\s]/.test(segment)
+    );
+    
+    if (segments.length === 0) return;
+
+    setIsReadingAll(true);
+    setCurrentReadingIndex(0);
+
+    const readSegment = (index: number) => {
+      if (index >= segments.length) {
+        setIsReadingAll(false);
+        setCurrentReadingIndex(-1);
+        return;
+      }
+
+      setCurrentReadingIndex(index);
+      const segment = segments[index];
+
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(segment);
+        utterance.lang = 'zh-CN';
+        utterance.rate = 0.7;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+
+        utterance.onend = () => {
+          setTimeout(() => readSegment(index + 1), 500); // 500ms pause between words
+        };
+
+        utterance.onerror = () => {
+          setIsReadingAll(false);
+          setCurrentReadingIndex(-1);
+        };
+
+        speechSynthesis.speak(utterance);
+      }
+    };
+
+    readSegment(0);
+  };
+
+  const renderHighlightableTextWithReading = () => {
+    const segments = segmentTextForTranslation(text);
+    let segmentIndex = 0;
+    
+    return segments.map((segment, index) => {
+      if (segment.trim() === '') return segment; // Preserve whitespace
+      
+      const isPunctuation = /[。！？，、；：""''（）《》【】\s]/.test(segment);
+      const isCurrentlyReading = !isPunctuation && isReadingAll && segmentIndex === currentReadingIndex;
+      
+      if (!isPunctuation) segmentIndex++;
+      
+      return (
+        <span
+          key={index}
+          className={`highlightable cursor-pointer transition-all duration-200 px-1 rounded ${
+            isCurrentlyReading 
+              ? 'bg-brand-blue text-white shadow-md scale-105' 
+              : 'hover:bg-brand-blue hover:bg-opacity-10'
+          }`}
+          onClick={() => {
+            if (!isPunctuation) {
+              setSelectedText(segment);
+              translateMutation.mutate(segment);
+            }
+          }}
+        >
+          {segment}
+        </span>
+      );
+    });
+  };
+
   return (
     <>
+      <div className="mb-4">
+        <button
+          onClick={readAllText}
+          className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-md hover:shadow-lg flex items-center space-x-2 ${
+            isReadingAll
+              ? 'bg-red-500 hover:bg-red-600 text-white'
+              : 'bg-gradient-to-r from-brand-blue to-brand-blue-light hover:from-brand-blue-dark hover:to-brand-blue text-white'
+          }`}
+        >
+          <i className={`fas ${isReadingAll ? 'fa-stop' : 'fa-volume-up'} text-lg`}></i>
+          <span>{isReadingAll ? 'Stop Reading' : 'Read All Chinese'}</span>
+        </button>
+      </div>
+      
       <div 
         className="text-xl leading-relaxed text-text-primary select-text"
         onMouseUp={handleTextSelection}
       >
-        {renderHighlightableText()}
+        {renderHighlightableTextWithReading()}
       </div>
       
       <TranslationPopup
