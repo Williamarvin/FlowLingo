@@ -67,11 +67,11 @@
   --surface-3: hsl(220 15% 95%);
   --surface-4: hsl(220 10% 92%);
   
-  /* Text Colors */
-  --text-primary: hsl(220 30% 15%);
-  --text-secondary: hsl(220 15% 40%);
-  --text-muted: hsl(220 10% 55%);
-  --text-light: hsl(220 5% 70%);
+  /* Text Colors - High Contrast */
+  --text-primary: hsl(220 35% 12%);
+  --text-secondary: hsl(220 25% 30%);
+  --text-muted: hsl(220 15% 45%);
+  --text-light: hsl(220 10% 60%);
   
   /* Gradient backgrounds */
   --gradient-primary: linear-gradient(135deg, hsl(215 100% 50%) 0%, hsl(215 100% 60%) 100%);

@@ -354,11 +354,16 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       let user = await storage.getUser(userId);
       
       if (!user) {
-        // Create default user if doesn't exist
-        user = await storage.createUser({
-          username: "demo",
-          password: "demo"
-        });
+        // Check if user exists by username first
+        user = await storage.getUserByUsername("demo");
+        
+        if (!user) {
+          // Create default user if doesn't exist
+          user = await storage.createUser({
+            username: "demo",
+            password: "demo"
+          });
+        }
       }
       
       // Update streak if needed

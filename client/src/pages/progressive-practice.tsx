@@ -143,8 +143,8 @@ export default function ProgressivePractice() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-text-primary mb-4">Progressive Practice</h2>
-        <p className="text-text-secondary">
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">Progressive Practice</h2>
+        <p className="text-gray-700">
           Practice adapts to your level and helps you improve step by step
         </p>
       </div>
@@ -156,7 +156,7 @@ export default function ProgressivePractice() {
             {/* Level Indicator */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
-                <span className="text-sm text-text-secondary">Level</span>
+                <span className="text-sm font-semibold text-gray-700">Level</span>
                 <div className="flex space-x-1">
                   {[...Array(10)].map((_, i) => (
                     <div
@@ -169,9 +169,9 @@ export default function ProgressivePractice() {
                     />
                   ))}
                 </div>
-                <span className="font-bold text-brand-primary">{currentLevel}</span>
+                <span className="font-bold text-brand-primary text-lg">{currentLevel}</span>
               </div>
-              <span className="text-sm text-text-secondary">
+              <span className="text-sm font-medium text-gray-700">
                 Question #{sessionStats.questionsAnswered + 1}
               </span>
             </div>
@@ -256,35 +256,35 @@ export default function ProgressivePractice() {
         {/* Stats Panel */}
         <div className="lg:col-span-1">
           <div className="card-duo mb-6">
-            <h3 className="text-xl font-bold text-text-primary mb-6">Session Stats</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-6">Session Stats</h3>
             
             <div className="space-y-4">
               <div className="text-center p-4 bg-brand-primary bg-opacity-10 rounded-xl">
                 <div className="text-3xl font-bold text-brand-primary mb-1">
                   {sessionStats.xpEarned}
                 </div>
-                <div className="text-sm text-text-secondary">XP Earned</div>
+                <div className="text-sm font-medium text-gray-700">XP Earned</div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-500">
+                  <div className="text-2xl font-bold text-green-600">
                     {sessionStats.correctAnswers}
                   </div>
-                  <div className="text-xs text-text-secondary">Correct</div>
+                  <div className="text-xs font-medium text-gray-700">Correct</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-text-primary">
+                  <div className="text-2xl font-bold text-gray-900">
                     {sessionStats.questionsAnswered}
                   </div>
-                  <div className="text-xs text-text-secondary">Total</div>
+                  <div className="text-xs font-medium text-gray-700">Total</div>
                 </div>
               </div>
 
               <div>
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="text-text-secondary">Accuracy</span>
-                  <span className="font-semibold text-brand-primary">{accuracy}%</span>
+                  <span className="font-medium text-gray-700">Accuracy</span>
+                  <span className="font-bold text-brand-primary">{accuracy}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div 
@@ -294,8 +294,8 @@ export default function ProgressivePractice() {
                 </div>
               </div>
 
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <p className="text-sm text-text-secondary text-center">
+              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-sm font-medium text-gray-800 text-center">
                   {getProgressMessage()}
                 </p>
               </div>
@@ -304,8 +304,8 @@ export default function ProgressivePractice() {
 
           {/* Tips */}
           <div className="card-duo">
-            <h3 className="text-lg font-bold text-text-primary mb-4">Tips</h3>
-            <ul className="space-y-2 text-sm text-text-secondary">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Tips</h3>
+            <ul className="space-y-2 text-sm text-gray-700">
               <li className="flex items-start">
                 <i className="fas fa-lightbulb text-brand-secondary mr-2 mt-1"></i>
                 <span>Questions get harder as you level up</span>

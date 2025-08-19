@@ -187,8 +187,8 @@ export default function Assessment() {
             <div className="w-32 h-32 bg-gradient-to-br from-brand-primary to-brand-primary-light rounded-full flex items-center justify-center mx-auto mb-6">
               <span className="text-5xl text-white font-bold">{Math.round(percentage)}%</span>
             </div>
-            <h2 className="text-3xl font-bold text-text-primary mb-4">Assessment Complete!</h2>
-            <p className="text-xl text-text-secondary mb-2">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Assessment Complete!</h2>
+            <p className="text-xl font-medium text-gray-700 mb-2">
               You got {result.correctAnswers} out of {result.totalQuestions} questions correct
             </p>
             <p className="text-lg text-brand-primary font-semibold">
@@ -256,15 +256,15 @@ export default function Assessment() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-text-primary mb-4">Chinese Level Assessment</h2>
-        <p className="text-text-secondary">
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">Chinese Level Assessment</h2>
+        <p className="text-gray-700 font-medium">
           Answer these questions to determine your current Chinese proficiency level
         </p>
       </div>
 
       {/* Progress Bar */}
       <div className="mb-8">
-        <div className="flex justify-between text-sm text-text-secondary mb-2">
+        <div className="flex justify-between text-sm font-semibold text-gray-700 mb-2">
           <span>Question {currentQuestion + 1} of {assessmentQuestions.length}</span>
           <span>{Math.round(progress)}% Complete</span>
         </div>
@@ -283,11 +283,11 @@ export default function Assessment() {
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-brand-primary text-white">
               {question.questionType.charAt(0).toUpperCase() + question.questionType.slice(1)}
             </span>
-            <span className="text-sm text-text-secondary">
+            <span className="text-sm font-medium text-gray-700">
               {question.points} points
             </span>
           </div>
-          <h3 className="text-2xl font-bold text-text-primary mb-6">{question.question}</h3>
+          <h3 className="text-2xl font-bold text-gray-900 mb-6">{question.question}</h3>
         </div>
 
         <div className="space-y-3">

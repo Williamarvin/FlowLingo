@@ -67,7 +67,13 @@ export class DatabaseStorage implements IStorageExtended {
     const { db } = await import("./db");
     const { users } = await import("@shared/schema");
     
-    const [user] = await db.insert(users).values(insertUser).returning();
+    // Generate a unique ID if not provided
+    const userData = {
+      ...insertUser,
+      id: insertUser.id || `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    };
+    
+    const [user] = await db.insert(users).values(userData).returning();
     return user;
   }
 
