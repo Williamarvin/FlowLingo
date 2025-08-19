@@ -58,8 +58,8 @@
   --brand-yellow-light: hsl(45 95% 68%);
   --brand-green: hsl(145 75% 50%);
   --brand-orange: hsl(25 90% 58%);
-  --text-primary: hsl(220 18% 20%);
-  --text-secondary: hsl(220 12% 50%);
+  --text-primary: hsl(0 0% 9%);
+  --text-secondary: hsl(0 0% 35%);
   --background-soft: hsl(220 15% 97%);
   --card-elevated: hsl(0 0% 100%);
 }

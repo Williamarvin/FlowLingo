@@ -31,7 +31,7 @@ export default function Navigation() {
             <div className="w-10 h-10 bg-gradient-to-br from-brand-blue to-brand-blue-dark rounded-2xl flex items-center justify-center shadow-md">
               <span className="text-white font-bold text-lg">中</span>
             </div>
-            <span className="text-2xl font-bold text-text-primary">MandarinMaster</span>
+            <span className="text-2xl font-bold text-gray-900">MandarinMaster</span>
           </Link>
           
           <div className="hidden md:flex items-center space-x-2">
@@ -40,7 +40,7 @@ export default function Navigation() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "px-4 py-2 rounded-xl text-text-secondary hover:text-brand-blue hover:bg-blue-50 transition-all font-medium",
+                  "px-4 py-2 rounded-xl text-gray-700 hover:text-brand-blue hover:bg-blue-50 transition-all font-medium",
                   location === item.href && "text-white bg-brand-blue font-semibold shadow-md"
                 )}
               >
@@ -62,16 +62,16 @@ export default function Navigation() {
               {showUserMenu && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
                   <div className="px-4 py-2 border-b border-gray-100">
-                    <p className="text-sm font-medium text-text-primary">Demo User</p>
-                    <p className="text-xs text-text-secondary">demo@mandarinmaster.com</p>
+                    <p className="text-sm font-medium text-gray-900">Demo User</p>
+                    <p className="text-xs text-gray-600">demo@mandarinmaster.com</p>
                   </div>
-                  <button className="w-full text-left px-4 py-2 text-sm text-text-secondary hover:bg-gray-50 hover:text-text-primary transition-colors">
+                  <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
                     <i className="fas fa-cog mr-2"></i>Settings
                   </button>
-                  <button className="w-full text-left px-4 py-2 text-sm text-text-secondary hover:bg-gray-50 hover:text-text-primary transition-colors">
+                  <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
                     <i className="fas fa-chart-bar mr-2"></i>Progress
                   </button>
-                  <button className="w-full text-left px-4 py-2 text-sm text-text-secondary hover:bg-gray-50 hover:text-text-primary transition-colors">
+                  <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
                     <i className="fas fa-heart mr-2"></i>Favorites
                   </button>
                   <hr className="my-1" />
