@@ -101,7 +101,7 @@ export default function Sidebar({ currentPage }: SidebarProps) {
             <div className="flex items-center gap-0.5">
               {[...Array(5)].map((_, i) => (
                 <span key={i} className="text-base">
-                  {i < hearts ? '❤️' : '💔'}
+                  {i < hearts ? '❤️' : '🤍'}
                 </span>
               ))}
             </div>
