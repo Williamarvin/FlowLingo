@@ -275,34 +275,36 @@ export default function ProgressivePractice() {
     
     if (correct) {
       playCorrectSound();
-      setXp(xp + questions[currentQuestionIndex].xp);
+      const earnedXp = questions[currentQuestionIndex].xp;
+      setXp(xp + earnedXp);
+      // Save XP progress to backend immediately
+      updateXpMutation.mutate(earnedXp);
       toast({
         title: "🎉 Correct!",
-        description: `+${questions[currentQuestionIndex].xp} XP`,
+        description: `+${earnedXp} XP`,
         className: "bg-green-50 border-green-200"
       });
     } else {
       playIncorrectSound();
-      setHearts(Math.max(0, hearts - 1));
-      if (hearts <= 1) {
-        toast({
-          title: "💔 Out of hearts!",
-          description: "Practice session ending...",
-          variant: "destructive"
-        });
-        setTimeout(() => navigate("/"), 2000);
-      }
+      // Don't reduce hearts, just require retry
     }
   };
 
   const handleContinue = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    if (isCorrect) {
+      if (currentQuestionIndex < questions.length - 1) {
+        setCurrentQuestionIndex(currentQuestionIndex + 1);
+        setSelectedAnswer(null);
+        setShowFeedback(false);
+        setIsCorrect(false);
+      } else {
+        setLessonComplete(true);
+      }
+    } else {
+      // For incorrect answers, just hide feedback and let them try again
       setSelectedAnswer(null);
       setShowFeedback(false);
       setIsCorrect(false);
-    } else {
-      setLessonComplete(true);
     }
   };
 
@@ -314,6 +316,21 @@ export default function ProgressivePractice() {
         level: currentLevel,
         correct: true,
         xpEarned: xp
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+    }
+  });
+
+  const updateXpMutation = useMutation({
+    mutationFn: async (earnedXp: number) => {
+      await apiRequest("POST", "/api/practice/answer", {
+        userId: "demo-user",
+        questionType: "vocabulary",
+        level: currentLevel,
+        correct: true,
+        xpEarned: earnedXp
       });
     },
     onSuccess: () => {
@@ -392,18 +409,18 @@ export default function ProgressivePractice() {
             
             <div className="flex items-center space-x-4">
               {/* Level with XP Progress */}
-              <div className="flex flex-col items-center min-w-[100px]">
-                <div className="flex items-center bg-purple-100 rounded-full px-3 py-1 mb-1">
+              <div className="flex flex-col items-center min-w-[120px]">
+                <div className="flex items-center bg-purple-100 rounded-full px-3 py-1 mb-2">
                   <span className="text-purple-600 text-sm font-bold">Level {currentLevel}</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1">
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
                   <div 
-                    className="bg-purple-500 h-1.5 rounded-full transition-all duration-300" 
+                    className="bg-gradient-to-r from-purple-400 to-purple-600 h-2.5 rounded-full transition-all duration-500" 
                     style={{ width: `${(currentLevelXp / xpPerLevel) * 100}%` }}
                   ></div>
                 </div>
-                <div className="text-xs text-gray-500 text-center">
-                  {questionsToNextLevel} questions to Level {currentLevel + 1}
+                <div className="text-xs text-purple-600 font-medium mt-1">
+                  {currentLevelXp}/{xpPerLevel} XP
                 </div>
               </div>
               
@@ -494,6 +511,7 @@ export default function ProgressivePractice() {
                     <p className="text-red-700 font-medium">
                       The correct answer was: <span className="font-bold">{currentQ.correctAnswer}</span>
                     </p>
+                    <p className="text-sm text-red-600 mt-1">Try again to continue!</p>
                   </div>
                 )}
                 
@@ -516,11 +534,11 @@ export default function ProgressivePractice() {
                 w-full py-4 text-lg font-bold rounded-2xl shadow-lg transform transition hover:scale-105
                 ${isCorrect 
                   ? 'bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 text-white' 
-                  : 'bg-gradient-to-r from-red-400 to-red-500 hover:from-red-500 hover:to-red-600 text-white'
+                  : 'bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white'
                 }
               `}
             >
-              Continue
+              {isCorrect ? 'Continue' : 'Try Again'}
             </Button>
           )}
         </div>
