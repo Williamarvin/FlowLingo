@@ -16,7 +16,9 @@ MandarinMaster is a comprehensive Chinese language learning platform that provid
 - **Voice Conversation Feature**: Implemented 1-to-1 voice conversation with AI Mandarin tutor using OpenAI's GPT-4o
   - Press "Start Conversation" button to begin natural voice session
   - Real-time speech recognition for Mandarin Chinese input
+  - Auto-sends message after 2 seconds of silence (reduced from 3)
   - AI responds with voice using text-to-speech
+  - Auto-resumes listening after AI finishes speaking
   - Shows Chinese characters, pinyin, and English translations
   - Conversation adapts to user level and selected topic
   - Natural, conversational responses like real tutoring

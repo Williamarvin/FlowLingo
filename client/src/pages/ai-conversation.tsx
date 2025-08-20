@@ -106,12 +106,12 @@ export default function AiConversation() {
           clearTimeout(silenceTimerRef.current);
         }
         
-        // Set new silence timer (3 seconds of silence triggers processing)
+        // Set new silence timer (2 seconds of silence triggers processing)
         silenceTimerRef.current = setTimeout(() => {
           if (interimTranscript && isListening) {
             handleUserSpeech(interimTranscript);
           }
-        }, 3000);
+        }, 2000);
       };
       
       recognitionRef.current.onerror = (event: any) => {
@@ -142,13 +142,19 @@ export default function AiConversation() {
   const handleUserSpeech = (speech: string) => {
     if (!speech.trim() || !isInCall) return;
     
-    // Stop listening while processing
+    // Stop listening and recognition while processing
     setIsListening(false);
     setTranscript("");
+    
+    // Stop speech recognition temporarily
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
     
     // Clear silence timer
     if (silenceTimerRef.current) {
       clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
     }
     
     const userMessage: Message = {
@@ -197,6 +203,14 @@ export default function AiConversation() {
         // Resume listening after speaking
         if (isInCall) {
           setIsListening(true);
+          // Restart speech recognition
+          if (recognitionRef.current) {
+            try {
+              recognitionRef.current.start();
+            } catch (e) {
+              console.log('Recognition restart after speaking');
+            }
+          }
         }
       };
       
