@@ -81,7 +81,79 @@ function segmentChineseText(text: string) {
   return segments;
 }
 
+// Optimized version for faster segmentation
+function segmentChineseTextOptimized(text: string) {
+  const segments = [];
+  let index = 0;
+  
+  // Use regex to split by punctuation more efficiently
+  const parts = text.split(/([。！？，、；：""''（）《》【】\s])/);
+  
+  for (const part of parts) {
+    if (!part) continue;
+    
+    // If it's punctuation
+    if (/[。！？，、；：""''（）《》【】\s]/.test(part)) {
+      if (part.trim()) {
+        segments.push({
+          text: part,
+          index: index++,
+          translation: null,
+          pinyin: null
+        });
+      }
+    } else {
+      // Process Chinese text - optimal chunking
+      let i = 0;
+      while (i < part.length) {
+        // Prefer 2-character words (most common in Chinese)
+        const remainingLength = part.length - i;
+        const chunkSize = remainingLength >= 2 ? 2 : 1;
+        
+        segments.push({
+          text: part.substr(i, chunkSize),
+          index: index++,
+          translation: null,
+          pinyin: null
+        });
+        
+        i += chunkSize;
+      }
+    }
+  }
+  
+  return segments;
+}
+
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+// Simple cache for text generation to improve speed
+const textGenerationCache = new Map<string, any>();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+function getCacheKey(topic: string, difficulty: string, length: string) {
+  return `${topic}-${difficulty}-${length}`;
+}
+
+function getCachedText(key: string) {
+  const cached = textGenerationCache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return cached.data;
+  }
+  textGenerationCache.delete(key);
+  return null;
+}
+
+function setCachedText(key: string, data: any) {
+  // Limit cache size
+  if (textGenerationCache.size > 20) {
+    const firstKey = textGenerationCache.keys().next().value;
+    if (firstKey) {
+      textGenerationCache.delete(firstKey);
+    }
+  }
+  textGenerationCache.set(key, { data, timestamp: Date.now() });
+}
 
 // Helper function to generate practice questions
 function generatePracticeQuestions(level: number) {
@@ -287,38 +359,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Mock user ID for demo purposes
   const DEMO_USER_ID = "demo-user";
 
-  // Text generation endpoint
+  // Text generation endpoint - optimized for speed
   app.post("/api/generate-text", async (req, res) => {
     try {
       const { topic, difficulty, length } = req.body;
       
-      const prompt = `Generate comprehensive, engaging Chinese text about "${topic}" at ${difficulty} level (HSK 1-2 for beginner, 3-4 for intermediate, 5-6 for advanced) with approximately ${length} characters. 
+      // Check cache first
+      const cacheKey = getCacheKey(topic, difficulty, length);
+      const cachedResponse = getCachedText(cacheKey);
+      
+      if (cachedResponse) {
+        console.log("Returning cached text for:", cacheKey);
+        return res.json(cachedResponse);
+      }
+      
+      // Log start time for performance monitoring
+      const startTime = Date.now();
+      
+      // Simplified, more focused prompt for faster generation
+      const hskLevel = difficulty === 'beginner' ? '1-2' : difficulty === 'intermediate' ? '3-4' : '5-6';
+      const targetLength = length === 'short' ? 100 : length === 'medium' ? 200 : 300;
+      
+      const prompt = `Generate ${targetLength} characters of Chinese text about "${topic}" for HSK ${hskLevel} level.
+Include: varied vocabulary, practical expressions, natural dialogue.
+Focus on: educational value and authentic Chinese patterns.
+Output: Only Chinese text, no explanations.`;
 
-Requirements:
-- Create rich, varied content with diverse vocabulary and sentence structures
-- Include practical expressions, idioms, and colloquialisms used by native speakers
-- Incorporate multiple grammatical patterns, tenses, and complex sentence structures
-- Mix narrative, dialogue, and descriptive elements for engaging content
-- Add cultural references, specific details (numbers, dates, places, names)
-- Use advanced vocabulary appropriate for the difficulty level
-- Include question forms, exclamations, and varied punctuation
-- Make content contextually rich and educationally valuable
-- Ensure natural flow and authentic Chinese expression patterns
-
-Generate substantially more content than typical - create comprehensive, detailed text that provides extensive learning material.
-
-Return only the Chinese text without any additional formatting or explanations.`;
-
+      // Use lower temperature for faster, more predictable generation
       const response = await openai.chat.completions.create({
         model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 800,
+        max_tokens: 400, // Reduced from 800 for faster response
+        temperature: 0.7, // Lower temperature for more predictable output
+        top_p: 0.9, // Nucleus sampling for better quality
       });
 
       const content = response.choices[0].message.content || "";
       
-      // Split content into phrase segments for better translation
-      const segments = segmentChineseText(content);
+      // Optimized segmentation - process only what's needed
+      const segments = segmentChineseTextOptimized(content);
 
       const generatedText = await storage.createGeneratedText({
         userId: DEMO_USER_ID,
@@ -327,6 +406,13 @@ Return only the Chinese text without any additional formatting or explanations.`
         content,
         segments
       });
+
+      // Cache the response
+      setCachedText(cacheKey, generatedText);
+      
+      // Log generation time
+      const generationTime = Date.now() - startTime;
+      console.log(`Text generated in ${generationTime}ms for: ${topic}`);
 
       res.json(generatedText);
     } catch (error) {
