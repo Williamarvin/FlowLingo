@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import Sidebar from "@/components/sidebar";
-import { Mic, MicOff, Phone, PhoneOff, Volume2, Loader2, User, Bot, Settings } from "lucide-react";
+import { Mic, MicOff, Phone, PhoneOff, Volume2, Loader2, User, Bot, Settings, Speaker } from "lucide-react";
 
 interface Message {
   content: string;
@@ -398,19 +398,34 @@ export default function AiConversation() {
                         ? 'bg-blue-100 border-blue-200' 
                         : 'bg-white border-gray-200'
                     }`}>
-                      <div className="font-medium text-gray-800 text-lg mb-1">
-                        {message.content}
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-800 text-lg mb-1">
+                            {message.content}
+                          </div>
+                          {message.pinyin && (
+                            <div className="text-sm text-blue-600 mb-1">
+                              {message.pinyin}
+                            </div>
+                          )}
+                          {message.english && (
+                            <div className="text-sm text-gray-500 italic">
+                              {message.english}
+                            </div>
+                          )}
+                        </div>
+                        {message.role === 'assistant' && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => speakMessage(message.content)}
+                            className="p-2 hover:bg-purple-100"
+                            title="Listen to pronunciation"
+                          >
+                            <Volume2 className="w-4 h-4 text-purple-600" />
+                          </Button>
+                        )}
                       </div>
-                      {message.pinyin && (
-                        <div className="text-sm text-blue-600 mb-1">
-                          {message.pinyin}
-                        </div>
-                      )}
-                      {message.english && (
-                        <div className="text-sm text-gray-500 italic">
-                          {message.english}
-                        </div>
-                      )}
                     </Card>
                   </div>
                 </div>

@@ -20,6 +20,7 @@ MandarinMaster is a comprehensive Chinese language learning platform that provid
   - AI responds with voice using text-to-speech
   - Auto-resumes listening after AI finishes speaking
   - Shows Chinese characters, pinyin, and English translations
+  - Speaker icon on AI messages to replay pronunciation anytime
   - Conversation adapts to user level and selected topic
   - Natural, conversational responses like real tutoring
 - **Fixed Navigation**: Corrected broken sidebar navigation links across all pages (ai-conversation route fixed)
