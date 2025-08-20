@@ -33,6 +33,8 @@ export default function ProgressivePractice() {
   const [lessonComplete, setLessonComplete] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [sessionId] = useState(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+  const [wrongAttempts, setWrongAttempts] = useState(0);
+  const [showDifficultyOption, setShowDifficultyOption] = useState(false);
   
   // Calculate XP needed for next level (100 XP per level)
   const xpPerLevel = 100;
@@ -277,6 +279,9 @@ export default function ProgressivePractice() {
       playCorrectSound();
       const earnedXp = questions[currentQuestionIndex].xp;
       setXp(xp + earnedXp);
+      // Reset wrong attempts counter on correct answer
+      setWrongAttempts(0);
+      setShowDifficultyOption(false);
       // Save XP progress to backend immediately
       updateXpMutation.mutate(earnedXp);
       toast({
@@ -286,7 +291,13 @@ export default function ProgressivePractice() {
       });
     } else {
       playIncorrectSound();
-      // Don't reduce hearts, just require retry
+      const newWrongAttempts = wrongAttempts + 1;
+      setWrongAttempts(newWrongAttempts);
+      
+      // Show difficulty option after 3 consecutive wrong attempts
+      if (newWrongAttempts >= 3) {
+        setShowDifficultyOption(true);
+      }
     }
   };
 
@@ -305,6 +316,30 @@ export default function ProgressivePractice() {
       setSelectedAnswer(null);
       setShowFeedback(false);
       setIsCorrect(false);
+    }
+  };
+
+  const handleGoToPreviousLevel = () => {
+    if (currentLevel > 1) {
+      const newLevel = currentLevel - 1;
+      setCurrentLevel(newLevel);
+      setWrongAttempts(0);
+      setShowDifficultyOption(false);
+      // Regenerate questions for the previous level
+      setTimeout(() => {
+        generateLessonQuestions();
+      }, 100);
+      // Reset current question
+      setCurrentQuestionIndex(0);
+      setSelectedAnswer(null);
+      setShowFeedback(false);
+      setIsCorrect(false);
+      
+      toast({
+        title: "Level Adjusted",
+        description: `Moved to Level ${newLevel} for better practice`,
+        className: "bg-blue-50 border-blue-200"
+      });
     }
   };
 
@@ -541,19 +576,20 @@ export default function ProgressivePractice() {
               {isCorrect ? 'Continue' : 'Try Again'}
             </Button>
           )}
+          
+          {/* Difficulty Option - Show after 3 wrong attempts */}
+          {showDifficultyOption && !isCorrect && showFeedback && currentLevel > 1 && (
+            <div className="mt-4 text-center">
+              <Button
+                onClick={handleGoToPreviousLevel}
+                variant="outline"
+                className="bg-yellow-50 border-yellow-200 text-yellow-700 hover:bg-yellow-100 px-6 py-2 rounded-xl"
+              >
+                Too difficult? Go to Level {currentLevel - 1}
+              </Button>
+            </div>
+          )}
         </div>
-        
-        {/* Skip Button */}
-        {!showFeedback && (
-          <div className="text-center mt-6">
-            <button
-              onClick={() => handleAnswer("")}
-              className="text-gray-500 hover:text-gray-700 font-semibold"
-            >
-              Skip
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

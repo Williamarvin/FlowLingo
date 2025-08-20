@@ -2,7 +2,7 @@
 
 ## Overview
 
-MandarinMaster is a comprehensive Chinese language learning platform that provides interactive tools for studying Mandarin. The application features a complete progress tracking system with user levels, XP points, streak tracking, and adaptive difficulty. Key features include text generation with click-to-translate, AI-powered conversations that adapt to user level, PDF document processing, vocabulary management with spaced repetition, initial assessment testing, and progressive practice sessions. Built as a full-stack web application with a React frontend and Express backend using PostgreSQL for complete data persistence.
+MandarinMaster is a comprehensive Chinese language learning platform that provides interactive tools for studying Mandarin. The application features a complete progress tracking system with user levels, XP points, streak tracking, and adaptive difficulty. Key features include text generation with click-to-translate, AI-powered conversations that adapt to user level, universal media reader (PDF, video, audio, images), vocabulary management with spaced repetition, initial assessment testing, and enhanced progressive practice sessions with mandatory retry system and adaptive difficulty adjustment. Built as a full-stack web application with a React frontend and Express backend using PostgreSQL for complete data persistence.
 
 ## User Preferences
 
@@ -52,6 +52,14 @@ Preferred communication style: Simple, everyday language.
 - **Conversation**: AI-powered Mandarin conversation practice with adaptive difficulty based on user level
 - **Speech**: Browser-based text-to-speech and speech recognition APIs
 - **Progress Tracking**: XP system, level progression, streak tracking, achievement unlocking
+
+### Enhanced Practice System (December 2024)
+- **Mandatory Retry**: Students must retry incorrect answers until correct, promoting learning
+- **Adaptive Difficulty**: After 3 consecutive wrong attempts, option to drop to previous level
+- **Enhanced Feedback**: Shows pinyin and meaning for both correct and incorrect answers
+- **Real-time XP Saving**: Immediate backend persistence of XP gains for proper level progression
+- **Simplified UI**: Single clean level progress bar showing XP progress to next level
+- **Complete Pinyin Integration**: All vocabulary levels include accurate pinyin pronunciation guides
 
 ## External Dependencies
 
