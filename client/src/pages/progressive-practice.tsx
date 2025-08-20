@@ -573,17 +573,21 @@ export default function ProgressivePractice() {
                   {isCorrect ? '✅ Correct!' : '❌ Not quite!'}
                 </p>
                 
-{!isCorrect && selectedAnswer && (
-                  <div className="bg-white rounded-xl p-4 shadow-sm border">
-                    <p className="text-sm text-gray-500 mb-3">You selected:</p>
-                    <div className="text-3xl font-bold text-red-600 mb-2">{selectedAnswer}</div>
-                    <div className="mb-3">
-                      <div className="text-4xl font-bold text-gray-800 mb-1">{currentQ.chinese}</div>
-                      <div className="text-lg text-blue-600 font-medium">{currentQ.pinyin}</div>
+{!isCorrect && selectedAnswer && (() => {
+                  // Find the selected option to get its hanzi and pinyin
+                  const selectedOption = currentQ.options?.find(opt => opt.english === selectedAnswer);
+                  return (
+                    <div className="bg-white rounded-xl p-4 shadow-sm border">
+                      {selectedOption && (
+                        <div className="text-center">
+                          <div className="text-4xl font-bold text-gray-800 mb-2">{selectedOption.hanzi}</div>
+                          <div className="text-lg text-blue-600 font-medium mb-2">{selectedOption.pinyin}</div>
+                          <div className="text-xl font-semibold text-red-600">{selectedOption.english}</div>
+                        </div>
+                      )}
                     </div>
-                    <p className="text-red-700 font-medium">This is not the correct translation.</p>
-                  </div>
-                )}
+                  );
+                })()}
                 
                 {isCorrect && (
                   <div className="bg-white rounded-xl p-4 shadow-sm border">
