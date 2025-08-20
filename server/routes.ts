@@ -354,21 +354,19 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       let user = await storage.getUser(userId);
       
       if (!user) {
-        // Check if user exists by username first
-        user = await storage.getUserByUsername("demo");
-        
-        if (!user) {
-          // Create default user if doesn't exist
-          user = await storage.createUser({
-            username: "demo",
-            password: "demo"
-          });
-        }
+        // Create default user with the specific ID if doesn't exist
+        user = await storage.createUser({
+          id: userId,
+          username: "demo",
+          password: "demo"
+        });
+        console.log("Created new demo user with ID:", userId);
       }
       
       // Update streak if needed
       user = await storage.updateUserStreak(userId) || user;
       
+      console.log("Returning user profile:", { id: user.id, level: user.level, assessmentCompleted: user.assessmentCompleted });
       res.json(user);
     } catch (error) {
       console.error("Error getting user profile:", error);
@@ -380,6 +378,8 @@ Create substantially more comprehensive responses with extensive vocabulary prac
   app.post("/api/assessment/complete", async (req, res) => {
     try {
       const { userId, score, totalQuestions, correctAnswers, recommendedLevel, strengths, weaknesses } = req.body;
+      
+      console.log("Assessment complete request:", { userId, recommendedLevel });
       
       // Save assessment result
       const result = await storage.saveAssessmentResult({
@@ -395,8 +395,9 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       // Update user profile with assessment results
       // Always set the level from assessment (trust the assessment result)
       const currentUser = await storage.getUser(userId);
+      console.log("Current user before update:", currentUser);
       
-      await storage.updateUserProgress(userId, {
+      const updatedUser = await storage.updateUserProgress(userId, {
         assessmentCompleted: true,
         initialLevel: recommendedLevel,
         level: recommendedLevel, // Always use assessment result
@@ -404,7 +405,9 @@ Create substantially more comprehensive responses with extensive vocabulary prac
         xpToNextLevel: 500 + (recommendedLevel * 100)
       });
       
-      res.json(result);
+      console.log("Updated user after assessment:", updatedUser);
+      
+      res.json({ ...result, updatedUser });
     } catch (error) {
       console.error("Error saving assessment:", error);
       res.status(500).json({ error: "Failed to save assessment" });

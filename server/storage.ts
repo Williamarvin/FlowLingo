@@ -4,7 +4,7 @@ import { randomUUID } from "crypto";
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  createUser(user: InsertUser & { id?: string }): Promise<User>;
   
   getVocabularyWords(userId: string): Promise<VocabularyWord[]>;
   getVocabularyWordsDue(userId: string): Promise<VocabularyWord[]>;
@@ -63,12 +63,12 @@ export class DatabaseStorage implements IStorageExtended {
     return user;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
+  async createUser(insertUser: InsertUser & { id?: string }): Promise<User> {
     const { db } = await import("./db");
     const { users } = await import("@shared/schema");
     
     // Generate a unique ID if not provided
-    const userData = {
+    const userData: any = {
       ...insertUser,
       id: insertUser.id || `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     };
