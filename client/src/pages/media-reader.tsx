@@ -479,15 +479,17 @@ export default function MediaReader() {
                   
                   for (const file of Array.from(files)) {
                     try {
-                      console.log("Processing file:", file.name);
+                      console.log("Processing file:", file.name, "Type:", file.type);
                       
                       // Upload file directly
                       const uploadResult = await uploadFile(file);
+                      console.log("Upload result:", uploadResult);
                       
                       // Extract text content if it's a text file
                       let textContent = "";
                       if (file.type === "text/plain" || file.name.endsWith(".txt")) {
                         textContent = await file.text();
+                        console.log("Extracted text content:", textContent.substring(0, 100) + "...");
                       } else if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
                         // For PDF files, we'd need a proper PDF parser
                         // For demo, we'll add placeholder text
@@ -562,7 +564,11 @@ export default function MediaReader() {
                             ? "border-primary bg-primary/5"
                             : "border-border hover:border-primary/50 hover:bg-muted/50"
                         }`}
-                        onClick={() => setSelectedDocument(doc)}
+                        onClick={() => {
+                          console.log("Selected document:", doc);
+                          console.log("Document content:", doc.content?.substring(0, 100));
+                          setSelectedDocument(doc);
+                        }}
                       >
                         <div className="flex items-start gap-3">
                           <div className={`p-2 rounded ${fileTypeInfo.color} text-white`}>
