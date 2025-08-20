@@ -67,6 +67,24 @@ export const generatedTexts = pgTable("generated_texts", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const mediaDocuments = pgTable("media_documents", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  filename: text("filename").notNull(),
+  fileType: varchar("file_type").notNull(), // pdf, jpg, png, gif, mp4, avi, doc, docx, txt, etc.
+  mimeType: varchar("mime_type").notNull(),
+  fileUrl: varchar("file_url"),
+  fileSize: integer("file_size"), // in bytes
+  content: text("content"), // extracted text content
+  segments: jsonb("segments").notNull().default('[]'), // for text processing
+  pageCount: integer("page_count").default(1),
+  duration: integer("duration"), // for video/audio files in seconds
+  thumbnailUrl: varchar("thumbnail_url"), // for videos and images
+  processedContent: jsonb("processed_content"), // structured content for different file types
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Keep the old table for backwards compatibility (can be migrated later)
 export const pdfDocuments = pgTable("pdf_documents", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull(),
@@ -152,6 +170,11 @@ export const insertGeneratedTextSchema = createInsertSchema(generatedTexts).omit
   createdAt: true,
 });
 
+export const insertMediaDocumentSchema = createInsertSchema(mediaDocuments).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertPdfDocumentSchema = createInsertSchema(pdfDocuments).omit({
   id: true,
   createdAt: true,
@@ -190,6 +213,8 @@ export type Conversation = typeof conversations.$inferSelect;
 export type InsertConversation = z.infer<typeof insertConversationSchema>;
 export type GeneratedText = typeof generatedTexts.$inferSelect;
 export type InsertGeneratedText = z.infer<typeof insertGeneratedTextSchema>;
+export type MediaDocument = typeof mediaDocuments.$inferSelect;
+export type InsertMediaDocument = z.infer<typeof insertMediaDocumentSchema>;
 export type PdfDocument = typeof pdfDocuments.$inferSelect;
 export type InsertPdfDocument = z.infer<typeof insertPdfDocumentSchema>;
 export type AssessmentQuestion = typeof assessmentQuestions.$inferSelect;

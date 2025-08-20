@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type VocabularyWord, type InsertVocabularyWord, type Conversation, type InsertConversation, type GeneratedText, type InsertGeneratedText, type PdfDocument, type InsertPdfDocument } from "@shared/schema";
+import { type User, type InsertUser, type VocabularyWord, type InsertVocabularyWord, type Conversation, type InsertConversation, type GeneratedText, type InsertGeneratedText, type MediaDocument, type InsertMediaDocument, type PdfDocument, type InsertPdfDocument } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -19,6 +19,14 @@ export interface IStorage {
   getGeneratedTexts(userId: string): Promise<GeneratedText[]>;
   createGeneratedText(text: InsertGeneratedText): Promise<GeneratedText>;
   
+  // Media document methods
+  getMediaDocuments(userId: string): Promise<MediaDocument[]>;
+  createMediaDocument(document: InsertMediaDocument): Promise<MediaDocument>;
+  getMediaDocument(id: string): Promise<MediaDocument | undefined>;
+  updateMediaDocument(id: string, updates: Partial<MediaDocument>): Promise<MediaDocument | undefined>;
+  deleteMediaDocument(id: string): Promise<boolean>;
+  
+  // Legacy PDF methods (for backward compatibility)
   getPdfDocuments(userId: string): Promise<PdfDocument[]>;
   createPdfDocument(document: InsertPdfDocument): Promise<PdfDocument>;
 }
@@ -248,6 +256,52 @@ export class DatabaseStorage implements IStorageExtended {
     const { eq } = await import("drizzle-orm");
     
     return await db.select().from(pdfDocuments).where(eq(pdfDocuments.userId, userId));
+  }
+
+  async getMediaDocuments(userId: string): Promise<MediaDocument[]> {
+    const { db } = await import("./db");
+    const { mediaDocuments } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    return await db.select().from(mediaDocuments).where(eq(mediaDocuments.userId, userId));
+  }
+
+  async createMediaDocument(document: InsertMediaDocument): Promise<MediaDocument> {
+    const { db } = await import("./db");
+    const { mediaDocuments } = await import("@shared/schema");
+    
+    const [newDoc] = await db.insert(mediaDocuments).values(document).returning();
+    return newDoc;
+  }
+
+  async getMediaDocument(id: string): Promise<MediaDocument | undefined> {
+    const { db } = await import("./db");
+    const { mediaDocuments } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const [doc] = await db.select().from(mediaDocuments).where(eq(mediaDocuments.id, id));
+    return doc;
+  }
+
+  async updateMediaDocument(id: string, updates: Partial<MediaDocument>): Promise<MediaDocument | undefined> {
+    const { db } = await import("./db");
+    const { mediaDocuments } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const [updated] = await db.update(mediaDocuments)
+      .set(updates)
+      .where(eq(mediaDocuments.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteMediaDocument(id: string): Promise<boolean> {
+    const { db } = await import("./db");
+    const { mediaDocuments } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    await db.delete(mediaDocuments).where(eq(mediaDocuments.id, id));
+    return true;
   }
 
   async createPdfDocument(document: InsertPdfDocument): Promise<PdfDocument> {

@@ -1,7 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertVocabularyWordSchema, insertConversationSchema, insertGeneratedTextSchema, insertPdfDocumentSchema } from "@shared/schema";
+import { insertVocabularyWordSchema, insertConversationSchema, insertGeneratedTextSchema, insertPdfDocumentSchema, insertMediaDocumentSchema } from "@shared/schema";
+import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
+import { ObjectPermission } from "./objectAcl";
 import OpenAI from "openai";
 
 // Function to segment Chinese text into meaningful phrases (2-3 character compounds)
@@ -344,6 +346,105 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     } catch (error) {
       console.error("Get PDF documents error:", error);
       res.status(500).json({ error: "Failed to get PDF documents" });
+    }
+  });
+
+  // Media document routes for supporting multiple file types
+  app.get("/api/media", async (req, res) => {
+    try {
+      const documents = await storage.getMediaDocuments(DEMO_USER_ID);
+      res.json(documents);
+    } catch (error) {
+      console.error("Error getting media documents:", error);
+      res.status(500).json({ error: "Failed to get documents" });
+    }
+  });
+
+  app.post("/api/media/upload", async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error getting upload URL:", error);
+      res.status(500).json({ error: "Failed to get upload URL" });
+    }
+  });
+
+  app.post("/api/media", async (req, res) => {
+    try {
+      const result = insertMediaDocumentSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: "Invalid media document data", details: result.error.issues });
+      }
+
+      const mediaDoc = await storage.createMediaDocument({
+        ...result.data,
+        userId: DEMO_USER_ID
+      });
+
+      res.status(201).json(mediaDoc);
+    } catch (error) {
+      console.error("Error creating media document:", error);
+      res.status(500).json({ error: "Failed to create media document" });
+    }
+  });
+
+  app.get("/api/media/:id", async (req, res) => {
+    try {
+      const document = await storage.getMediaDocument(req.params.id);
+      if (!document) {
+        return res.status(404).json({ error: "Document not found" });
+      }
+      res.json(document);
+    } catch (error) {
+      console.error("Error getting media document:", error);
+      res.status(500).json({ error: "Failed to get document" });
+    }
+  });
+
+  app.delete("/api/media/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteMediaDocument(req.params.id);
+      if (!success) {
+        return res.status(404).json({ error: "Document not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting media document:", error);
+      res.status(500).json({ error: "Failed to delete document" });
+    }
+  });
+
+  // Object storage routes for file serving
+  app.get("/objects/:objectPath(*)", async (req, res) => {
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const objectFile = await objectStorageService.getObjectEntityFile(
+        req.path,
+      );
+      objectStorageService.downloadObject(objectFile, res);
+    } catch (error) {
+      console.error("Error accessing object:", error);
+      if (error instanceof ObjectNotFoundError) {
+        return res.sendStatus(404);
+      }
+      return res.sendStatus(500);
+    }
+  });
+
+  app.get("/public-objects/:filePath(*)", async (req, res) => {
+    const filePath = req.params.filePath;
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const file = await objectStorageService.searchPublicObject(filePath);
+      if (!file) {
+        return res.status(404).json({ error: "File not found" });
+      }
+      objectStorageService.downloadObject(file, res);
+    } catch (error) {
+      console.error("Error searching for public object:", error);
+      return res.status(500).json({ error: "Internal server error" });
     }
   });
 

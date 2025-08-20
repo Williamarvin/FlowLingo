@@ -12,7 +12,7 @@ export default function Navigation() {
     { href: "/practice", label: "Practice", icon: "fas fa-graduation-cap" },
     { href: "/text-generator", label: "Text Practice", icon: "fas fa-highlighter" },
     { href: "/ai-conversation", label: "AI Chat", icon: "fas fa-robot" },
-    { href: "/pdf-converter", label: "PDF Reader", icon: "fas fa-file-pdf" },
+    { href: "/media-reader", label: "Media Reader", icon: "fas fa-file-upload" },
     { href: "/vocabulary", label: "Vocabulary", icon: "fas fa-brain" },
   ];
 
