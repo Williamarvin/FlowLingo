@@ -204,14 +204,6 @@ export default function MediaReader() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => handleSpeak(document.content || "")}
-                title="Text to Speech"
-              >
-                <Volume2 className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
                 onClick={() => {
                   navigator.clipboard.writeText(document.content || "");
                   toast({

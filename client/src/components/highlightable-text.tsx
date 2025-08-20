@@ -98,18 +98,12 @@ export default function HighlightableText({ text, onSaveWord }: HighlightableTex
     });
   };
 
-  const readAllText = () => {
+  const readAllText = async () => {
     if (isReadingAll) {
       // Stop reading
-      speechSynthesis.cancel();
+      audioManager.stop();
       setIsReadingAll(false);
       setCurrentReadingIndex(-1);
-      return;
-    }
-
-    // Check if speech synthesis is supported
-    if (!('speechSynthesis' in window)) {
-      alert('Speech synthesis is not supported in your browser. Please try using Chrome or Edge.');
       return;
     }
 
@@ -125,62 +119,36 @@ export default function HighlightableText({ text, onSaveWord }: HighlightableTex
     setIsReadingAll(true);
     setCurrentReadingIndex(0);
 
-    // Wait for voices to load if needed
-    const startReading = () => {
-      const readSegment = (index: number) => {
-        if (index >= segments.length || !isReadingAll) {
-          setIsReadingAll(false);
-          setCurrentReadingIndex(-1);
-          return;
+    // Read all segments with OpenAI TTS
+    const readSegment = async (index: number) => {
+      if (index >= segments.length || !isReadingAll) {
+        setIsReadingAll(false);
+        setCurrentReadingIndex(-1);
+        return;
+      }
+
+      setCurrentReadingIndex(index);
+      const segment = segments[index];
+
+      try {
+        // Use audioManager with slower speed for learning (0.8x)
+        await audioManager.playTTS(segment, 0.8);
+        
+        // Add a small pause between segments
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Continue to next segment if still reading
+        if (isReadingAll) {
+          readSegment(index + 1);
         }
-
-        setCurrentReadingIndex(index);
-        const segment = segments[index];
-
-        const utterance = new SpeechSynthesisUtterance(segment);
-        
-        // Try to find a Chinese voice
-        const voices = speechSynthesis.getVoices();
-        const chineseVoice = voices.find(voice => 
-          voice.lang.includes('zh') || voice.lang.includes('cmn')
-        );
-        
-        if (chineseVoice) {
-          utterance.voice = chineseVoice;
-        }
-        
-        utterance.lang = 'zh-CN';
-        utterance.rate = 0.8;
-        utterance.pitch = 1.0;
-        utterance.volume = 1.0;
-
-        utterance.onend = () => {
-          if (isReadingAll) {
-            setTimeout(() => readSegment(index + 1), 300); // 300ms pause between words
-          }
-        };
-
-        utterance.onerror = (event) => {
-          console.error('Speech synthesis error:', event);
-          setIsReadingAll(false);
-          setCurrentReadingIndex(-1);
-        };
-
-        speechSynthesis.speak(utterance);
-      };
-
-      readSegment(0);
+      } catch (error) {
+        console.error('TTS error:', error);
+        setIsReadingAll(false);
+        setCurrentReadingIndex(-1);
+      }
     };
 
-    // Check if voices are already loaded
-    if (speechSynthesis.getVoices().length > 0) {
-      startReading();
-    } else {
-      // Wait for voices to load
-      speechSynthesis.addEventListener('voiceschanged', startReading, { once: true });
-      // Fallback timeout in case voiceschanged doesn't fire
-      setTimeout(startReading, 1000);
-    }
+    readSegment(0);
   };
 
   const renderHighlightableTextWithReading = () => {
