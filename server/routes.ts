@@ -614,7 +614,32 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       // Update streak if needed
       user = await storage.updateUserStreak(userId) || user;
       
-      console.log("Returning user profile:", { id: user.id, level: user.level, assessmentCompleted: user.assessmentCompleted });
+      // Handle hearts regeneration
+      if (user.hearts < (user.maxHearts || 5) && user.lastHeartLostAt) {
+        const lastLost = new Date(user.lastHeartLostAt).getTime();
+        const now = Date.now();
+        const hoursPassed = Math.floor((now - lastLost) / (1000 * 60 * 60)); // Hours since last heart lost
+        
+        if (hoursPassed > 0) {
+          const heartsToRegenerate = Math.min(hoursPassed, (user.maxHearts || 5) - user.hearts);
+          const newHearts = user.hearts + heartsToRegenerate;
+          
+          user = await storage.updateUserProgress(userId, { 
+            hearts: newHearts,
+            // Update lastHeartLostAt to track remaining regeneration time
+            lastHeartLostAt: heartsToRegenerate === (user.maxHearts || 5) - user.hearts 
+              ? null // All hearts regenerated
+              : new Date(lastLost + (heartsToRegenerate * 60 * 60 * 1000))
+          }) || user;
+        }
+      }
+      
+      console.log("Returning user profile:", { 
+        id: user.id, 
+        level: user.level, 
+        hearts: user.hearts,
+        assessmentCompleted: user.assessmentCompleted 
+      });
       res.json(user);
     } catch (error) {
       console.error("Error getting user profile:", error);
@@ -674,6 +699,34 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     } catch (error) {
       console.error("Error getting practice questions:", error);
       res.status(500).json({ error: "Failed to get practice questions" });
+    }
+  });
+
+  // Hearts management endpoint
+  app.post("/api/user/hearts", async (req, res) => {
+    try {
+      const { heartsChange } = req.body;
+      const userId = DEMO_USER_ID;
+      
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      
+      const newHearts = Math.max(0, Math.min(user.maxHearts || 5, (user.hearts || 5) + heartsChange));
+      
+      // Update hearts and track when lost
+      const updates: any = { hearts: newHearts };
+      if (heartsChange < 0) {
+        updates.lastHeartLostAt = new Date();
+      }
+      
+      await storage.updateUserProgress(userId, updates);
+      
+      res.json({ hearts: newHearts });
+    } catch (error) {
+      console.error("Error updating hearts:", error);
+      res.status(500).json({ error: "Failed to update hearts" });
     }
   });
 

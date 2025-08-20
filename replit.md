@@ -9,6 +9,10 @@ MandarinMaster is a comprehensive Chinese language learning platform that provid
 - **Consistent Layout**: Applied Duolingo-style sidebar navigation consistently to all pages
 - **Improved Practice Feedback**: Wrong answer feedback now shows only the selected incorrect answer's hanzi, pinyin, and English meaning
 - **Unified UI Structure**: All pages now use the same sidebar component with proper routing
+- **Hearts System**: Implemented Duolingo-style hearts system with automatic regeneration (1 heart per hour)
+- **Level Progression**: Added visual level progress with pass/fail screens based on accuracy
+- **Out of Hearts Screen**: Users cannot continue when hearts are depleted, must wait for regeneration
+- **Timer Display**: Shows countdown to next heart regeneration when hearts are lost
 
 ## User Preferences
 

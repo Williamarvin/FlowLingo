@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Sidebar from "@/components/sidebar";
 import { useLocation } from "wouter";
 import { toast } from "@/hooks/use-toast";
+import { Heart, Clock, Trophy, X } from "lucide-react";
 
 interface Question {
   id: string;
@@ -24,12 +25,17 @@ export default function ProgressivePractice() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [showCompletedScreen, setShowCompletedScreen] = useState(false);
+  const [showOutOfHeartsScreen, setShowOutOfHeartsScreen] = useState(false);
   const [wrongAttempts, setWrongAttempts] = useState(0);
   const [showDifficultyOption, setShowDifficultyOption] = useState(false);
   const [currentLevel, setCurrentLevel] = useState(1);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [wrongAnswers, setWrongAnswers] = useState(0);
+  const [hearts, setHearts] = useState(5);
+  const [timeUntilNextHeart, setTimeUntilNextHeart] = useState<number | null>(null);
 
-  // Fetch user profile to get current level
-  const { data: userProfile } = useQuery<any>({
+  // Fetch user profile to get current level and hearts
+  const { data: userProfile, refetch: refetchProfile } = useQuery<any>({
     queryKey: ["/api/user/profile"],
   });
 
@@ -39,6 +45,19 @@ export default function ProgressivePractice() {
   });
 
   const currentQ = questions[currentQuestionIndex] || null;
+
+  // Update hearts mutation
+  const updateHeartsMutation = useMutation({
+    mutationFn: async (heartsChange: number) => {
+      return await apiRequest("/api/user/hearts", {
+        method: "POST",
+        body: { heartsChange },
+      });
+    },
+    onSuccess: () => {
+      refetchProfile();
+    },
+  });
 
   // Mutation to save practice session and award XP
   const savePracticeMutation = useMutation({
@@ -53,12 +72,49 @@ export default function ProgressivePractice() {
     },
   });
 
-  // Update current level when user profile loads
+  // Update current level and hearts when user profile loads
   useEffect(() => {
-    if (userProfile?.level) {
-      setCurrentLevel(userProfile.level);
+    if (userProfile) {
+      setCurrentLevel(userProfile.level || 1);
+      setHearts(userProfile.hearts || 5);
+      
+      // Calculate time until next heart
+      if (userProfile.hearts < userProfile.maxHearts && userProfile.lastHeartLostAt) {
+        const lastLost = new Date(userProfile.lastHeartLostAt).getTime();
+        const now = Date.now();
+        const hoursPassed = Math.floor((now - lastLost) / (1000 * 60 * 60));
+        const heartsToRegenerate = Math.min(hoursPassed, userProfile.maxHearts - userProfile.hearts);
+        
+        if (heartsToRegenerate > 0) {
+          // Regenerate hearts
+          updateHeartsMutation.mutate(heartsToRegenerate);
+        } else {
+          // Calculate time until next heart
+          const nextHeartTime = lastLost + (1000 * 60 * 60); // 1 hour from last lost
+          const timeRemaining = Math.max(0, nextHeartTime - now);
+          setTimeUntilNextHeart(timeRemaining);
+        }
+      }
     }
   }, [userProfile]);
+
+  // Timer for heart regeneration countdown
+  useEffect(() => {
+    if (timeUntilNextHeart && timeUntilNextHeart > 0) {
+      const interval = setInterval(() => {
+        setTimeUntilNextHeart(prev => {
+          if (prev && prev > 1000) {
+            return prev - 1000;
+          } else {
+            refetchProfile();
+            return null;
+          }
+        });
+      }, 1000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [timeUntilNextHeart]);
 
   const handleAnswer = (answer: string) => {
     if (showFeedback) return;
@@ -69,11 +125,26 @@ export default function ProgressivePractice() {
     setShowFeedback(true);
 
     if (!correct) {
+      setWrongAnswers(prev => prev + 1);
       setWrongAttempts(prev => prev + 1);
+      
+      // Lose a heart for wrong answer
+      const newHearts = Math.max(0, hearts - 1);
+      setHearts(newHearts);
+      updateHeartsMutation.mutate(-1);
+      
+      // Check if out of hearts
+      if (newHearts === 0) {
+        setTimeout(() => {
+          setShowOutOfHeartsScreen(true);
+        }, 1500);
+      }
+      
       if (wrongAttempts >= 2) { // After 3 wrong attempts
         setShowDifficultyOption(true);
       }
     } else {
+      setCorrectAnswers(prev => prev + 1);
       setWrongAttempts(0);
       setShowDifficultyOption(false);
     }
@@ -112,17 +183,27 @@ export default function ProgressivePractice() {
   };
 
   const handleCompletedLesson = () => {
-    const accuracy = questions.length > 0 ? (questions.filter((_, idx) => idx <= currentQuestionIndex).length / questions.length) * 100 : 0;
+    const totalQuestions = questions.length;
+    const accuracy = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
     const xp = Math.round(accuracy * 10);
     
     savePracticeMutation.mutate({
       level: currentLevel,
-      questionsAnswered: questions.length,
+      questionsAnswered: totalQuestions,
+      correctAnswers: correctAnswers,
+      wrongAnswers: wrongAnswers,
       accuracy: accuracy,
       xpEarned: xp,
     });
 
     navigate("/");
+  };
+
+  // Format time for display
+  const formatTime = (ms: number) => {
+    const minutes = Math.floor(ms / (1000 * 60));
+    const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
   if (isLoading) {
@@ -133,6 +214,43 @@ export default function ProgressivePractice() {
           <div className="text-center">
             <div className="text-6xl mb-4">📚</div>
             <div className="text-2xl font-bold text-gray-700">Loading practice session...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Out of hearts screen
+  if (showOutOfHeartsScreen) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-red-50 to-pink-50 flex">
+        <Sidebar currentPage="/practice" />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="bg-white rounded-3xl shadow-xl p-8 text-center max-w-lg">
+            <div className="text-6xl mb-6">💔</div>
+            <h1 className="text-3xl font-bold text-gray-800 mb-4">Out of Hearts!</h1>
+            <p className="text-xl text-gray-600 mb-6">
+              You've run out of hearts. Come back later or wait for them to regenerate.
+            </p>
+            
+            {timeUntilNextHeart && (
+              <div className="bg-blue-50 rounded-2xl p-4 mb-6">
+                <div className="flex items-center justify-center gap-2 text-blue-700">
+                  <Clock className="w-5 h-5" />
+                  <span className="font-semibold">Next heart in: {formatTime(timeUntilNextHeart)}</span>
+                </div>
+                <p className="text-sm text-gray-600 mt-2">Hearts regenerate 1 per hour</p>
+              </div>
+            )}
+            
+            <div className="space-y-3">
+              <Button
+                onClick={() => navigate("/")}
+                className="w-full bg-gradient-to-r from-red-400 to-pink-400 hover:from-red-500 hover:to-pink-500 text-white font-bold py-4 text-lg rounded-2xl shadow-lg"
+              >
+                Return Home
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -157,30 +275,58 @@ export default function ProgressivePractice() {
   }
 
   if (showCompletedScreen) {
-    const accuracy = questions.length > 0 ? (questions.filter((_, idx) => idx <= currentQuestionIndex).length / questions.length) * 100 : 0;
+    const totalQuestions = questions.length;
+    const accuracy = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
     const xp = Math.round(accuracy * 10);
+    const passed = accuracy >= 80; // Pass if 80% or higher
 
     return (
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 flex">
         <Sidebar currentPage="/practice" />
         <div className="flex-1 flex items-center justify-center">
           <div className="bg-white rounded-3xl shadow-xl p-8 text-center max-w-lg">
-            <div className="text-6xl mb-6">🎉</div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-4">Lesson Complete!</h1>
-            <p className="text-xl text-gray-600 mb-6">You earned {xp} XP</p>
+            <div className="text-6xl mb-6">{passed ? '🏆' : '📊'}</div>
+            <h1 className="text-3xl font-bold text-gray-800 mb-4">
+              {passed ? 'Lesson Passed!' : 'Lesson Complete'}
+            </h1>
+            
+            {passed && (
+              <div className="bg-green-50 rounded-2xl p-3 mb-4">
+                <p className="text-green-700 font-semibold">Great job! You've mastered this level!</p>
+              </div>
+            )}
+            
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="bg-blue-50 rounded-2xl p-4">
+                <div className="text-sm text-gray-600 mb-1">Correct</div>
+                <div className="text-3xl font-bold text-blue-700">{correctAnswers}</div>
+              </div>
+              <div className="bg-red-50 rounded-2xl p-4">
+                <div className="text-sm text-gray-600 mb-1">Wrong</div>
+                <div className="text-3xl font-bold text-red-700">{wrongAnswers}</div>
+              </div>
+            </div>
             
             <div className="space-y-4 mb-6">
-              <div className="bg-green-100 rounded-2xl p-4">
-                <div className="text-2xl font-bold text-green-700">Accuracy</div>
-                <div className="text-4xl font-bold text-green-800">
+              <div className={`${passed ? 'bg-green-100' : 'bg-yellow-100'} rounded-2xl p-4`}>
+                <div className="text-xl font-bold text-gray-700">Accuracy</div>
+                <div className={`text-4xl font-bold ${passed ? 'text-green-700' : 'text-yellow-700'}`}>
                   {Math.round(accuracy)}%
                 </div>
+              </div>
+              
+              <div className="bg-purple-100 rounded-2xl p-4">
+                <div className="text-xl font-bold text-gray-700">XP Earned</div>
+                <div className="text-3xl font-bold text-purple-700">+{xp} XP</div>
               </div>
             </div>
             
             <Button
               onClick={handleCompletedLesson}
-              className="w-full bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 text-white font-bold py-4 text-lg rounded-2xl shadow-lg transform transition hover:scale-105"
+              className={`w-full ${passed 
+                ? 'bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600' 
+                : 'bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600'
+              } text-white font-bold py-4 text-lg rounded-2xl shadow-lg transform transition hover:scale-105`}
             >
               Continue
             </Button>
@@ -197,6 +343,49 @@ export default function ProgressivePractice() {
       {/* Main Content Area */}
       <div className="flex-1 p-8">
         <div className="max-w-2xl mx-auto">
+          {/* Top Header with Hearts and Progress */}
+          <div className="bg-white rounded-2xl shadow-md p-4 mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-gray-600">Level {currentLevel}</span>
+              <div className="w-px h-6 bg-gray-300"></div>
+              <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Heart
+                    key={i}
+                    className={`w-6 h-6 ${i < hearts ? 'text-red-500 fill-red-500' : 'text-gray-300'}`}
+                  />
+                ))}
+              </div>
+              {hearts < 5 && timeUntilNextHeart && (
+                <div className="flex items-center gap-1 text-sm text-gray-500">
+                  <Clock className="w-4 h-4" />
+                  <span>{formatTime(timeUntilNextHeart)}</span>
+                </div>
+              )}
+            </div>
+            
+            {/* Progress Bar */}
+            <div className="flex-1 max-w-xs mx-4">
+              <div className="bg-gray-200 rounded-full h-3 relative overflow-hidden">
+                <div 
+                  className="bg-gradient-to-r from-green-400 to-green-500 h-full rounded-full transition-all duration-500"
+                  style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1 text-center">
+                {currentQuestionIndex + 1} / {questions.length}
+              </p>
+            </div>
+            
+            <Button
+              onClick={() => navigate("/")}
+              variant="ghost"
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
+
           <div className="bg-white rounded-3xl shadow-xl p-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">{currentQ.question}</h2>
             

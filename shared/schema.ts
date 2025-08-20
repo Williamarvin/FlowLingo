@@ -30,6 +30,11 @@ export const users = pgTable("users", {
   dailyGoalMinutes: integer("daily_goal_minutes").notNull().default(15),
   preferredDifficulty: text("preferred_difficulty"), // "beginner", "intermediate", "advanced"
   
+  // Hearts System
+  hearts: integer("hearts").notNull().default(5),
+  maxHearts: integer("max_hearts").notNull().default(5),
+  lastHeartLostAt: timestamp("last_heart_lost_at"),
+  
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
