@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { FileUp, PlayCircle, Download, BookOpen, Image, FileText, Video, Music, Trash2, Upload } from "lucide-react";
+import { FileUp, PlayCircle, Download, BookOpen, Image, FileText, Video, Music, Trash2, Upload, Volume2, Copy, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { MediaDocument } from "@shared/schema";
 import Sidebar from "@/components/sidebar";
+import HighlightableText from "@/components/highlightable-text";
 
 // File type configurations with support for multiple formats
 const FILE_TYPES = {
@@ -144,10 +145,125 @@ export default function MediaReader() {
     }
   };
 
+  // Handler for saving words to vocabulary
+  const handleSaveWord = useCallback(async (word: string, pinyin: string, meaning: string) => {
+    try {
+      await apiRequest(`/api/vocabulary`, {
+        method: 'POST',
+        body: JSON.stringify({
+          word,
+          pinyin,
+          meaning,
+          hskLevel: 1,
+          frequency: 0,
+          nextReview: new Date().toISOString(),
+          intervalDays: 1,
+          easeFactor: 2.5,
+          repetitions: 0
+        })
+      });
+      
+      toast({
+        title: "Word saved!",
+        description: `Added "${word}" to your vocabulary`,
+      });
+    } catch (error) {
+      console.error("Failed to save word:", error);
+      toast({
+        title: "Failed to save word",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    }
+  }, [toast]);
+
+  // Text-to-speech handler
+  const handleSpeak = (text: string) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'zh-CN';
+      utterance.rate = 0.8;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   const renderFilePreview = (document: MediaDocument) => {
     const fileTypeInfo = getFileTypeInfo(document.mimeType);
     const Icon = fileTypeInfo.icon;
 
+    // If document has text content, display it with HighlightableText component
+    if (document.content && document.content.trim()) {
+      return (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Icon className="w-5 h-5 text-muted-foreground" />
+              <span className="text-sm font-medium">{document.filename}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleSpeak(document.content || "")}
+                title="Text to Speech"
+              >
+                <Volume2 className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  navigator.clipboard.writeText(document.content || "");
+                  toast({
+                    title: "Copied!",
+                    description: "Text copied to clipboard",
+                  });
+                }}
+                title="Copy Text"
+              >
+                <Copy className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const bookmarks = JSON.parse(localStorage.getItem('mediaBookmarks') || '[]');
+                  bookmarks.push({
+                    filename: document.filename,
+                    content: document.content,
+                    date: new Date().toISOString()
+                  });
+                  localStorage.setItem('mediaBookmarks', JSON.stringify(bookmarks));
+                  toast({
+                    title: "Bookmarked!",
+                    description: "Added to your bookmarks",
+                  });
+                }}
+                title="Bookmark"
+              >
+                <Bookmark className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+
+          <div className="bg-background rounded-lg p-6 border">
+            <HighlightableText
+              text={document.content}
+              onSaveWord={handleSaveWord}
+            />
+          </div>
+
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <span><i className="fas fa-font mr-1"></i>Characters: {document.content.length}</span>
+            <span><i className="fas fa-clock mr-1"></i>Reading time: {Math.ceil(document.content.length / 300)} min</span>
+            <span><i className="fas fa-file mr-1"></i>Size: {formatFileSize(document.fileSize || 0)}</span>
+          </div>
+        </div>
+      );
+    }
+
+    // Original file type specific rendering for files without text content
     switch (fileTypeInfo.type) {
       case "image":
         return (
@@ -317,6 +433,16 @@ export default function MediaReader() {
                       // Upload file directly
                       const uploadResult = await uploadFile(file);
                       
+                      // Extract text content if it's a text file
+                      let textContent = "";
+                      if (file.type === "text/plain" || file.name.endsWith(".txt")) {
+                        textContent = await file.text();
+                      } else if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
+                        // For PDF files, we'd need a proper PDF parser
+                        // For demo, we'll add placeholder text
+                        textContent = "PDF content will be extracted here. Upload a text file (.txt) with Chinese content for best results.";
+                      }
+                      
                       // Create media document
                       await createDocumentMutation.mutateAsync({
                         filename: file.name,
@@ -324,7 +450,7 @@ export default function MediaReader() {
                         fileSize: file.size,
                         fileUrl: uploadResult.fileUrl,
                         mimeType: file.type,
-                        content: uploadResult.content || "",
+                        content: textContent || uploadResult.content || "",
                         segments: [],
                         processedContent: {}
                       });
