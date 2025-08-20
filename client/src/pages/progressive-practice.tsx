@@ -329,7 +329,7 @@ export default function ProgressivePractice() {
               )}
               
               <div className="text-center p-4 bg-brand-primary bg-opacity-10 rounded-xl">
-                <div className="text-3xl font-bold text-brand-primary mb-1">
+                <div className="text-3xl font-bold text-gray-900 mb-1">
                   {sessionStats.xpEarned}
                 </div>
                 <div className="text-sm font-medium text-gray-700">XP Earned</div>
