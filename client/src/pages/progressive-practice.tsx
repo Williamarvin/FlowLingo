@@ -421,48 +421,98 @@ export default function ProgressivePractice() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50">
-      {/* Top Bar */}
-      <div className="sticky top-0 bg-white shadow-sm z-50">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 flex">
+      {/* Left Sidebar - Duolingo Style */}
+      <div className="w-64 bg-white shadow-lg flex flex-col">
+        {/* Logo/Brand */}
+        <div className="p-6 border-b">
+          <h1 className="text-2xl font-bold text-green-500">MandarinMaster</h1>
+        </div>
+        
+        {/* Navigation Menu */}
+        <nav className="flex-1 py-6">
+          <div className="space-y-2 px-3">
             <button
               onClick={() => navigate("/")}
-              className="text-gray-400 hover:text-gray-600"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 text-left"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <span className="text-orange-500 text-xl">🏠</span>
+              <span className="font-semibold text-gray-700">Home</span>
             </button>
             
-            <div className="flex-1 mx-4">
-              {/* Level Progress Bar */}
-              <div className="flex items-center justify-center mb-1">
-                <span className="text-sm font-medium text-purple-600">Level {currentLevel}</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
-                <div 
-                  className="bg-gradient-to-r from-purple-400 to-purple-600 h-3 rounded-full transition-all duration-500" 
-                  style={{ width: `${(currentLevelXp / xpPerLevel) * 100}%` }}
-                ></div>
-              </div>
-              <div className="text-xs text-purple-600 font-medium mt-1 text-center">
-                {currentLevelXp}/{xpPerLevel} XP
-              </div>
+            <div className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-100 border-2 border-blue-300">
+              <span className="text-blue-500 text-xl">🎯</span>
+              <span className="font-bold text-blue-700">Practice</span>
             </div>
             
-            {/* Right side stats */}
-            <div className="flex items-center space-x-4">
-              {/* Streak */}
-              <div className="flex items-center">
-                <span className="text-orange-500 text-xl">🔥</span>
-                <span className="ml-1 font-bold text-gray-700">{streak}</span>
+            <button
+              onClick={() => navigate("/conversation")}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 text-left"
+            >
+              <span className="text-green-500 text-xl">💬</span>
+              <span className="font-semibold text-gray-700">Conversation</span>
+            </button>
+            
+            <button
+              onClick={() => navigate("/text-generator")}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 text-left"
+            >
+              <span className="text-purple-500 text-xl">📝</span>
+              <span className="font-semibold text-gray-700">Text Generator</span>
+            </button>
+            
+            <button
+              onClick={() => navigate("/media-reader")}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 text-left"
+            >
+              <span className="text-red-500 text-xl">📱</span>
+              <span className="font-semibold text-gray-700">Media Reader</span>
+            </button>
+            
+            <button
+              onClick={() => navigate("/vocabulary")}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 text-left"
+            >
+              <span className="text-yellow-500 text-xl">📚</span>
+              <span className="font-semibold text-gray-700">Vocabulary</span>
+            </button>
+          </div>
+        </nav>
+        
+        {/* Stats Section */}
+        <div className="p-6 border-t">
+          {/* Level Progress */}
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-bold text-purple-600">Level {currentLevel}</span>
+              <span className="text-xs text-gray-500">{currentLevelXp}/{xpPerLevel}</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-gradient-to-r from-purple-400 to-purple-600 h-2 rounded-full transition-all duration-500" 
+                style={{ width: `${(currentLevelXp / xpPerLevel) * 100}%` }}
+              ></div>
+            </div>
+          </div>
+          
+          {/* Stats Grid */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-orange-500 text-lg">🔥</span>
+                <span className="text-sm font-medium text-gray-600">Streak</span>
               </div>
-              
-              {/* Hearts */}
-              <div className="flex items-center">
+              <span className="font-bold text-gray-900">{streak}</span>
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-red-500 text-lg">❤️</span>
+                <span className="text-sm font-medium text-gray-600">Hearts</span>
+              </div>
+              <div className="flex">
                 {[...Array(5)].map((_, i) => (
-                  <span key={i} className={`text-xl ${i < hearts ? 'text-red-500' : 'text-gray-300'}`}>
+                  <span key={i} className={`text-sm ${i < hearts ? 'text-red-500' : 'text-gray-300'}`}>
                     {i < hearts ? '❤️' : '🤍'}
                   </span>
                 ))}
@@ -472,9 +522,10 @@ export default function ProgressivePractice() {
         </div>
       </div>
 
-      {/* Question Card */}
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <div className="bg-white rounded-3xl shadow-xl p-8">
+      {/* Main Content Area */}
+      <div className="flex-1 p-8">
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-white rounded-3xl shadow-xl p-8">
           <h2 className="text-2xl font-bold text-gray-800 mb-6">{currentQ.question}</h2>
           
           {currentQ.type === "multiple-choice" && (
@@ -585,6 +636,7 @@ export default function ProgressivePractice() {
               </Button>
             </div>
           )}
+          </div>
         </div>
       </div>
     </div>
