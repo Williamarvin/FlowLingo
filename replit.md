@@ -5,6 +5,13 @@
 MandarinMaster is a comprehensive Chinese language learning platform that provides interactive tools for studying Mandarin. The application features a complete progress tracking system with user levels, XP points, streak tracking, and adaptive difficulty. Key features include text generation with click-to-translate, AI-powered conversations that adapt to user level, universal media reader (PDF, video, audio, images), vocabulary management with spaced repetition, initial assessment testing, and enhanced progressive practice sessions with mandatory retry system and adaptive difficulty adjustment. Built as a full-stack web application with a React frontend and Express backend using PostgreSQL for complete data persistence.
 
 ### Recent Updates (August 2025)
+- **Assessment System Implementation**: Added comprehensive skill-based assessment with level skipping functionality
+  - 10-question assessment covering levels 1-10 with varying difficulty
+  - Score-based level placement: Score 7→Level 5, Score 8→Level 7, Score 9→Level 9, Score 10→Level 10
+  - Assessment page added to navigation menu below Home
+  - Menu reorganized: Home → Assessment → Practice → Conversation → Vocabulary → Text Generator → Media Reader
+  - Assessment results show placement level, personalized recommendations, and learning path guidance
+  - User profile tracking for assessment completion status
 - **Enhanced Sidebar UI**: Redesigned compact sidebar with user stats prominently displayed at top
   - Level and XP progress bar always visible
   - Streak counter and hearts display at top

@@ -791,6 +791,226 @@ Create substantially more comprehensive responses with extensive vocabulary prac
   });
   
   // Assessment endpoints
+  // Get assessment questions
+  app.get("/api/assessment/questions", (req, res) => {
+    // Return 10 assessment questions of varying difficulty
+    const assessmentQuestions = [
+      {
+        id: "q1",
+        type: "multiple-choice",
+        question: "What does this character mean?",
+        chinese: "你",
+        pinyin: "nǐ",
+        english: "you",
+        options: ["hello", "you", "good", "thank you"],
+        correctAnswer: "you",
+        level: 1
+      },
+      {
+        id: "q2", 
+        type: "translation",
+        question: "Choose the correct translation:",
+        chinese: "你好",
+        pinyin: "nǐ hǎo",
+        english: "hello",
+        options: ["你好", "再见", "谢谢", "对不起"],
+        correctAnswer: "你好",
+        level: 1
+      },
+      {
+        id: "q3",
+        type: "multiple-choice", 
+        question: "What does this mean?",
+        chinese: "学生",
+        pinyin: "xuéshēng",
+        english: "student",
+        options: ["teacher", "student", "school", "book"],
+        correctAnswer: "student",
+        level: 2
+      },
+      {
+        id: "q4",
+        type: "translation",
+        question: "How do you say 'thank you'?",
+        chinese: "谢谢",
+        pinyin: "xièxie", 
+        english: "thank you",
+        options: ["谢谢", "你好", "再见", "对不起"],
+        correctAnswer: "谢谢",
+        level: 2
+      },
+      {
+        id: "q5",
+        type: "multiple-choice",
+        question: "What is the meaning?",
+        chinese: "工作",
+        pinyin: "gōngzuò",
+        english: "work/job",
+        options: ["home", "work", "food", "money"],
+        correctAnswer: "work",
+        level: 3
+      },
+      {
+        id: "q6",
+        type: "translation", 
+        question: "Choose the correct Chinese:",
+        chinese: "我很忙",
+        pinyin: "wǒ hěn máng",
+        english: "I am very busy",
+        options: ["我很好", "我很忙", "我很累", "我很饿"],
+        correctAnswer: "我很忙",
+        level: 4
+      },
+      {
+        id: "q7",
+        type: "multiple-choice",
+        question: "What does this phrase mean?",
+        chinese: "经济发展",
+        pinyin: "jīngjì fāzhǎn", 
+        english: "economic development",
+        options: ["social progress", "economic development", "cultural exchange", "political reform"],
+        correctAnswer: "economic development",
+        level: 6
+      },
+      {
+        id: "q8",
+        type: "translation",
+        question: "Select the correct translation:",
+        chinese: "环境保护",
+        pinyin: "huánjìng bǎohù",
+        english: "environmental protection", 
+        options: ["环境保护", "经济发展", "社会进步", "文化交流"],
+        correctAnswer: "环境保护",
+        level: 7
+      },
+      {
+        id: "q9",
+        type: "multiple-choice",
+        question: "What is the meaning of this idiom?",
+        chinese: "画蛇添足",
+        pinyin: "huà shé tiān zú",
+        english: "to gild the lily (unnecessary addition)",
+        options: ["to work hard", "to gild the lily", "to be careful", "to save money"],
+        correctAnswer: "to gild the lily",
+        level: 9
+      },
+      {
+        id: "q10",
+        type: "translation",
+        question: "Choose the correct idiom:",
+        chinese: "亡羊补牢",
+        pinyin: "wáng yáng bǔ láo",
+        english: "better late than never",
+        options: ["亡羊补牢", "画蛇添足", "井底之蛙", "守株待兔"],
+        correctAnswer: "亡羊补牢", 
+        level: 10
+      }
+    ];
+
+    res.json(assessmentQuestions);
+  });
+
+  // Submit assessment and calculate level placement
+  app.post("/api/assessment/submit", async (req, res) => {
+    try {
+      const { answers } = req.body;
+      
+      // Get assessment questions to check answers
+      const assessmentQuestions = [
+        { id: "q1", correctAnswer: "you", level: 1 },
+        { id: "q2", correctAnswer: "你好", level: 1 },
+        { id: "q3", correctAnswer: "student", level: 2 },
+        { id: "q4", correctAnswer: "谢谢", level: 2 },
+        { id: "q5", correctAnswer: "work", level: 3 },
+        { id: "q6", correctAnswer: "我很忙", level: 4 },
+        { id: "q7", correctAnswer: "economic development", level: 6 },
+        { id: "q8", correctAnswer: "环境保护", level: 7 },
+        { id: "q9", correctAnswer: "to gild the lily", level: 9 },
+        { id: "q10", correctAnswer: "亡羊补牢", level: 10 }
+      ];
+
+      // Calculate score
+      let correctAnswers = 0;
+      for (const question of assessmentQuestions) {
+        if (answers[question.id] === question.correctAnswer) {
+          correctAnswers++;
+        }
+      }
+
+      const score = correctAnswers;
+      const percentage = Math.round((score / 10) * 100);
+      
+      // Determine level based on score with skill-based placement
+      let placementLevel = 1;
+      if (score >= 10) {
+        placementLevel = 10;
+      } else if (score >= 9) {
+        placementLevel = 9;
+      } else if (score >= 8) {
+        placementLevel = 7;
+      } else if (score >= 7) {
+        placementLevel = 5;
+      } else if (score >= 6) {
+        placementLevel = 3;
+      } else if (score >= 4) {
+        placementLevel = 2;
+      } else {
+        placementLevel = 1;
+      }
+
+      // Update user profile with new level and mark assessment as completed
+      const userId = "demo-user"; // Replace with actual user ID from session
+      const currentProfile = await storage.getUser(userId);
+      
+      await storage.updateUserProgress(userId, {
+        level: placementLevel,
+        assessmentCompleted: true,
+        xp: placementLevel * 100, // Give starting XP based on level
+        xpToNextLevel: (placementLevel + 1) * 100
+      });
+
+      // Generate recommendations based on score
+      let recommendations = [];
+      if (score >= 9) {
+        recommendations = [
+          "Practice advanced reading comprehension",
+          "Focus on idiomatic expressions and cultural nuances", 
+          "Engage in complex conversation practice"
+        ];
+      } else if (score >= 7) {
+        recommendations = [
+          "Strengthen intermediate grammar patterns",
+          "Expand vocabulary through reading practice",
+          "Practice speaking and pronunciation"
+        ];
+      } else if (score >= 5) {
+        recommendations = [
+          "Review fundamental grammar structures",
+          "Build core vocabulary systematically", 
+          "Practice basic conversation skills"
+        ];
+      } else {
+        recommendations = [
+          "Start with character recognition and basic vocabulary",
+          "Learn essential phrases for daily communication",
+          "Focus on pronunciation and tones"
+        ];
+      }
+
+      const result = {
+        score,
+        level: placementLevel,
+        percentage,
+        recommendations
+      };
+
+      res.json(result);
+    } catch (error) {
+      console.error("Assessment submission error:", error);
+      res.status(500).json({ error: "Failed to process assessment" });
+    }
+  });
+
   app.post("/api/assessment/complete", async (req, res) => {
     try {
       const { userId, score, totalQuestions, correctAnswers, recommendedLevel, strengths, weaknesses } = req.body;
