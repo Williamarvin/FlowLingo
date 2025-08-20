@@ -146,23 +146,21 @@ export default function MediaReader() {
   };
 
   // Handler for saving words to vocabulary
-  const handleSaveWord = useCallback(async (word: string, pinyin: string, meaning: string) => {
+  const handleSaveWord = useCallback(async (wordData: any) => {
     try {
-      await apiRequest(`/api/vocabulary`, {
-        method: 'POST',
-        body: JSON.stringify({
-          word,
-          pinyin,
-          meaning,
-          hskLevel: 1,
-          frequency: 0,
-          nextReview: new Date().toISOString(),
-          intervalDays: 1,
-          easeFactor: 2.5,
-          repetitions: 0
-        })
+      await apiRequest('/api/vocabulary', 'POST', {
+        word: wordData.word || wordData.chinese || wordData.text,
+        pinyin: wordData.pinyin || '',
+        meaning: wordData.meaning || wordData.english || '',
+        hskLevel: 1,
+        frequency: 0,
+        nextReview: new Date().toISOString(),
+        intervalDays: 1,
+        easeFactor: 2.5,
+        repetitions: 0
       });
       
+      const word = wordData.word || wordData.chinese || wordData.text;
       toast({
         title: "Word saved!",
         description: `Added "${word}" to your vocabulary`,
@@ -400,9 +398,62 @@ export default function MediaReader() {
             </p>
           </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* File List */}
-        <div className="lg:col-span-1">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Main Reader Area - Now Primary */}
+        <div className="lg:col-span-3 order-2 lg:order-1">
+          <Card className="h-full min-h-[600px]">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>
+                  {selectedDocument ? "Interactive Reader" : "Chinese Text Reader"}
+                </CardTitle>
+                {selectedDocument && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => deleteDocumentMutation.mutate(selectedDocument.id)}
+                    disabled={deleteDocumentMutation.isPending}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </Button>
+                )}
+              </div>
+              {selectedDocument && (
+                <CardDescription>
+                  Reading: {selectedDocument.filename}
+                </CardDescription>
+              )}
+            </CardHeader>
+            <CardContent>
+              {selectedDocument ? (
+                renderFilePreview(selectedDocument)
+              ) : (
+                <div className="text-center py-12">
+                  <FileUp className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-muted-foreground mb-4">
+                    Upload a text file (.txt) with Chinese content
+                  </p>
+                  <p className="text-sm text-muted-foreground mb-6">
+                    Click on any Chinese phrase to see translation and pinyin
+                  </p>
+                  <div className="mt-6 p-4 bg-muted rounded-lg max-w-md mx-auto">
+                    <p className="text-xs mb-2 text-muted-foreground">💡 How it works:</p>
+                    <p className="text-xs text-muted-foreground mb-2">1. Upload a .txt file with Chinese text</p>
+                    <p className="text-xs text-muted-foreground mb-2">2. Click on any Chinese phrase to translate</p>
+                    <p className="text-xs text-muted-foreground">3. Listen to pronunciation and save vocabulary</p>
+                    <div className="mt-3 pt-3 border-t">
+                      <p className="text-xs font-mono text-muted-foreground">📄 Try: sample-chinese-text.txt</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* File List Sidebar */}
+        <div className="lg:col-span-1 order-1 lg:order-2">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -410,7 +461,7 @@ export default function MediaReader() {
                 Your Files
               </CardTitle>
               <CardDescription>
-                Upload text files (.txt) with Chinese content for interactive translation
+                Upload .txt files with Chinese content
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -536,59 +587,6 @@ export default function MediaReader() {
                   })
                 )}
               </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* File Preview */}
-        <div className="lg:col-span-2">
-          <Card className="h-full">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>
-                  {selectedDocument ? "Interactive Reader" : "Upload a Text File"}
-                </CardTitle>
-                {selectedDocument && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => deleteDocumentMutation.mutate(selectedDocument.id)}
-                    disabled={deleteDocumentMutation.isPending}
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete
-                  </Button>
-                )}
-              </div>
-              {selectedDocument && (
-                <CardDescription>
-                  {selectedDocument.filename}
-                </CardDescription>
-              )}
-            </CardHeader>
-            <CardContent>
-              {selectedDocument ? (
-                renderFilePreview(selectedDocument)
-              ) : (
-                <div className="text-center py-12">
-                  <FileUp className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground mb-4">
-                    Upload a text file (.txt) with Chinese content
-                  </p>
-                  <p className="text-sm text-muted-foreground mb-6">
-                    Click on any Chinese phrase to see translation and pinyin
-                  </p>
-                  <div className="mt-6 p-4 bg-muted rounded-lg max-w-md mx-auto">
-                    <p className="text-xs mb-2 text-muted-foreground">💡 How it works:</p>
-                    <p className="text-xs text-muted-foreground mb-2">1. Upload a .txt file with Chinese text</p>
-                    <p className="text-xs text-muted-foreground mb-2">2. Click on any Chinese phrase to translate</p>
-                    <p className="text-xs text-muted-foreground">3. Listen to pronunciation and save vocabulary</p>
-                    <div className="mt-3 pt-3 border-t">
-                      <p className="text-xs font-mono text-muted-foreground">📄 Try: sample-chinese-text.txt</p>
-                    </div>
-                  </div>
-                </div>
-              )}
             </CardContent>
           </Card>
         </div>
