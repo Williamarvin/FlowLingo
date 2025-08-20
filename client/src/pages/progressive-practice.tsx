@@ -506,7 +506,7 @@ export default function ProgressivePractice() {
                   ${!showFeedback ? 'bg-white border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50' : ''}
                   ${showFeedback && selectedAnswer === option && isCorrect ? 'bg-green-100 border-2 border-green-500 scale-105' : ''}
                   ${showFeedback && selectedAnswer === option && !isCorrect ? 'bg-red-100 border-2 border-red-500 animate-shake' : ''}
-                  ${showFeedback && option === currentQ.correctAnswer && selectedAnswer !== option ? 'bg-green-100 border-2 border-green-500' : ''}
+
                   ${showFeedback && option !== currentQ.correctAnswer && selectedAnswer !== option ? 'opacity-50' : ''}
                 `}
               >
@@ -523,12 +523,21 @@ export default function ProgressivePractice() {
                   {isCorrect ? '✅ Correct!' : '❌ Not quite!'}
                 </p>
                 
-                {/* Always show the word details for learning */}
-                <div className="bg-white rounded-xl p-4 shadow-sm border">
-                  <div className="text-4xl font-bold text-gray-800 mb-2">{currentQ.chinese}</div>
-                  <div className="text-lg text-blue-600 font-medium mb-1">{currentQ.pinyin}</div>
-                  <div className="text-lg text-gray-700">{currentQ.english}</div>
-                </div>
+{!isCorrect && selectedAnswer && (
+                  <div className="bg-white rounded-xl p-4 shadow-sm border">
+                    <p className="text-sm text-gray-500 mb-2">You selected:</p>
+                    <div className="text-3xl font-bold text-red-600 mb-2">{selectedAnswer}</div>
+                    <p className="text-red-700 font-medium">This is not the correct translation.</p>
+                  </div>
+                )}
+                
+                {isCorrect && (
+                  <div className="bg-white rounded-xl p-4 shadow-sm border">
+                    <div className="text-4xl font-bold text-gray-800 mb-2">{currentQ.chinese}</div>
+                    <div className="text-lg text-blue-600 font-medium mb-1">{currentQ.pinyin}</div>
+                    <div className="text-lg text-gray-700">{currentQ.english}</div>
+                  </div>
+                )}
                 
                 {!isCorrect && (
                   <div className="mt-4 p-3 bg-red-100 rounded-lg">
