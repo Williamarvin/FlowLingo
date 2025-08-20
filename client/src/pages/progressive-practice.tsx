@@ -34,6 +34,33 @@ export default function ProgressivePractice() {
   const [hearts, setHearts] = useState(5);
   const [timeUntilNextHeart, setTimeUntilNextHeart] = useState<number | null>(null);
 
+  // Function to speak Chinese text using browser TTS
+  const speakChinese = (text: string) => {
+    if ('speechSynthesis' in window) {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      // Try to find a Chinese voice
+      const voices = window.speechSynthesis.getVoices();
+      const chineseVoice = voices.find(voice => 
+        voice.lang.includes('zh') || voice.lang.includes('cmn')
+      );
+      
+      if (chineseVoice) {
+        utterance.voice = chineseVoice;
+      }
+      
+      utterance.lang = 'zh-CN';
+      utterance.rate = 0.8;
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   // Fetch user profile to get current level and hearts
   const { data: userProfile, refetch: refetchProfile } = useQuery<any>({
     queryKey: ["/api/user/profile"],
@@ -91,6 +118,16 @@ export default function ProgressivePractice() {
       }
     }
   }, [userProfile]);
+
+  // Load voices for speech synthesis
+  useEffect(() => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
+  }, []);
 
   // Timer for heart regeneration countdown
   useEffect(() => {
@@ -385,7 +422,11 @@ export default function ProgressivePractice() {
             
             {currentQ.type === "multiple-choice" && (
               <div className="text-center mb-8">
-                <div className="text-6xl font-bold text-gray-900 mb-4 p-8 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl inline-block">
+                <div 
+                  className="text-6xl font-bold text-gray-900 mb-4 p-8 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl inline-block cursor-pointer hover:bg-gradient-to-br hover:from-blue-200 hover:to-purple-200 transition-all duration-200"
+                  onMouseEnter={() => speakChinese(currentQ.chinese)}
+                  title="Hover to hear pronunciation"
+                >
                   {currentQ.chinese}
                 </div>
               </div>
