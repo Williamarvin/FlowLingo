@@ -12,6 +12,7 @@ interface Question {
   question: string;
   chinese: string;
   english: string;
+  pinyin: string;
   options?: string[];
   correctAnswer: string | number;
   audio?: string;
@@ -92,91 +93,91 @@ export default function ProgressivePractice() {
     const lessonLength = 10;
     
     // Expanded level-based vocabulary with more words per level
-    const vocabulary: Record<number, Array<{chinese: string, english: string}>> = {
+    const vocabulary: Record<number, Array<{chinese: string, english: string, pinyin: string}>> = {
       1: [
-        {chinese: "你好", english: "hello"},
-        {chinese: "谢谢", english: "thank you"},
-        {chinese: "再见", english: "goodbye"},
-        {chinese: "早上好", english: "good morning"},
-        {chinese: "晚上好", english: "good evening"},
-        {chinese: "请", english: "please"},
-        {chinese: "对不起", english: "sorry"},
-        {chinese: "没关系", english: "it's okay"},
-        {chinese: "是", english: "yes"},
-        {chinese: "不是", english: "no"},
-        {chinese: "我", english: "I/me"},
-        {chinese: "你", english: "you"},
-        {chinese: "他", english: "he/him"},
-        {chinese: "她", english: "she/her"},
-        {chinese: "很好", english: "very good"}
+        {chinese: "你好", english: "hello", pinyin: "nǐ hǎo"},
+        {chinese: "谢谢", english: "thank you", pinyin: "xiè xiè"},
+        {chinese: "再见", english: "goodbye", pinyin: "zài jiàn"},
+        {chinese: "早上好", english: "good morning", pinyin: "zǎo shàng hǎo"},
+        {chinese: "晚上好", english: "good evening", pinyin: "wǎn shàng hǎo"},
+        {chinese: "请", english: "please", pinyin: "qǐng"},
+        {chinese: "对不起", english: "sorry", pinyin: "duì bù qǐ"},
+        {chinese: "没关系", english: "it's okay", pinyin: "méi guān xì"},
+        {chinese: "是", english: "yes", pinyin: "shì"},
+        {chinese: "不是", english: "no", pinyin: "bú shì"},
+        {chinese: "我", english: "I/me", pinyin: "wǒ"},
+        {chinese: "你", english: "you", pinyin: "nǐ"},
+        {chinese: "他", english: "he/him", pinyin: "tā"},
+        {chinese: "她", english: "she/her", pinyin: "tā"},
+        {chinese: "很好", english: "very good", pinyin: "hěn hǎo"}
       ],
       2: [
-        {chinese: "学习", english: "study"},
-        {chinese: "朋友", english: "friend"},
-        {chinese: "工作", english: "work"},
-        {chinese: "喜欢", english: "like"},
-        {chinese: "吃", english: "eat"},
-        {chinese: "喝", english: "drink"},
-        {chinese: "看", english: "watch/see"},
-        {chinese: "听", english: "listen"},
-        {chinese: "说", english: "speak"},
-        {chinese: "读", english: "read"},
-        {chinese: "写", english: "write"},
-        {chinese: "家", english: "home/family"},
-        {chinese: "学校", english: "school"},
-        {chinese: "老师", english: "teacher"},
-        {chinese: "学生", english: "student"}
+        {chinese: "学习", english: "study", pinyin: "xué xí"},
+        {chinese: "朋友", english: "friend", pinyin: "péng yǒu"},
+        {chinese: "工作", english: "work", pinyin: "gōng zuò"},
+        {chinese: "喜欢", english: "like", pinyin: "xǐ huān"},
+        {chinese: "吃", english: "eat", pinyin: "chī"},
+        {chinese: "喝", english: "drink", pinyin: "hē"},
+        {chinese: "看", english: "watch/see", pinyin: "kàn"},
+        {chinese: "听", english: "listen", pinyin: "tīng"},
+        {chinese: "说", english: "speak", pinyin: "shuō"},
+        {chinese: "读", english: "read", pinyin: "dú"},
+        {chinese: "写", english: "write", pinyin: "xiě"},
+        {chinese: "家", english: "home/family", pinyin: "jiā"},
+        {chinese: "学校", english: "school", pinyin: "xué xiào"},
+        {chinese: "老师", english: "teacher", pinyin: "lǎo shī"},
+        {chinese: "学生", english: "student", pinyin: "xué shēng"}
       ],
       3: [
-        {chinese: "电脑", english: "computer"},
-        {chinese: "咖啡", english: "coffee"},
-        {chinese: "办公室", english: "office"},
-        {chinese: "周末", english: "weekend"},
-        {chinese: "时间", english: "time"},
-        {chinese: "地方", english: "place"},
-        {chinese: "问题", english: "problem/question"},
-        {chinese: "方法", english: "method"},
-        {chinese: "机会", english: "opportunity"},
-        {chinese: "帮助", english: "help"},
-        {chinese: "重要", english: "important"},
-        {chinese: "容易", english: "easy"},
-        {chinese: "困难", english: "difficult"},
-        {chinese: "有趣", english: "interesting"},
-        {chinese: "美丽", english: "beautiful"}
+        {chinese: "电脑", english: "computer", pinyin: "diàn nǎo"},
+        {chinese: "咖啡", english: "coffee", pinyin: "kā fēi"},
+        {chinese: "办公室", english: "office", pinyin: "bàn gōng shì"},
+        {chinese: "周末", english: "weekend", pinyin: "zhōu mò"},
+        {chinese: "时间", english: "time", pinyin: "shí jiān"},
+        {chinese: "地方", english: "place", pinyin: "dì fāng"},
+        {chinese: "问题", english: "problem/question", pinyin: "wèn tí"},
+        {chinese: "方法", english: "method", pinyin: "fāng fǎ"},
+        {chinese: "机会", english: "opportunity", pinyin: "jī huì"},
+        {chinese: "帮助", english: "help", pinyin: "bāng zhù"},
+        {chinese: "重要", english: "important", pinyin: "zhòng yào"},
+        {chinese: "容易", english: "easy", pinyin: "róng yì"},
+        {chinese: "困难", english: "difficult", pinyin: "kùn nán"},
+        {chinese: "有趣", english: "interesting", pinyin: "yǒu qù"},
+        {chinese: "美丽", english: "beautiful", pinyin: "měi lì"}
       ],
       4: [
-        {chinese: "会议", english: "meeting"},
-        {chinese: "项目", english: "project"},
-        {chinese: "经理", english: "manager"},
-        {chinese: "客户", english: "customer"},
-        {chinese: "公司", english: "company"},
-        {chinese: "市场", english: "market"},
-        {chinese: "产品", english: "product"},
-        {chinese: "服务", english: "service"},
-        {chinese: "质量", english: "quality"},
-        {chinese: "价格", english: "price"},
-        {chinese: "竞争", english: "competition"},
-        {chinese: "成功", english: "success"},
-        {chinese: "失败", english: "failure"},
-        {chinese: "经验", english: "experience"},
-        {chinese: "技能", english: "skill"}
+        {chinese: "会议", english: "meeting", pinyin: "huì yì"},
+        {chinese: "项目", english: "project", pinyin: "xiàng mù"},
+        {chinese: "经理", english: "manager", pinyin: "jīng lǐ"},
+        {chinese: "客户", english: "customer", pinyin: "kè hù"},
+        {chinese: "公司", english: "company", pinyin: "gōng sī"},
+        {chinese: "市场", english: "market", pinyin: "shì chǎng"},
+        {chinese: "产品", english: "product", pinyin: "chǎn pǐn"},
+        {chinese: "服务", english: "service", pinyin: "fú wù"},
+        {chinese: "质量", english: "quality", pinyin: "zhì liàng"},
+        {chinese: "价格", english: "price", pinyin: "jià gé"},
+        {chinese: "竞争", english: "competition", pinyin: "jìng zhēng"},
+        {chinese: "成功", english: "success", pinyin: "chéng gōng"},
+        {chinese: "失败", english: "failure", pinyin: "shī bài"},
+        {chinese: "经验", english: "experience", pinyin: "jīng yàn"},
+        {chinese: "技能", english: "skill", pinyin: "jì néng"}
       ],
       5: [
-        {chinese: "发展", english: "development"},
-        {chinese: "经济", english: "economy"},
-        {chinese: "文化", english: "culture"},
-        {chinese: "社会", english: "society"},
-        {chinese: "政治", english: "politics"},
-        {chinese: "历史", english: "history"},
-        {chinese: "科学", english: "science"},
-        {chinese: "技术", english: "technology"},
-        {chinese: "教育", english: "education"},
-        {chinese: "环境", english: "environment"},
-        {chinese: "健康", english: "health"},
-        {chinese: "安全", english: "safety"},
-        {chinese: "自由", english: "freedom"},
-        {chinese: "平等", english: "equality"},
-        {chinese: "责任", english: "responsibility"}
+        {chinese: "发展", english: "development", pinyin: "fā zhǎn"},
+        {chinese: "经济", english: "economy", pinyin: "jīng jì"},
+        {chinese: "文化", english: "culture", pinyin: "wén huà"},
+        {chinese: "社会", english: "society", pinyin: "shè huì"},
+        {chinese: "政治", english: "politics", pinyin: "zhèng zhì"},
+        {chinese: "历史", english: "history", pinyin: "lì shǐ"},
+        {chinese: "科学", english: "science", pinyin: "kē xué"},
+        {chinese: "技术", english: "technology", pinyin: "jì shù"},
+        {chinese: "教育", english: "education", pinyin: "jiào yù"},
+        {chinese: "环境", english: "environment", pinyin: "huán jìng"},
+        {chinese: "健康", english: "health", pinyin: "jiàn kāng"},
+        {chinese: "安全", english: "safety", pinyin: "ān quán"},
+        {chinese: "自由", english: "freedom", pinyin: "zì yóu"},
+        {chinese: "平等", english: "equality", pinyin: "píng děng"},
+        {chinese: "责任", english: "responsibility", pinyin: "zé rèn"}
       ]
     };
 
@@ -224,6 +225,7 @@ export default function ProgressivePractice() {
           question: "What does this mean?",
           chinese: vocabItem.chinese,
           english: vocabItem.english,
+          pinyin: vocabItem.pinyin,
           options: allOptions,
           correctAnswer: vocabItem.english,
           xp: 10
@@ -244,6 +246,7 @@ export default function ProgressivePractice() {
           question: "Select the correct translation",
           chinese: vocabItem.chinese,
           english: vocabItem.english,
+          pinyin: vocabItem.pinyin,
           options: allTranslations,
           correctAnswer: vocabItem.chinese,
           xp: 10
@@ -473,18 +476,34 @@ export default function ProgressivePractice() {
           
           {/* Feedback Section */}
           {showFeedback && (
-            <div className={`p-4 rounded-2xl mb-6 ${isCorrect ? 'bg-green-50' : 'bg-red-50'}`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`font-bold text-lg ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
-                    {isCorrect ? '✅ Correct!' : '❌ Not quite!'}
-                  </p>
-                  {!isCorrect && (
-                    <p className="text-gray-600 mt-1">
-                      The correct answer is: <span className="font-semibold">{currentQ.correctAnswer}</span>
-                    </p>
-                  )}
+            <div className={`p-6 rounded-2xl mb-6 ${isCorrect ? 'bg-green-50 border-2 border-green-200' : 'bg-red-50 border-2 border-red-200'}`}>
+              <div className="text-center">
+                <p className={`font-bold text-xl mb-4 ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
+                  {isCorrect ? '✅ Correct!' : '❌ Not quite!'}
+                </p>
+                
+                {/* Always show the word details for learning */}
+                <div className="bg-white rounded-xl p-4 shadow-sm border">
+                  <div className="text-4xl font-bold text-gray-800 mb-2">{currentQ.chinese}</div>
+                  <div className="text-lg text-blue-600 font-medium mb-1">{currentQ.pinyin}</div>
+                  <div className="text-lg text-gray-700">{currentQ.english}</div>
                 </div>
+                
+                {!isCorrect && (
+                  <div className="mt-4 p-3 bg-red-100 rounded-lg">
+                    <p className="text-red-700 font-medium">
+                      The correct answer was: <span className="font-bold">{currentQ.correctAnswer}</span>
+                    </p>
+                  </div>
+                )}
+                
+                {isCorrect && (
+                  <div className="mt-4 p-3 bg-green-100 rounded-lg">
+                    <p className="text-green-700 font-medium">
+                      Great job! You're learning fast! 🎉
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           )}
