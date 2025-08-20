@@ -189,6 +189,7 @@ export default function MediaReader() {
   const renderFilePreview = (document: MediaDocument) => {
     const fileTypeInfo = getFileTypeInfo(document.mimeType);
     const Icon = fileTypeInfo.icon;
+    const isImage = fileTypeInfo.type === "image" || document.mimeType?.startsWith("image/");
 
     // If document has text content, display it with HighlightableText component
     if (document.content && document.content.trim()) {
@@ -244,6 +245,26 @@ export default function MediaReader() {
               </Button>
             </div>
           </div>
+
+          {/* Show image first if it's an image file */}
+          {isImage && document.fileUrl && (
+            <div className="mb-6">
+              <img 
+                src={document.fileUrl} 
+                alt={document.filename}
+                className="max-w-full h-auto rounded-lg border shadow-lg"
+                onError={(e) => {
+                  console.error("Image failed to load:", document.fileUrl);
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
+                  🔍 OCR Extracted Chinese Text (click to translate):
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="bg-background rounded-lg p-6 border">
             <HighlightableText
@@ -432,16 +453,17 @@ export default function MediaReader() {
                 <div className="text-center py-12">
                   <FileUp className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
                   <p className="text-muted-foreground mb-4">
-                    Upload a text file (.txt) with Chinese content
+                    Upload text files or images with Chinese content
                   </p>
                   <p className="text-sm text-muted-foreground mb-6">
                     Click on any Chinese phrase to see translation and pinyin
                   </p>
                   <div className="mt-6 p-4 bg-muted rounded-lg max-w-md mx-auto">
                     <p className="text-xs mb-2 text-muted-foreground">💡 How it works:</p>
-                    <p className="text-xs text-muted-foreground mb-2">1. Upload a .txt file with Chinese text</p>
-                    <p className="text-xs text-muted-foreground mb-2">2. Click on any Chinese phrase to translate</p>
-                    <p className="text-xs text-muted-foreground">3. Listen to pronunciation and save vocabulary</p>
+                    <p className="text-xs text-muted-foreground mb-2">1. Upload .txt files or images (.jpg, .png) with Chinese text</p>
+                    <p className="text-xs text-muted-foreground mb-2">2. Images are scanned with OCR to extract Chinese characters</p>
+                    <p className="text-xs text-muted-foreground mb-2">3. Click on any Chinese phrase to translate</p>
+                    <p className="text-xs text-muted-foreground">4. Listen to pronunciation and save vocabulary</p>
                     <div className="mt-3 pt-3 border-t">
                       <p className="text-xs font-mono text-muted-foreground">📄 Try: sample-chinese-text.txt</p>
                     </div>
@@ -461,7 +483,7 @@ export default function MediaReader() {
                 Your Files
               </CardTitle>
               <CardDescription>
-                Upload .txt files with Chinese content
+                Upload text files or images with Chinese content
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -485,15 +507,54 @@ export default function MediaReader() {
                       const uploadResult = await uploadFile(file);
                       console.log("Upload result:", uploadResult);
                       
-                      // Extract text content if it's a text file
+                      // Extract text content based on file type
                       let textContent = "";
                       if (file.type === "text/plain" || file.name.endsWith(".txt")) {
                         textContent = await file.text();
                         console.log("Extracted text content:", textContent.substring(0, 100) + "...");
+                      } else if (file.type.startsWith("image/") || /\.(jpg|jpeg|png|gif|webp)$/i.test(file.name)) {
+                        // Extract Chinese text from images using OCR
+                        console.log("Processing image with OCR...");
+                        toast({
+                          title: "Scanning image...",
+                          description: "Extracting Chinese text from image",
+                        });
+                        
+                        try {
+                          const ocrResponse = await fetch("/api/ocr/extract-chinese", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ imageUrl: uploadResult.fileUrl })
+                          });
+                          
+                          if (ocrResponse.ok) {
+                            const ocrData = await ocrResponse.json();
+                            if (ocrData.hasChineseText) {
+                              textContent = ocrData.extractedText;
+                              console.log("OCR extracted text:", textContent.substring(0, 100) + "...");
+                              toast({
+                                title: "Chinese text detected!",
+                                description: "Text extracted successfully from image",
+                              });
+                            } else {
+                              toast({
+                                title: "No Chinese text found",
+                                description: "Try uploading an image with Chinese characters",
+                                variant: "default",
+                              });
+                            }
+                          }
+                        } catch (ocrError) {
+                          console.error("OCR processing failed:", ocrError);
+                          toast({
+                            title: "OCR processing failed",
+                            description: "Could not extract text from image",
+                            variant: "destructive",
+                          });
+                        }
                       } else if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
                         // For PDF files, we'd need a proper PDF parser
-                        // For demo, we'll add placeholder text
-                        textContent = "PDF content will be extracted here. Upload a text file (.txt) with Chinese content for best results.";
+                        textContent = "PDF content will be extracted here. Upload a text file (.txt) or image with Chinese content for best results.";
                       }
                       
                       // Create media document

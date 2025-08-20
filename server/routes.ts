@@ -430,6 +430,64 @@ Output: Only Chinese text, no explanations.`;
     }
   });
 
+  // OCR endpoint for extracting text from images
+  app.post("/api/ocr/extract-chinese", async (req, res) => {
+    try {
+      const { imageUrl } = req.body;
+      
+      if (!imageUrl) {
+        return res.status(400).json({ error: "Image URL is required" });
+      }
+
+      // Fetch the image data
+      const imageResponse = await fetch(imageUrl);
+      if (!imageResponse.ok) {
+        throw new Error("Failed to fetch image");
+      }
+      
+      const imageBuffer = await imageResponse.arrayBuffer();
+      const base64Image = Buffer.from(imageBuffer).toString('base64');
+      
+      // Use OpenAI's vision API to extract Chinese text
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: "You are an OCR expert specialized in extracting Chinese text from images. Extract all Chinese characters and text you can see in the image. Return the extracted text maintaining the original layout as much as possible. If no Chinese text is found, return an empty string."
+          },
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: "Extract all Chinese text from this image:"
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:image/jpeg;base64,${base64Image}`
+                }
+              }
+            ]
+          }
+        ],
+        max_tokens: 1000
+      });
+
+      const extractedText = completion.choices[0].message.content || "";
+      
+      res.json({ 
+        success: true,
+        extractedText,
+        hasChineseText: extractedText.length > 0
+      });
+    } catch (error) {
+      console.error("OCR extraction error:", error);
+      res.status(500).json({ error: "Failed to extract text from image" });
+    }
+  });
+
   // Translation endpoint
   app.post("/api/translate", async (req, res) => {
     try {
@@ -958,8 +1016,18 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       }
 
       const mediaDoc = await storage.createMediaDocument({
-        ...result.data,
-        userId: DEMO_USER_ID
+        userId: DEMO_USER_ID,
+        filename: result.data.filename,
+        fileType: result.data.fileType,
+        mimeType: result.data.mimeType,
+        fileUrl: result.data.fileUrl,
+        fileSize: result.data.fileSize,
+        content: result.data.content,
+        segments: result.data.segments,
+        pageCount: result.data.pageCount,
+        duration: result.data.duration,
+        thumbnailUrl: result.data.thumbnailUrl,
+        processedContent: result.data.processedContent
       });
 
       res.status(201).json(mediaDoc);
