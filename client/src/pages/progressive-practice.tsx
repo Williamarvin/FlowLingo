@@ -36,6 +36,10 @@ export default function ProgressivePractice() {
   const xpPerLevel = 100;
   const currentLevelXp = xp % xpPerLevel;
   const xpToNextLevel = xpPerLevel - currentLevelXp;
+  
+  // Calculate questions needed to reach next level (assuming 10 XP per question)
+  const xpPerQuestion = 10;
+  const questionsToNextLevel = Math.ceil(xpToNextLevel / xpPerQuestion);
   const [incorrectSound] = useState(new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE"));
   const [correctSound] = useState(new Audio("data:audio/wav;base64,UklGRiQGAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YQAGAAD/////AAECAgIBAAAA//7+/v8AAAEAAQACAQEAAP///v7//wAAAQACAgICAAD+/f39/v8AAAEAAQADAQEAAP/+/f3+/wEAAQABAAECAQEAAP////7//wAAAAABAAEBAQEAAP///v7+/wAAAgABAAEBAQEBAP/////+/wEBAAEAAQABAAEBAQD//v7+//8AAAEBAQD/AAEBAQEAAP////7//wAAAQEBAAEAAQEBAQAA//7+/v8AAAEAAQACAQEAAP///v7//wAAAQACAgIBAAD+/f39/v8AAAEAAQADAQEAAP/+/f3+/wEAAQABAAECAQEAAP////7//wAAAAABAAEBAQEAAP///v7+/wAAAgABAAEBAQEBAP/////+/wEBAAEAAQABAAEBAQD//v7+//8AAAEBAQD/AAEBAQEAAP////7//wAAAQEBAAEAAQEBAQAA//7+/v8AAAEAAQACAQEAAP///v7//wAAAQACAgICAAD+/f39/v8AAAEAAQADAQEAAP/+/f3+/wEAAQABAAECAQEAAP////7//wAAAAABAAEBAQEAAP///v7+/wAAAgABAAEBAQEBAP/////+/wEBAAEAAQABAAEBAQD//v7+//8AAAEBAQD/AAEBAQEAAP////7//wAAAQEBAAEAAQEBAQAA//7+/v8AAAEAAQACAQEAAP///v7//wAAAQACAgIBAAD+/f39/v8AAAEAAQADAQEAAP/+/f3+/wEAAQABAAECAQEAAP////7//wAAAAABAAEBAQEAAP///v7+/wAAAgABAAEBAQEBAP/////+/wEBAAEAAQABAAEBAQD//v7+//8AAAEBAQD/AAEBAQEAAP////7//wAAAQEBAAEAAQEBAQAA//7+/v8AAAEAAQACAQEAAP///v7//wAAAQACAgICAAD+/f39/v8AAAEAAQADAQEAAP/+/f3+/wEAAQABAAECAQEAAP////7//wAAAAABAAEBAQEAAP///v7+/wAAAgABAAEBAQEBAP/////+/wEBAAEAAQABAAEBAQD//v7+//8AAAEBAQD/AAEBAQEAAP////7//wAAAQEBAAEAAQEBAQAA//7+/v8AAAEAAQACAQEAAP///v7//wAAAQACAgIBAAD+/f39/v8AAAEAAQADAQEAAP/+/f3+/wEAAQABAAECAQEAAP////7//wAAAAABAAEBAQEAAP///v7+/wAAAgABAAEBAQEBAP/////+/wEBAAEAAQABAAEBAQD//v7+//8AAAEBAQD/AAEBAQEAAP////7//wAAAQEBAAEAAQEBAQAA//7+/v8AAAEAAQACAQEAAP///v7//wAAAQACAgICAAD+/f39/v8AAAEAAQADAQEAAP/+/f3+/wEAAQABAAECAQEAAP////7//wAAAAABAAEBAQEAAP///v7+/wAAAgABAAEBAQEBAP/////+/wEBAAEAAQABAAEBAQD//v7+//8AAAEBAQD/AAEBAQEAAP////7//wAAAQEBAAEAAQEBAQAA//7+/v8AAAEAAQACAQEAAP///v7//wAAAQACAgIBAAD+/f39/v8AAAEAAQADAQEAAP/+/f3+/wEAAQABAAECAQEAAA=="));
 
@@ -45,8 +49,8 @@ export default function ProgressivePractice() {
   });
 
   useEffect(() => {
-    if (userProfile?.level) {
-      setCurrentLevel(userProfile.level);
+    if (userProfile) {
+      setCurrentLevel(userProfile.level || 1);
       setXp(userProfile.xp || 0);
       setStreak(userProfile.streakDays || 0);
     }
@@ -299,12 +303,18 @@ export default function ProgressivePractice() {
             
             <div className="flex items-center space-x-4">
               {/* Level with XP Progress */}
-              <div className="flex flex-col items-center">
-                <div className="flex items-center bg-purple-100 rounded-full px-3 py-1">
+              <div className="flex flex-col items-center min-w-[100px]">
+                <div className="flex items-center bg-purple-100 rounded-full px-3 py-1 mb-1">
                   <span className="text-purple-600 text-sm font-bold">Level {currentLevel}</span>
                 </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {xpToNextLevel} XP to next level
+                <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1">
+                  <div 
+                    className="bg-purple-500 h-1.5 rounded-full transition-all duration-300" 
+                    style={{ width: `${(currentLevelXp / xpPerLevel) * 100}%` }}
+                  ></div>
+                </div>
+                <div className="text-xs text-gray-500 text-center">
+                  {questionsToNextLevel} questions to Level {currentLevel + 1}
                 </div>
               </div>
               
