@@ -173,19 +173,25 @@ function generatePracticeQuestions(level: number) {
     
     if (type === "multiple-choice") {
       // Chinese to English
-      const options = [correctWord.english];
+      const optionWords = [correctWord];
       const usedIndices = new Set([correctIndex]);
       
-      while (options.length < 4 && options.length < availableVocab.length) {
+      while (optionWords.length < 4 && optionWords.length < availableVocab.length) {
         const randomIndex = Math.floor(Math.random() * availableVocab.length);
         if (!usedIndices.has(randomIndex)) {
-          options.push(availableVocab[randomIndex].english);
+          optionWords.push(availableVocab[randomIndex]);
           usedIndices.add(randomIndex);
         }
       }
       
-      // Shuffle options
-      options.sort(() => Math.random() - 0.5);
+      // Shuffle option words
+      const shuffledWords = [...optionWords].sort(() => Math.random() - 0.5);
+      const options = shuffledWords.map(word => word.english);
+      const optionDetails = shuffledWords.map(word => ({
+        chinese: word.chinese,
+        pinyin: word.pinyin,
+        english: word.english
+      }));
       
       questions.push({
         id: `q${i + 1}`,
@@ -195,23 +201,30 @@ function generatePracticeQuestions(level: number) {
         pinyin: correctWord.pinyin,
         english: correctWord.english,
         options: options,
+        optionDetails: optionDetails,
         correctAnswer: correctWord.english
       });
     } else {
       // English to Chinese
-      const options = [correctWord.chinese];
+      const optionWords = [correctWord];
       const usedIndices = new Set([correctIndex]);
       
-      while (options.length < 4 && options.length < availableVocab.length) {
+      while (optionWords.length < 4 && optionWords.length < availableVocab.length) {
         const randomIndex = Math.floor(Math.random() * availableVocab.length);
         if (!usedIndices.has(randomIndex)) {
-          options.push(availableVocab[randomIndex].chinese);
+          optionWords.push(availableVocab[randomIndex]);
           usedIndices.add(randomIndex);
         }
       }
       
-      // Shuffle options
-      options.sort(() => Math.random() - 0.5);
+      // Shuffle option words
+      const shuffledWords = [...optionWords].sort(() => Math.random() - 0.5);
+      const options = shuffledWords.map(word => word.chinese);
+      const optionDetails = shuffledWords.map(word => ({
+        chinese: word.chinese,
+        pinyin: word.pinyin,
+        english: word.english
+      }));
       
       questions.push({
         id: `q${i + 1}`,
@@ -221,6 +234,7 @@ function generatePracticeQuestions(level: number) {
         pinyin: correctWord.pinyin,
         english: correctWord.english,
         options: options,
+        optionDetails: optionDetails,
         correctAnswer: correctWord.chinese
       });
     }

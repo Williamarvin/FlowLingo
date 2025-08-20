@@ -431,45 +431,45 @@ export default function ProgressivePractice() {
                     <div className="bg-white rounded-xl p-4 shadow-sm border">
                       <div className="text-center">
                         <p className="text-sm text-gray-600 mb-2">Your answer:</p>
-                        {/* Find the selected wrong answer's details */}
+                        {/* Show the selected wrong answer's details */}
                         {(() => {
                           // For multiple-choice questions (Chinese to English)
                           if (currentQ.type === "multiple-choice") {
                             // selectedAnswer is the English translation
-                            // We need to find which Chinese word corresponds to this wrong English answer
-                            const wrongAnswerData = questions.find(q => 
-                              q.english === selectedAnswer && q.chinese !== currentQ.chinese
-                            );
-                            if (wrongAnswerData) {
+                            // Find the index of the selected answer
+                            const selectedIndex = currentQ.options.indexOf(selectedAnswer);
+                            // Get the hanzi and pinyin from the optionDetails (if available)
+                            const optionDetails = (currentQ as any).optionDetails;
+                            if (optionDetails && optionDetails[selectedIndex]) {
                               return (
                                 <>
-                                  <div className="text-3xl font-bold text-gray-800 mb-1">{wrongAnswerData.chinese}</div>
-                                  <div className="text-lg text-blue-600 font-medium mb-1">{wrongAnswerData.pinyin}</div>
-                                  <div className="text-xl text-red-600">{wrongAnswerData.english}</div>
+                                  <div className="text-3xl font-bold text-gray-800 mb-1">{optionDetails[selectedIndex].chinese}</div>
+                                  <div className="text-lg text-blue-600 font-medium mb-1">{optionDetails[selectedIndex].pinyin}</div>
+                                  <div className="text-xl text-red-600">{selectedAnswer}</div>
                                 </>
                               );
                             } else {
-                              // Fallback: just show the selected answer
+                              // Just show the English translation
                               return <div className="text-xl text-red-600">{selectedAnswer}</div>;
                             }
                           } else {
                             // For translation questions (English to Chinese)
                             // selectedAnswer is the Chinese character
-                            // We need to find which word corresponds to this wrong Chinese answer
-                            const wrongAnswerData = questions.find(q => 
-                              q.chinese === selectedAnswer && q.english !== currentQ.english
-                            );
-                            if (wrongAnswerData) {
+                            // Find the index of the selected answer
+                            const selectedIndex = currentQ.options.indexOf(selectedAnswer);
+                            // Get the pinyin and english from the optionDetails (if available)
+                            const optionDetails = (currentQ as any).optionDetails;
+                            if (optionDetails && optionDetails[selectedIndex]) {
                               return (
                                 <>
-                                  <div className="text-3xl font-bold text-gray-800 mb-1">{wrongAnswerData.chinese}</div>
-                                  <div className="text-lg text-blue-600 font-medium mb-1">{wrongAnswerData.pinyin}</div>
-                                  <div className="text-xl text-red-600">{wrongAnswerData.english}</div>
+                                  <div className="text-3xl font-bold text-gray-800 mb-1">{selectedAnswer}</div>
+                                  <div className="text-lg text-blue-600 font-medium mb-1">{optionDetails[selectedIndex].pinyin}</div>
+                                  <div className="text-xl text-red-600">{optionDetails[selectedIndex].english}</div>
                                 </>
                               );
                             } else {
-                              // Fallback: just show the selected answer
-                              return <div className="text-xl text-red-600">{selectedAnswer}</div>;
+                              // Just show the Chinese character
+                              return <div className="text-3xl font-bold text-red-600">{selectedAnswer}</div>;
                             }
                           }
                         })()}
