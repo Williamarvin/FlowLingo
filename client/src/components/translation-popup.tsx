@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { audioManager } from "@/lib/audioManager";
 
 interface TranslationData {
   character: string;
@@ -39,52 +40,12 @@ export default function TranslationPopup({ isOpen, onClose, translation, onSaveW
     setIsPlaying(true);
     
     try {
-      // Call the OpenAI TTS endpoint
-      const response = await fetch('/api/tts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text: translation.character }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate speech');
-      }
-
-      // Get the audio blob
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
-      
-      // Play the audio
-      const audio = new Audio(audioUrl);
-      audio.playbackRate = 1.0; // Normal speed since we already set it slower on server
-      
-      audio.onended = () => {
-        setIsPlaying(false);
-        URL.revokeObjectURL(audioUrl);
-      };
-      
-      audio.onerror = () => {
-        setIsPlaying(false);
-        URL.revokeObjectURL(audioUrl);
-      };
-      
-      await audio.play();
+      // Use audioManager with slower speed (0.6) for highlighted text
+      await audioManager.playTTS(translation.character, 0.6);
+      setIsPlaying(false);
     } catch (error) {
       console.error('TTS error:', error);
       setIsPlaying(false);
-      
-      // Fallback to browser speech synthesis
-      if ('speechSynthesis' in window) {
-        speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(translation.character);
-        utterance.lang = 'zh-CN';
-        utterance.rate = 0.8;
-        utterance.onend = () => setIsPlaying(false);
-        utterance.onerror = () => setIsPlaying(false);
-        speechSynthesis.speak(utterance);
-      }
     }
   };
 

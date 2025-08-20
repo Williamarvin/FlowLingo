@@ -7,6 +7,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import Sidebar from "@/components/sidebar";
 import { Mic, MicOff, Phone, PhoneOff, Volume2, Loader2, User, Bot, Settings, Speaker } from "lucide-react";
+import { audioManager } from "@/lib/audioManager";
 
 interface Message {
   content: string;
@@ -238,83 +239,36 @@ export default function AiConversation() {
     setIsSpeaking(true);
     
     try {
-      // Call the OpenAI TTS endpoint
-      const response = await fetch('/api/tts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate speech');
-      }
-
-      // Get the audio blob
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
+      // Use audioManager with normal conversation speed
+      await audioManager.playTTS(text, 0.9);
+      setIsSpeaking(false);
       
-      // Play the audio
-      const audio = new Audio(audioUrl);
-      audio.playbackRate = 1.0; // Normal speed since we already set it slower on server
-      
-      audio.onended = () => {
-        setIsSpeaking(false);
-        URL.revokeObjectURL(audioUrl);
-        
-        // Resume listening after speaking
-        if (isInCall) {
-          setIsListening(true);
-          // Restart speech recognition
-          if (recognitionRef.current) {
-            try {
-              recognitionRef.current.start();
-            } catch (e) {
-              console.log('Recognition restart after speaking');
-            }
+      // Resume listening after speaking
+      if (isInCall) {
+        setIsListening(true);
+        // Restart speech recognition
+        if (recognitionRef.current) {
+          try {
+            recognitionRef.current.start();
+          } catch (e) {
+            console.log('Recognition restart after speaking');
           }
         }
-      };
-      
-      audio.onerror = () => {
-        setIsSpeaking(false);
-        setIsListening(true);
-        URL.revokeObjectURL(audioUrl);
-      };
-      
-      await audio.play();
+      }
     } catch (error) {
       console.error('TTS error:', error);
       setIsSpeaking(false);
       
-      // Fallback to browser speech synthesis
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'zh-CN';
-        utterance.rate = 0.9;
-        
-        utterance.onend = () => {
-          setIsSpeaking(false);
-          if (isInCall) {
-            setIsListening(true);
-            if (recognitionRef.current) {
-              try {
-                recognitionRef.current.start();
-              } catch (e) {
-                console.log('Recognition restart after speaking fallback');
-              }
-            }
+      // Resume listening even on error
+      if (isInCall) {
+        setIsListening(true);
+        if (recognitionRef.current) {
+          try {
+            recognitionRef.current.start();
+          } catch (e) {
+            console.log('Recognition restart after error');
           }
-        };
-        
-        utterance.onerror = () => {
-          setIsSpeaking(false);
-          setIsListening(true);
-        };
-        
-        window.speechSynthesis.speak(utterance);
+        }
       }
     }
   };

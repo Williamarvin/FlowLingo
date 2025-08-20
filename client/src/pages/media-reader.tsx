@@ -9,6 +9,7 @@ import { apiRequest } from "@/lib/queryClient";
 import type { MediaDocument } from "@shared/schema";
 import Sidebar from "@/components/sidebar";
 import HighlightableText from "@/components/highlightable-text";
+import { audioManager } from "@/lib/audioManager";
 
 // File type configurations with support for multiple formats
 const FILE_TYPES = {
@@ -178,42 +179,10 @@ export default function MediaReader() {
   // Text-to-speech handler using OpenAI TTS
   const handleSpeak = async (text: string) => {
     try {
-      // Call the OpenAI TTS endpoint
-      const response = await fetch('/api/tts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate speech');
-      }
-
-      // Get the audio blob
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
-      
-      // Play the audio
-      const audio = new Audio(audioUrl);
-      audio.playbackRate = 1.0; // Normal speed since we already set it slower on server
-      await audio.play();
-      
-      // Clean up the URL after playing
-      audio.onended = () => {
-        URL.revokeObjectURL(audioUrl);
-      };
+      // Use audioManager with normal speed for document reading
+      await audioManager.playTTS(text, 0.8);
     } catch (error) {
       console.error('TTS error:', error);
-      // Fallback to browser speech synthesis
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'zh-CN';
-        utterance.rate = 0.8;
-        window.speechSynthesis.speak(utterance);
-      }
     }
   };
 
