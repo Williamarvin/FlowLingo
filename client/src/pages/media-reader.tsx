@@ -410,7 +410,7 @@ export default function MediaReader() {
                 Your Files
               </CardTitle>
               <CardDescription>
-                Upload new files or select existing ones to view
+                Upload text files (.txt) with Chinese content for interactive translation
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -546,7 +546,7 @@ export default function MediaReader() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>
-                  {selectedDocument ? "File Preview" : "Select a File"}
+                  {selectedDocument ? "Interactive Reader" : "Upload a Text File"}
                 </CardTitle>
                 {selectedDocument && (
                   <Button
@@ -572,9 +572,21 @@ export default function MediaReader() {
               ) : (
                 <div className="text-center py-12">
                   <FileUp className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground">
-                    Select a file from the list to preview it here
+                  <p className="text-muted-foreground mb-4">
+                    Upload a text file (.txt) with Chinese content
                   </p>
+                  <p className="text-sm text-muted-foreground mb-6">
+                    Click on any Chinese phrase to see translation and pinyin
+                  </p>
+                  <div className="mt-6 p-4 bg-muted rounded-lg max-w-md mx-auto">
+                    <p className="text-xs mb-2 text-muted-foreground">💡 How it works:</p>
+                    <p className="text-xs text-muted-foreground mb-2">1. Upload a .txt file with Chinese text</p>
+                    <p className="text-xs text-muted-foreground mb-2">2. Click on any Chinese phrase to translate</p>
+                    <p className="text-xs text-muted-foreground">3. Listen to pronunciation and save vocabulary</p>
+                    <div className="mt-3 pt-3 border-t">
+                      <p className="text-xs font-mono text-muted-foreground">📄 Try: sample-chinese-text.txt</p>
+                    </div>
+                  </div>
                 </div>
               )}
             </CardContent>
