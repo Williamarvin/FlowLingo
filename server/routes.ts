@@ -7,6 +7,15 @@ import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import OpenAI from "openai";
 
+// In-memory storage for uploaded files (in production, use cloud storage)
+const uploadedFiles = new Map<string, {
+  id: string;
+  buffer: Buffer;
+  size: number;
+  contentType: string;
+  uploadedAt: Date;
+}>();
+
 // Function to segment Chinese text into meaningful phrases (2-3 character compounds)
 function segmentChineseText(text: string) {
   const segments = [];
@@ -780,6 +789,17 @@ Create substantially more comprehensive responses with extensive vocabulary prac
         const buffer = Buffer.concat(chunks);
         const contentType = req.headers['content-type'] || 'application/octet-stream';
         
+        // Store the uploaded file in memory
+        const fileData = {
+          id: uploadId,
+          buffer: buffer,
+          size: buffer.length,
+          contentType: contentType,
+          uploadedAt: new Date()
+        };
+        
+        uploadedFiles.set(uploadId, fileData);
+        
         // Log successful upload
         console.log(`File upload successful - ID: ${uploadId}, Size: ${buffer.length} bytes, Type: ${contentType}`);
         
@@ -802,6 +822,23 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       console.error("Error handling file upload:", error);
       res.status(500).json({ error: "Failed to upload file" });
     }
+  });
+
+  // Serve uploaded files from memory
+  app.get("/api/media/files/:uploadId", (req, res) => {
+    const { uploadId } = req.params;
+    const fileData = uploadedFiles.get(uploadId);
+    
+    if (!fileData) {
+      return res.status(404).json({ error: "File not found" });
+    }
+    
+    // Set appropriate headers
+    res.setHeader('Content-Type', fileData.contentType);
+    res.setHeader('Content-Length', fileData.size.toString());
+    
+    // Send the file buffer
+    res.send(fileData.buffer);
   });
 
   app.post("/api/media", async (req, res) => {
