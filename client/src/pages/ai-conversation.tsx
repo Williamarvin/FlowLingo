@@ -108,8 +108,11 @@ export default function AiConversation() {
         
         // Set new silence timer (2 seconds of silence triggers processing)
         silenceTimerRef.current = setTimeout(() => {
-          if (interimTranscript && isListening) {
-            handleUserSpeech(interimTranscript);
+          if ((interimTranscript || finalTranscript) && isListening) {
+            const speechToProcess = finalTranscript || interimTranscript;
+            if (speechToProcess.trim()) {
+              handleUserSpeech(speechToProcess);
+            }
           }
         }, 2000);
       };
@@ -125,11 +128,13 @@ export default function AiConversation() {
       };
       
       recognitionRef.current.onend = () => {
-        // Restart if still in call
-        if (isInCall && isListening) {
+        // Restart if still in call and should be listening
+        if (isInCall && isListening && !isSpeaking && !conversationMutation.isPending) {
           setTimeout(() => {
             try {
-              recognitionRef.current.start();
+              if (isListening && isInCall) { // Double-check state
+                recognitionRef.current.start();
+              }
             } catch (e) {
               console.log('Restarting recognition...');
             }
@@ -137,24 +142,28 @@ export default function AiConversation() {
         }
       };
     }
-  }, [isInCall, isListening]);
+  }, [isInCall, isListening, isSpeaking, conversationMutation.isPending]);
 
   const handleUserSpeech = (speech: string) => {
     if (!speech.trim() || !isInCall) return;
+    
+    // Clear silence timer first
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
     
     // Stop listening and recognition while processing
     setIsListening(false);
     setTranscript("");
     
-    // Stop speech recognition temporarily
+    // Stop speech recognition immediately
     if (recognitionRef.current) {
-      recognitionRef.current.stop();
-    }
-    
-    // Clear silence timer
-    if (silenceTimerRef.current) {
-      clearTimeout(silenceTimerRef.current);
-      silenceTimerRef.current = null;
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {
+        console.log('Recognition already stopped');
+      }
     }
     
     const userMessage: Message = {
