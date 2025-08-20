@@ -58,6 +58,7 @@ export default function MediaReader() {
       fileUrl: string;
       mimeType: string;
       content?: string;
+      segments?: any[];
       processedContent?: any;
     }) => {
       const response = await fetch("/api/media", {
@@ -159,14 +160,16 @@ export default function MediaReader() {
           fileUrl: uploadURL,
           mimeType,
           content,
+          segments: [], // Required field with default empty array
           processedContent,
         });
 
       } catch (error) {
         console.error("Processing error:", error);
+        const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
         toast({
           title: "Processing failed",
-          description: "Failed to process uploaded file",
+          description: `Failed to process uploaded file: ${errorMessage}`,
           variant: "destructive",
         });
       } finally {
