@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Sidebar from "@/components/sidebar";
+import TestSelect from "@/components/TestSelect";
 
 export default function TextGenerator() {
   const [topic, setTopic] = useState("Daily Conversation");
@@ -98,23 +99,12 @@ export default function TextGenerator() {
             <div className="space-y-5">
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2">Topic</label>
-                <Select value={topic} onValueChange={setTopic}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a topic" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Daily Conversation">Daily Conversation</SelectItem>
-                    <SelectItem value="Business Chinese">Business Chinese</SelectItem>
-                    <SelectItem value="Travel Phrases">Travel Phrases</SelectItem>
-                    <SelectItem value="Food & Dining">Food & Dining</SelectItem>
-                    <SelectItem value="Shopping">Shopping</SelectItem>
-                  </SelectContent>
-                </Select>
+                <TestSelect />
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2">Difficulty</label>
-                <Select value={difficulty} onValueChange={setDifficulty}>
+                <Select value={difficulty} onValueChange={(value) => setDifficulty(value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select difficulty" />
                   </SelectTrigger>
@@ -128,7 +118,7 @@ export default function TextGenerator() {
               
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2">Text Length</label>
-                <Select value={length} onValueChange={setLength}>
+                <Select value={length} onValueChange={(value) => setLength(value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select text length" />
                   </SelectTrigger>
