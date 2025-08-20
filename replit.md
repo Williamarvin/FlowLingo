@@ -8,6 +8,8 @@ MandarinMaster is a comprehensive Chinese language learning platform that provid
 - **Enhanced Sidebar UI**: Redesigned compact sidebar with user stats prominently displayed at top
   - Level and XP progress bar always visible
   - Streak counter and hearts display at top
+  - Heart regeneration timer shows when hearts < 5 ("+❤️ in MM:SS")
+  - Auto-refreshes every 10 seconds to update hearts status
   - Reduced height for better screen utilization
   - Quick "Start Practice" button at bottom
   - Consistent stats display across all pages

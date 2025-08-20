@@ -1,5 +1,6 @@
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 
 interface SidebarProps {
   currentPage: string;
@@ -7,10 +8,12 @@ interface SidebarProps {
 
 export default function Sidebar({ currentPage }: SidebarProps) {
   const [, navigate] = useLocation();
+  const [timeToNextHeart, setTimeToNextHeart] = useState<string>("");
   
   // Get user profile data for stats
   const { data: userProfile } = useQuery<any>({
     queryKey: ["/api/user/profile"],
+    refetchInterval: 10000, // Refetch every 10 seconds to update hearts
   });
 
   // Calculate current level XP
@@ -20,6 +23,37 @@ export default function Sidebar({ currentPage }: SidebarProps) {
   const currentLevelXp = totalXp % xpPerLevel;
   const streak = userProfile?.streakDays || 0;
   const hearts = userProfile?.hearts ?? 5;
+  const lastHeartLostAt = userProfile?.lastHeartLostAt;
+  
+  // Calculate time to next heart regeneration
+  useEffect(() => {
+    if (hearts >= 5 || !lastHeartLostAt) {
+      setTimeToNextHeart("");
+      return;
+    }
+
+    const updateTimer = () => {
+      const now = new Date().getTime();
+      const lastLost = new Date(lastHeartLostAt).getTime();
+      const hourInMs = 60 * 60 * 1000;
+      const timeSinceLost = now - lastLost;
+      const timeUntilRegen = hourInMs - (timeSinceLost % hourInMs);
+      
+      if (timeUntilRegen <= 0) {
+        setTimeToNextHeart("");
+        return;
+      }
+      
+      const minutes = Math.floor(timeUntilRegen / 60000);
+      const seconds = Math.floor((timeUntilRegen % 60000) / 1000);
+      setTimeToNextHeart(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    
+    return () => clearInterval(interval);
+  }, [hearts, lastHeartLostAt]);
 
   const menuItems = [
     { path: "/", icon: "🏠", label: "Home", color: "text-orange-500" },
@@ -63,12 +97,21 @@ export default function Sidebar({ currentPage }: SidebarProps) {
           </div>
           
           {/* Hearts */}
-          <div className="flex items-center gap-0.5">
-            {[...Array(5)].map((_, i) => (
-              <span key={i} className="text-base">
-                {i < hearts ? '❤️' : '💔'}
-              </span>
-            ))}
+          <div className="flex flex-col items-end">
+            <div className="flex items-center gap-0.5">
+              {[...Array(5)].map((_, i) => (
+                <span key={i} className="text-base">
+                  {i < hearts ? '❤️' : '💔'}
+                </span>
+              ))}
+            </div>
+            {/* Timer for next heart */}
+            {timeToNextHeart && hearts < 5 && (
+              <div className="text-xs text-red-600 font-medium mt-0.5 flex items-center gap-1">
+                <span>+❤️ in</span>
+                <span className="font-mono">{timeToNextHeart}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
