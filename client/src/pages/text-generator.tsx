@@ -5,6 +5,7 @@ import HighlightableText from "@/components/highlightable-text";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Sidebar from "@/components/sidebar";
 
 export default function TextGenerator() {
   const [topic, setTopic] = useState("Daily Conversation");
@@ -80,11 +81,14 @@ export default function TextGenerator() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-text-primary mb-4">Interactive Text Practice</h2>
-        <p className="text-text-secondary">Generate Chinese text and highlight any word or phrase for instant English and Pinyin translations.</p>
-      </div>
+    <div className="min-h-screen flex">
+      <Sidebar currentPage="/text-generator" />
+      <div className="flex-1 p-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-text-primary mb-4">Interactive Text Practice</h2>
+            <p className="text-text-secondary">Generate Chinese text and highlight any word or phrase for instant English and Pinyin translations.</p>
+          </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Text Generation Controls */}
@@ -224,6 +228,8 @@ export default function TextGenerator() {
                 </div>
               )}
           </div>
+        </div>
+      </div>
         </div>
       </div>
     </div>

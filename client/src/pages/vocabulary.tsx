@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-
 import { Button } from "@/components/ui/button";
+import Sidebar from "@/components/sidebar";
 
 export default function Vocabulary() {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -116,11 +116,14 @@ export default function Vocabulary() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-text-primary mb-4">Smart Vocabulary Builder</h2>
-        <p className="text-text-secondary">Build your Chinese vocabulary with spaced repetition and intelligent review scheduling.</p>
-      </div>
+    <div className="min-h-screen flex">
+      <Sidebar currentPage="/vocabulary" />
+      <div className="flex-1 p-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-text-primary mb-4">Smart Vocabulary Builder</h2>
+            <p className="text-text-secondary">Build your Chinese vocabulary with spaced repetition and intelligent review scheduling.</p>
+          </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Progress Overview */}
@@ -451,6 +454,8 @@ export default function Vocabulary() {
             )}
             
           </div>
+        </div>
+      </div>
         </div>
       </div>
     </div>

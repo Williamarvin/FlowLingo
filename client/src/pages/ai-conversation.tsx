@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { apiRequest } from "@/lib/queryClient";
 import { startSpeechRecognition } from "@/services/openai";
 import { useToast } from "@/hooks/use-toast";
+import Sidebar from "@/components/sidebar";
 
 interface Message {
   content: string;
@@ -137,11 +138,14 @@ export default function AiConversation() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-text-primary mb-4">AI Conversation Practice</h2>
-        <p className="text-text-secondary">Practice speaking Mandarin with our AI avatar tutor. Get real-time feedback and corrections.</p>
-      </div>
+    <div className="min-h-screen flex">
+      <Sidebar currentPage="/ai-conversation" />
+      <div className="flex-1 p-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-text-primary mb-4">AI Conversation Practice</h2>
+            <p className="text-text-secondary">Practice speaking Mandarin with our AI avatar tutor. Get real-time feedback and corrections.</p>
+          </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
         {/* AI Avatar and Chat */}
@@ -300,6 +304,8 @@ export default function AiConversation() {
               <p className="text-sm text-text-secondary text-center">60% of daily goal completed</p>
             </div>
           </div>
+        </div>
+      </div>
         </div>
       </div>
     </div>

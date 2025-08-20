@@ -9,6 +9,7 @@ import { ObjectUploader } from "@/components/ObjectUploader";
 import { apiRequest } from "@/lib/queryClient";
 import type { MediaDocument } from "@shared/schema";
 import type { UploadResult } from "@uppy/core";
+import Sidebar from "@/components/sidebar";
 
 // File type configurations with support for multiple formats
 const FILE_TYPES = {
@@ -321,13 +322,16 @@ export default function MediaReader() {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Media Reader</h1>
-        <p className="text-muted-foreground">
-          Upload and manage your learning materials - PDFs, images, videos, audio files, and documents.
-        </p>
-      </div>
+    <div className="min-h-screen flex">
+      <Sidebar currentPage="/media-reader" />
+      <div className="flex-1 p-8">
+        <div className="container mx-auto max-w-7xl">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-foreground mb-2">Media Reader</h1>
+            <p className="text-muted-foreground">
+              Upload and manage your learning materials - PDFs, images, videos, audio files, and documents.
+            </p>
+          </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* File List */}
@@ -449,6 +453,8 @@ export default function MediaReader() {
               )}
             </CardContent>
           </Card>
+        </div>
+      </div>
         </div>
       </div>
     </div>
