@@ -331,11 +331,11 @@ export default function ProgressivePractice() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 flex">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50">
       <Sidebar currentPage="/practice" />
       
       {/* Main Content Area */}
-      <div className="flex-1 p-8">
+      <div className="ml-64 p-8">
         <div className="max-w-2xl mx-auto">
           {/* Top Header with Hearts and Progress */}
           <div className="bg-white rounded-2xl shadow-md p-4 mb-6 flex items-center justify-between">

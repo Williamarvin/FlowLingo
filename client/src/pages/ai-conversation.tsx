@@ -288,10 +288,10 @@ export default function AiConversation() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 flex">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50">
       <Sidebar currentPage="/ai-conversation" />
       
-      <div className="flex-1 p-8">
+      <div className="ml-64 p-8">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-6">

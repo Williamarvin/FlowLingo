@@ -133,10 +133,6 @@ export default function MediaReader() {
         const mimeType = uploadedFile.type || "application/octet-stream";
         const uploadURL = uploadedFile.uploadURL as string;
         
-        // Normalize the file URL
-        const urlObj = new URL(uploadURL);
-        const fileUrl = `/objects${urlObj.pathname.split('/.private/uploads/')[1]}`;
-        
         // Determine file type
         const fileTypeInfo = getFileTypeInfo(mimeType);
         
@@ -160,7 +156,7 @@ export default function MediaReader() {
           filename,
           fileType: fileTypeInfo.type,
           fileSize,
-          fileUrl,
+          fileUrl: uploadURL,
           mimeType,
           content,
           processedContent,
@@ -322,9 +318,9 @@ export default function MediaReader() {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen">
       <Sidebar currentPage="/media-reader" />
-      <div className="flex-1 p-8">
+      <div className="ml-64 p-8">
         <div className="container mx-auto max-w-7xl">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-foreground mb-2">Media Reader</h1>

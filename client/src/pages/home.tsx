@@ -61,9 +61,9 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen">
       <Sidebar currentPage="/" />
-      <div className="flex-1 p-8">
+      <div className="ml-64 p-8">
         <div className="max-w-7xl mx-auto">
           {/* User Progress Header */}
           {userProfile && (

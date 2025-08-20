@@ -81,9 +81,9 @@ export default function TextGenerator() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen">
       <Sidebar currentPage="/text-generator" />
-      <div className="flex-1 p-8">
+      <div className="ml-64 p-8">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-text-primary mb-4">Interactive Text Practice</h2>

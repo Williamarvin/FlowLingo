@@ -65,7 +65,7 @@ export default function Sidebar({ currentPage }: SidebarProps) {
   ];
 
   return (
-    <div className="w-64 bg-white shadow-lg flex flex-col h-screen">
+    <div className="w-64 bg-white shadow-lg flex flex-col h-screen fixed left-0 top-0 z-40">
       {/* Logo/Brand - Compact */}
       <div className="p-4 border-b bg-gradient-to-r from-green-500 to-green-600">
         <h1 className="text-xl font-bold text-white">MandarinMaster</h1>
