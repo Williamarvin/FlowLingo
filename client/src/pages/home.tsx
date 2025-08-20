@@ -6,7 +6,7 @@ export default function Home() {
   const [greeting, setGreeting] = useState("");
   
   // Get user profile data
-  const { data: userProfile } = useQuery({
+  const { data: userProfile } = useQuery<any>({
     queryKey: ["/api/user/profile"],
   });
 
@@ -21,32 +21,32 @@ export default function Home() {
     {
       href: "/text-generator",
       icon: "fas fa-highlighter",
-      iconColor: "text-brand-blue",
-      bgColor: "bg-brand-blue bg-opacity-10",
+      iconColor: "text-brand-primary-dark",
+      bgColor: "bg-brand-primary bg-opacity-20",
       title: "Interactive Text",
       description: "Generate and highlight Chinese text for instant translations with pinyin"
     },
     {
       href: "/ai-conversation",
       icon: "fas fa-robot",
-      iconColor: "text-brand-yellow",
-      bgColor: "bg-brand-yellow bg-opacity-10",
+      iconColor: "text-orange-600",
+      bgColor: "bg-brand-secondary bg-opacity-20",
       title: "AI Conversation",
       description: "Practice speaking with an AI avatar tutor in real Mandarin conversations"
     },
     {
       href: "/pdf-converter",
       icon: "fas fa-file-pdf",
-      iconColor: "text-green-500",
-      bgColor: "bg-green-500 bg-opacity-10",
+      iconColor: "text-green-700",
+      bgColor: "bg-green-500 bg-opacity-20",
       title: "PDF Reader",
       description: "Upload PDFs and convert to interactive Chinese text with translations"
     },
     {
       href: "/vocabulary",
       icon: "fas fa-brain",
-      iconColor: "text-purple-500",
-      bgColor: "bg-purple-500 bg-opacity-10",
+      iconColor: "text-purple-700",
+      bgColor: "bg-purple-500 bg-opacity-20",
       title: "Smart Vocabulary",
       description: "Build your word bank with spaced repetition and progress tracking"
     }
@@ -172,7 +172,7 @@ export default function Home() {
                 <span className="text-2xl">{['🎯', '💬', '📄', '📚'][index]}</span>
               </div>
               <div className={`w-20 h-20 ${feature.bgColor} rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                <i className={`${feature.icon} ${feature.iconColor} text-3xl`}></i>
+                <i className={`${feature.icon} ${feature.iconColor} text-4xl font-bold`}></i>
               </div>
               <h3 className="text-xl font-bold text-text-primary mb-3">{feature.title}</h3>
               <p className="text-text-secondary leading-relaxed text-sm">{feature.description}</p>
@@ -212,16 +212,16 @@ export default function Home() {
         <h3 className="text-2xl font-bold text-text-primary mb-6">Your Achievements</h3>
         <div className="flex flex-wrap justify-center gap-3">
           <span className="badge-achievement">
-            <i className="fas fa-star mr-2"></i>First Lesson
+            <i className="fas fa-star mr-2 text-yellow-600"></i>First Lesson
           </span>
           <span className="badge-achievement">
-            <i className="fas fa-fire mr-2"></i>5 Day Streak
+            <i className="fas fa-fire mr-2 text-orange-600"></i>5 Day Streak
           </span>
           <span className="badge-achievement">
-            <i className="fas fa-trophy mr-2"></i>HSK Level 1
+            <i className="fas fa-trophy mr-2 text-amber-600"></i>HSK Level 1
           </span>
           <span className="badge-achievement">
-            <i className="fas fa-comments mr-2"></i>Conversationalist
+            <i className="fas fa-comments mr-2 text-blue-600"></i>Conversationalist
           </span>
         </div>
       </div>

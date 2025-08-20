@@ -203,7 +203,7 @@ export default function Assessment() {
                 <ul className="text-green-700">
                   {result.strengths.map((strength, i) => (
                     <li key={i} className="flex items-center mb-2">
-                      <i className="fas fa-check-circle mr-2"></i>
+                      <i className="fas fa-check-circle mr-2 text-green-600"></i>
                       {strength.charAt(0).toUpperCase() + strength.slice(1)}
                     </li>
                   ))}
@@ -219,7 +219,7 @@ export default function Assessment() {
                 <ul className="text-orange-700">
                   {result.weaknesses.map((weakness, i) => (
                     <li key={i} className="flex items-center mb-2">
-                      <i className="fas fa-arrow-up mr-2"></i>
+                      <i className="fas fa-arrow-up mr-2 text-orange-600"></i>
                       {weakness.charAt(0).toUpperCase() + weakness.slice(1)}
                     </li>
                   ))}
@@ -326,7 +326,7 @@ export default function Assessment() {
           variant="outline"
           className="px-6"
         >
-          <i className="fas fa-arrow-left mr-2"></i>
+          <i className="fas fa-arrow-left mr-2 text-gray-700"></i>
           Previous
         </Button>
 
@@ -338,12 +338,12 @@ export default function Assessment() {
           {currentQuestion === assessmentQuestions.length - 1 ? (
             <>
               Submit Assessment
-              <i className="fas fa-check ml-2"></i>
+              <i className="fas fa-check ml-2 text-white"></i>
             </>
           ) : (
             <>
               Next
-              <i className="fas fa-arrow-right ml-2"></i>
+              <i className="fas fa-arrow-right ml-2 text-white"></i>
             </>
           )}
         </Button>

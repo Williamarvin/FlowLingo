@@ -180,6 +180,7 @@
 }
 
 .text-brand-primary { color: var(--brand-primary); }
+.text-brand-primary-dark { color: var(--brand-primary-dark); }
 .text-brand-secondary { color: var(--brand-secondary); }
 .text-brand-accent { color: var(--brand-accent); }
 .text-brand-success { color: var(--brand-success); }
@@ -189,6 +190,10 @@
 .text-text-secondary { color: var(--text-secondary); }
 .text-text-muted { color: var(--text-muted); }
 .text-text-light { color: var(--text-light); }
+
+/* Brand colors specifically for icons */
+.text-brand-blue { color: hsl(215 100% 45%); }
+.text-brand-yellow { color: hsl(45 100% 45%); }
 
 .bg-brand-primary { background-color: var(--brand-primary); }
 .bg-brand-primary-light { background-color: var(--brand-primary-light); }
