@@ -10,7 +10,7 @@ import Sidebar from "@/components/sidebar";
 export default function TextGenerator() {
   const [topic, setTopic] = useState("Daily Conversation");
   const [difficulty, setDifficulty] = useState("Beginner (HSK 1-2)");
-  const [length, setLength] = useState("Short (50-100 characters)");
+  const [length, setLength] = useState("Short (300-400 characters)");
   const [generatedText, setGeneratedText] = useState<any>(null);
 
   const generateTextMutation = useMutation({
@@ -100,7 +100,7 @@ export default function TextGenerator() {
                 <label className="block text-sm font-medium text-text-secondary mb-2">Topic</label>
                 <Select value={topic} onValueChange={setTopic}>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Select a topic" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Daily Conversation">Daily Conversation</SelectItem>
@@ -116,7 +116,7 @@ export default function TextGenerator() {
                 <label className="block text-sm font-medium text-text-secondary mb-2">Difficulty</label>
                 <Select value={difficulty} onValueChange={setDifficulty}>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Select difficulty" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Beginner (HSK 1-2)">Beginner (HSK 1-2)</SelectItem>
@@ -130,7 +130,7 @@ export default function TextGenerator() {
                 <label className="block text-sm font-medium text-text-secondary mb-2">Text Length</label>
                 <Select value={length} onValueChange={setLength}>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Select text length" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Short (300-400 characters)">Short (300-400 characters)</SelectItem>
