@@ -247,22 +247,9 @@ export default function ProgressivePractice() {
                   {!isCorrect && selectedAnswer && (
                     <div className="bg-white rounded-xl p-4 shadow-sm border">
                       <div className="text-center">
-                        {/* Parse the selected answer to show hanzi, pinyin, and meaning */}
-                        {(() => {
-                          // For answers in format "hanzi (pinyin) - meaning"
-                          const match = selectedAnswer.match(/^(.+?)\s*\((.+?)\)\s*-\s*(.+)$/);
-                          if (match) {
-                            return (
-                              <>
-                                <div className="text-4xl font-bold text-gray-800 mb-2">{match[1]}</div>
-                                <div className="text-lg text-blue-600 font-medium mb-2">{match[2]}</div>
-                                <div className="text-xl text-gray-600">{match[3]}</div>
-                              </>
-                            );
-                          }
-                          // Fallback for simple text answers
-                          return <div className="text-xl text-gray-600">{selectedAnswer}</div>;
-                        })()}
+                        <div className="text-4xl font-bold text-gray-800 mb-2">{currentQ.chinese}</div>
+                        <div className="text-lg text-blue-600 font-medium mb-2">{currentQ.pinyin}</div>
+                        <div className="text-xl font-semibold text-red-600">{selectedAnswer}</div>
                       </div>
                     </div>
                   )}
@@ -272,6 +259,22 @@ export default function ProgressivePractice() {
                       <div className="text-4xl font-bold text-gray-800 mb-2">{currentQ.chinese}</div>
                       <div className="text-lg text-blue-600 font-medium mb-1">{currentQ.pinyin}</div>
                       <div className="text-lg text-gray-700">{currentQ.english}</div>
+                    </div>
+                  )}
+                  
+                  {!isCorrect && (
+                    <div className="mt-4 p-3 bg-red-100 rounded-lg">
+                      <p className="text-red-700 font-medium">
+                        That's not quite right. Try again!
+                      </p>
+                    </div>
+                  )}
+                  
+                  {isCorrect && (
+                    <div className="mt-4 p-3 bg-green-100 rounded-lg">
+                      <p className="text-green-700 font-medium">
+                        Great job! You're learning fast! 🎉
+                      </p>
                     </div>
                   )}
                 </div>
