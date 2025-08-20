@@ -19,31 +19,46 @@ export default function ProgressivePractice() {
   });
 
   // Get user profile to determine level
-  const { data: userProfile } = useQuery<any>({
+  const { data: userProfile, isLoading: profileLoading } = useQuery<any>({
     queryKey: ["/api/user/profile"],
   });
 
   useEffect(() => {
     if (userProfile?.level) {
       setCurrentLevel(userProfile.level);
+      // Reset session stats when level changes
+      setSessionStats({
+        questionsAnswered: 0,
+        correctAnswers: 0,
+        xpEarned: 0,
+        startTime: Date.now(),
+        consecutiveCorrect: 0,
+        levelSkipped: false
+      });
     }
-  }, [userProfile]);
+  }, [userProfile?.level]);
 
   // Generate practice questions based on level
   const generateQuestion = () => {
     const questionTypes = ["vocabulary", "grammar", "pronunciation", "sentence"];
     const type = questionTypes[Math.floor(Math.random() * questionTypes.length)];
     
-    // Level-based difficulty
+    // Level-based difficulty with more granular levels (1-10)
     const difficulties: Record<number, string[]> = {
       1: ["你好", "谢谢", "再见", "早上好"],
       2: ["学习", "朋友", "工作", "喜欢"],
       3: ["电脑", "咖啡", "办公室", "周末"],
       4: ["会议", "项目", "经理", "客户"],
-      5: ["发展", "经济", "文化", "社会"]
+      5: ["发展", "经济", "文化", "社会"],
+      6: ["国际", "技术", "创新", "合作"],
+      7: ["战略", "分析", "优化", "整合"],
+      8: ["可持续", "全球化", "数字化", "人工智能"],
+      9: ["区块链", "量子计算", "生态系统", "颠覆性"],
+      10: ["范式转变", "协同效应", "价值链", "核心竞争力"]
     };
 
-    const words = difficulties[Math.min(currentLevel, 5)] || difficulties[1];
+    const levelKey = Math.min(Math.max(Math.ceil(currentLevel / 2), 1), 10);
+    const words = difficulties[levelKey] || difficulties[1];
     const word = words[Math.floor(Math.random() * words.length)];
 
     const questions: Record<string, any> = {

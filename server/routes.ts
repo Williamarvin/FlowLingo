@@ -393,14 +393,15 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       });
       
       // Update user profile with assessment results
-      // Only update level if it's higher than current level or if never assessed
+      // Always set the level from assessment (trust the assessment result)
       const currentUser = await storage.getUser(userId);
-      const shouldUpdateLevel = !currentUser?.assessmentCompleted || recommendedLevel > (currentUser?.level || 1);
       
       await storage.updateUserProgress(userId, {
         assessmentCompleted: true,
         initialLevel: recommendedLevel,
-        level: shouldUpdateLevel ? recommendedLevel : currentUser?.level || recommendedLevel
+        level: recommendedLevel, // Always use assessment result
+        xp: recommendedLevel * 100, // Give bonus XP based on level
+        xpToNextLevel: 500 + (recommendedLevel * 100)
       });
       
       res.json(result);

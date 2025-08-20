@@ -127,12 +127,84 @@ export default function Assessment() {
       const maxScore = assessmentQuestions.reduce((sum, q) => sum + q.points, 0);
       const percentage = (totalScore / maxScore) * 100;
       
-      // Determine recommended level based on score
+      // Advanced level calculation algorithm based on question difficulty patterns
+      // Analyze which difficulty levels were mastered
+      const difficultyAnalysis: Record<number, { correct: number; total: number }> = {
+        1: { correct: 0, total: 0 },
+        2: { correct: 0, total: 0 },
+        3: { correct: 0, total: 0 },
+        4: { correct: 0, total: 0 },
+        5: { correct: 0, total: 0 }
+      };
+      
+      assessmentQuestions.forEach((q, index) => {
+        difficultyAnalysis[q.difficulty].total++;
+        if (answers[index] === q.correctAnswer) {
+          difficultyAnalysis[q.difficulty].correct++;
+        }
+      });
+      
+      // Calculate recommended level with smart algorithm
       let recommendedLevel = 1;
-      if (percentage >= 90) recommendedLevel = 5;
-      else if (percentage >= 75) recommendedLevel = 4;
-      else if (percentage >= 60) recommendedLevel = 3;
-      else if (percentage >= 40) recommendedLevel = 2;
+      
+      // Perfect or near-perfect score (9-10/10)
+      if (correctAnswers >= 9) {
+        // Check highest difficulty mastery
+        if (difficultyAnalysis[5].correct >= 1 && difficultyAnalysis[4].correct >= 1) {
+          recommendedLevel = 8; // Advanced level for high difficulty mastery
+        } else if (difficultyAnalysis[4].correct >= 2) {
+          recommendedLevel = 7; // Upper intermediate
+        } else {
+          recommendedLevel = 6; // Strong intermediate
+        }
+      }
+      // Very good score (7-8/10)
+      else if (correctAnswers >= 7) {
+        if (difficultyAnalysis[3].correct >= 2 && difficultyAnalysis[4].correct >= 1) {
+          recommendedLevel = 5; // Intermediate
+        } else if (difficultyAnalysis[3].correct >= 1) {
+          recommendedLevel = 4; // Lower intermediate
+        } else {
+          recommendedLevel = 3; // Upper beginner
+        }
+      }
+      // Moderate score (5-6/10)
+      else if (correctAnswers >= 5) {
+        if (difficultyAnalysis[2].correct >= 2) {
+          recommendedLevel = 3; // Upper beginner
+        } else {
+          recommendedLevel = 2; // Beginner
+        }
+      }
+      // Low score (below 5/10)
+      else {
+        recommendedLevel = 1; // Absolute beginner
+      }
+      
+      // Identify strengths and weaknesses based on question types
+      const typeAnalysis: Record<string, { correct: number; total: number }> = {
+        vocabulary: { correct: 0, total: 0 },
+        grammar: { correct: 0, total: 0 },
+        reading: { correct: 0, total: 0 }
+      };
+      
+      assessmentQuestions.forEach((q, index) => {
+        typeAnalysis[q.questionType].total++;
+        if (answers[index] === q.correctAnswer) {
+          typeAnalysis[q.questionType].correct++;
+        }
+      });
+      
+      const strengths: string[] = [];
+      const weaknesses: string[] = [];
+      
+      Object.entries(typeAnalysis).forEach(([type, stats]) => {
+        if (stats.total > 0) {
+          const accuracy = stats.correct / stats.total;
+          if (accuracy >= 0.75) strengths.push(type);
+          else if (accuracy < 0.5) weaknesses.push(type);
+        }
+      });
       
       const result = {
         userId: "demo-user", // In production, get from auth
@@ -140,8 +212,8 @@ export default function Assessment() {
         totalQuestions: assessmentQuestions.length,
         correctAnswers,
         recommendedLevel,
-        strengths: correctAnswers > 5 ? ["vocabulary"] : [],
-        weaknesses: correctAnswers <= 5 ? ["vocabulary", "grammar"] : []
+        strengths: strengths.length > 0 ? strengths : ["general comprehension"],
+        weaknesses: weaknesses.length > 0 ? weaknesses : []
       };
       
       // Save assessment result and update user profile
