@@ -49,7 +49,7 @@ export default function ProgressivePractice() {
   // Update hearts mutation
   const updateHeartsMutation = useMutation({
     mutationFn: async (heartsChange: number) => {
-      return await apiRequest("/api/user/hearts", "POST", { heartsChange });
+      return await apiRequest("POST", "/api/user/hearts", { heartsChange });
     },
     onSuccess: () => {
       refetchProfile();
@@ -59,7 +59,7 @@ export default function ProgressivePractice() {
   // Mutation to save practice session and award XP
   const savePracticeMutation = useMutation({
     mutationFn: async (sessionData: any) => {
-      return await apiRequest("/api/practice/save-session", "POST", sessionData);
+      return await apiRequest("POST", "/api/practice/save-session", sessionData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
