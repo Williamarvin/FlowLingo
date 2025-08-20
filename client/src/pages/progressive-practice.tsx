@@ -437,9 +437,8 @@ export default function ProgressivePractice() {
             
             <div className="flex-1 mx-4">
               {/* Level Progress Bar */}
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center justify-center mb-1">
                 <span className="text-sm font-medium text-purple-600">Level {currentLevel}</span>
-                <span className="text-xs text-gray-500">Question {currentQuestionIndex + 1} of {questions.length}</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <div 
