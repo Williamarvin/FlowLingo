@@ -31,6 +31,7 @@ export default function AiConversation() {
   const recognitionRef = useRef<any>(null);
   const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const currentTranscriptRef = useRef<string>("");
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -93,28 +94,25 @@ export default function AiConversation() {
           }
         }
         
-        // Update transcript display
-        const currentTranscript = interimTranscript || finalTranscript;
+        // Update transcript display with current speech
+        const currentTranscript = finalTranscript || interimTranscript;
         setTranscript(currentTranscript);
+        currentTranscriptRef.current = currentTranscript;
         
-        // If we have a final transcript, process it immediately
-        if (finalTranscript.trim()) {
-          handleUserSpeech(finalTranscript);
-          return; // Exit early, don't set silence timer
+        // Clear any existing silence timer since user is speaking
+        if (silenceTimerRef.current) {
+          clearTimeout(silenceTimerRef.current);
+          silenceTimerRef.current = null;
         }
         
-        // Only set silence timer for interim results
-        if (interimTranscript.trim()) {
-          // Clear existing timer
-          if (silenceTimerRef.current) {
-            clearTimeout(silenceTimerRef.current);
-          }
-          
-          // Set new silence timer (2 seconds of silence triggers processing)
+        // If we have speech content, start the 2-second silence timer
+        if (currentTranscript.trim()) {
+          console.log('Setting 2-second silence timer for:', currentTranscript);
           silenceTimerRef.current = setTimeout(() => {
-            if (isListening && currentTranscript.trim()) {
-              console.log('Silence detected, processing:', currentTranscript);
-              handleUserSpeech(currentTranscript);
+            const latestTranscript = currentTranscriptRef.current;
+            console.log('2 seconds of silence detected, sending message:', latestTranscript);
+            if (latestTranscript.trim()) {
+              handleUserSpeech(latestTranscript);
             }
           }, 2000);
         }
@@ -140,21 +138,26 @@ export default function AiConversation() {
       };
       
       recognitionRef.current.onend = () => {
-        // Only restart if we haven't processed speech and we're still in call
-        // Don't restart immediately to allow silence timer to work
+        console.log('Speech recognition ended');
+        // Only restart if we're still in call and actively listening
         if (isInCall && isListening && !isSpeaking && !conversationMutation.isPending) {
-          // Wait longer to allow silence timer to trigger if needed
+          // Check if there's a silence timer running - if so, don't restart yet
+          if (silenceTimerRef.current) {
+            console.log('Silence timer active, not restarting recognition');
+            return;
+          }
+          
+          // Restart recognition after a short delay
           setTimeout(() => {
             try {
-              // Only restart if still listening and no silence timer is active
               if (isListening && isInCall && !silenceTimerRef.current) {
-                console.log('Recognition ended, restarting...');
+                console.log('Restarting speech recognition...');
                 recognitionRef.current.start();
               }
             } catch (e) {
               console.log('Error restarting recognition:', e);
             }
-          }, 500); // Increased delay to allow silence timer
+          }, 100);
         }
       };
     }
@@ -163,17 +166,19 @@ export default function AiConversation() {
   const handleUserSpeech = (speech: string) => {
     if (!speech.trim() || !isInCall) return;
     
+    console.log('Processing user speech:', speech);
+    
     // Clear silence timer first
     if (silenceTimerRef.current) {
       clearTimeout(silenceTimerRef.current);
       silenceTimerRef.current = null;
     }
     
-    // Stop listening and recognition while processing
-    setIsListening(false);
+    // Clear transcript display
     setTranscript("");
+    currentTranscriptRef.current = "";
     
-    // Stop speech recognition immediately
+    // Stop speech recognition temporarily while processing
     if (recognitionRef.current) {
       try {
         recognitionRef.current.stop();
@@ -281,6 +286,7 @@ export default function AiConversation() {
     setIsListening(false);
     setIsSpeaking(false);
     setTranscript("");
+    currentTranscriptRef.current = "";
     
     // Stop speech recognition
     if (recognitionRef.current) {
@@ -295,6 +301,7 @@ export default function AiConversation() {
     // Clear timers
     if (silenceTimerRef.current) {
       clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
     }
   };
 
