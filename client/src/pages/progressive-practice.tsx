@@ -31,6 +31,7 @@ export default function ProgressivePractice() {
   const [streak, setStreak] = useState(0);
   const [lessonComplete, setLessonComplete] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [sessionId] = useState(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
   
   // Calculate XP needed for next level (100 XP per level)
   const xpPerLevel = 100;
@@ -90,50 +91,127 @@ export default function ProgressivePractice() {
     const lessonQuestions: Question[] = [];
     const lessonLength = 10;
     
-    // Level-based vocabulary
+    // Expanded level-based vocabulary with more words per level
     const vocabulary: Record<number, Array<{chinese: string, english: string}>> = {
       1: [
         {chinese: "你好", english: "hello"},
         {chinese: "谢谢", english: "thank you"},
         {chinese: "再见", english: "goodbye"},
-        {chinese: "早上好", english: "good morning"}
+        {chinese: "早上好", english: "good morning"},
+        {chinese: "晚上好", english: "good evening"},
+        {chinese: "请", english: "please"},
+        {chinese: "对不起", english: "sorry"},
+        {chinese: "没关系", english: "it's okay"},
+        {chinese: "是", english: "yes"},
+        {chinese: "不是", english: "no"},
+        {chinese: "我", english: "I/me"},
+        {chinese: "你", english: "you"},
+        {chinese: "他", english: "he/him"},
+        {chinese: "她", english: "she/her"},
+        {chinese: "很好", english: "very good"}
       ],
       2: [
         {chinese: "学习", english: "study"},
         {chinese: "朋友", english: "friend"},
         {chinese: "工作", english: "work"},
-        {chinese: "喜欢", english: "like"}
+        {chinese: "喜欢", english: "like"},
+        {chinese: "吃", english: "eat"},
+        {chinese: "喝", english: "drink"},
+        {chinese: "看", english: "watch/see"},
+        {chinese: "听", english: "listen"},
+        {chinese: "说", english: "speak"},
+        {chinese: "读", english: "read"},
+        {chinese: "写", english: "write"},
+        {chinese: "家", english: "home/family"},
+        {chinese: "学校", english: "school"},
+        {chinese: "老师", english: "teacher"},
+        {chinese: "学生", english: "student"}
       ],
       3: [
         {chinese: "电脑", english: "computer"},
         {chinese: "咖啡", english: "coffee"},
         {chinese: "办公室", english: "office"},
-        {chinese: "周末", english: "weekend"}
+        {chinese: "周末", english: "weekend"},
+        {chinese: "时间", english: "time"},
+        {chinese: "地方", english: "place"},
+        {chinese: "问题", english: "problem/question"},
+        {chinese: "方法", english: "method"},
+        {chinese: "机会", english: "opportunity"},
+        {chinese: "帮助", english: "help"},
+        {chinese: "重要", english: "important"},
+        {chinese: "容易", english: "easy"},
+        {chinese: "困难", english: "difficult"},
+        {chinese: "有趣", english: "interesting"},
+        {chinese: "美丽", english: "beautiful"}
       ],
       4: [
         {chinese: "会议", english: "meeting"},
         {chinese: "项目", english: "project"},
         {chinese: "经理", english: "manager"},
-        {chinese: "客户", english: "customer"}
+        {chinese: "客户", english: "customer"},
+        {chinese: "公司", english: "company"},
+        {chinese: "市场", english: "market"},
+        {chinese: "产品", english: "product"},
+        {chinese: "服务", english: "service"},
+        {chinese: "质量", english: "quality"},
+        {chinese: "价格", english: "price"},
+        {chinese: "竞争", english: "competition"},
+        {chinese: "成功", english: "success"},
+        {chinese: "失败", english: "failure"},
+        {chinese: "经验", english: "experience"},
+        {chinese: "技能", english: "skill"}
       ],
       5: [
         {chinese: "发展", english: "development"},
         {chinese: "经济", english: "economy"},
         {chinese: "文化", english: "culture"},
-        {chinese: "社会", english: "society"}
+        {chinese: "社会", english: "society"},
+        {chinese: "政治", english: "politics"},
+        {chinese: "历史", english: "history"},
+        {chinese: "科学", english: "science"},
+        {chinese: "技术", english: "technology"},
+        {chinese: "教育", english: "education"},
+        {chinese: "环境", english: "environment"},
+        {chinese: "健康", english: "health"},
+        {chinese: "安全", english: "safety"},
+        {chinese: "自由", english: "freedom"},
+        {chinese: "平等", english: "equality"},
+        {chinese: "责任", english: "responsibility"}
       ]
     };
 
     const levelVocab = vocabulary[Math.min(currentLevel, 5)] || vocabulary[1];
     
-    for (let i = 0; i < lessonLength; i++) {
+    // Get recently used words from localStorage to avoid repetition across sessions
+    const recentlyUsedKey = `recentlyUsed_level_${currentLevel}`;
+    const storedRecentlyUsed = localStorage.getItem(recentlyUsedKey);
+    const recentlyUsedWords = storedRecentlyUsed ? JSON.parse(storedRecentlyUsed) : [];
+    
+    // Filter out recently used words and create a shuffled copy
+    const availableVocab = levelVocab.filter(word => !recentlyUsedWords.includes(word.chinese));
+    const shuffledVocab = [...availableVocab].sort(() => Math.random() - 0.5);
+    const usedWords = new Set<string>();
+    
+    // If we don't have enough fresh words, mix in some recently used ones
+    if (shuffledVocab.length < lessonLength) {
+      const additionalWords = levelVocab
+        .filter(word => !shuffledVocab.includes(word))
+        .sort(() => Math.random() - 0.5)
+        .slice(0, lessonLength - shuffledVocab.length);
+      shuffledVocab.push(...additionalWords);
+    }
+    
+    for (let i = 0; i < lessonLength && i < shuffledVocab.length; i++) {
+      // Use a different vocabulary item for each question to ensure uniqueness
+      const vocabItem = shuffledVocab[i];
+      usedWords.add(vocabItem.chinese);
+      
       const questionType = Math.random() > 0.5 ? "multiple-choice" : "translation";
-      const vocabItem = levelVocab[Math.floor(Math.random() * levelVocab.length)];
       
       if (questionType === "multiple-choice") {
-        // Generate wrong options
+        // Generate wrong options, avoiding used words
         const wrongOptions = levelVocab
-          .filter(v => v.english !== vocabItem.english)
+          .filter(v => v.english !== vocabItem.english && !usedWords.has(v.chinese))
           .map(v => v.english)
           .sort(() => Math.random() - 0.5)
           .slice(0, 3);
@@ -151,9 +229,9 @@ export default function ProgressivePractice() {
           xp: 10
         });
       } else {
-        // Translation question
+        // Translation question, avoiding used words
         const wrongTranslations = levelVocab
-          .filter(v => v.chinese !== vocabItem.chinese)
+          .filter(v => v.chinese !== vocabItem.chinese && !usedWords.has(v.chinese))
           .map(v => v.chinese)
           .sort(() => Math.random() - 0.5)
           .slice(0, 3);
@@ -174,6 +252,14 @@ export default function ProgressivePractice() {
     }
     
     setQuestions(lessonQuestions);
+    
+    // Store used words for this session to avoid repetition in future sessions
+    const currentUsedWords = lessonQuestions.map(q => q.chinese);
+    const updatedRecentlyUsed = [...recentlyUsedWords, ...currentUsedWords]
+      .slice(-20) // Keep only the last 20 words to avoid the list growing too large
+      .filter((word, index, arr) => arr.indexOf(word) === index); // Remove duplicates
+    
+    localStorage.setItem(recentlyUsedKey, JSON.stringify(updatedRecentlyUsed));
   };
 
   const handleAnswer = (answer: string | number) => {
