@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+
 import { useLocation } from "wouter";
 import { toast } from "@/hooks/use-toast";
 
@@ -436,39 +436,28 @@ export default function ProgressivePractice() {
             </button>
             
             <div className="flex-1 mx-4">
-              <Progress value={progressPercentage} className="h-3" />
-              <div className="text-xs text-gray-500 mt-1 text-center">
-                Question {currentQuestionIndex + 1} of {questions.length}
+              {/* Level Progress Bar */}
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm font-medium text-purple-600">Level {currentLevel}</span>
+                <span className="text-xs text-gray-500">Question {currentQuestionIndex + 1} of {questions.length}</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div 
+                  className="bg-gradient-to-r from-purple-400 to-purple-600 h-3 rounded-full transition-all duration-500" 
+                  style={{ width: `${(currentLevelXp / xpPerLevel) * 100}%` }}
+                ></div>
+              </div>
+              <div className="text-xs text-purple-600 font-medium mt-1 text-center">
+                {currentLevelXp}/{xpPerLevel} XP
               </div>
             </div>
             
+            {/* Right side stats */}
             <div className="flex items-center space-x-4">
-              {/* Level with XP Progress */}
-              <div className="flex flex-col items-center min-w-[120px]">
-                <div className="flex items-center bg-purple-100 rounded-full px-3 py-1 mb-2">
-                  <span className="text-purple-600 text-sm font-bold">Level {currentLevel}</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div 
-                    className="bg-gradient-to-r from-purple-400 to-purple-600 h-2.5 rounded-full transition-all duration-500" 
-                    style={{ width: `${(currentLevelXp / xpPerLevel) * 100}%` }}
-                  ></div>
-                </div>
-                <div className="text-xs text-purple-600 font-medium mt-1">
-                  {currentLevelXp}/{xpPerLevel} XP
-                </div>
-              </div>
-              
               {/* Streak */}
               <div className="flex items-center">
                 <span className="text-orange-500 text-xl">🔥</span>
                 <span className="ml-1 font-bold text-gray-700">{streak}</span>
-              </div>
-              
-              {/* XP */}
-              <div className="flex items-center">
-                <span className="text-blue-500 text-xl">⚡</span>
-                <span className="ml-1 font-bold text-gray-700">{xp}</span>
               </div>
               
               {/* Hearts */}
