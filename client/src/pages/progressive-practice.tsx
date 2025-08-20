@@ -52,6 +52,31 @@ export default function ProgressivePractice() {
     generateLessonQuestions();
   }, [currentLevel]);
 
+  // Audio feedback with error handling
+  const playCorrectSound = () => {
+    try {
+      const audio = new Audio("data:audio/wav;base64,UklGRiQGAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YQAGAAD/////AAECAgIBAAAA//7+/v8AAAEAAQACAQEAAP///v7//wAAAQACAgICAAD+/f39/v8AAAEAAQADAQEAAP/+/f3+/wEAAQABAAECAQEAAA==");
+      audio.volume = 0.3;
+      audio.play().catch(() => {
+        // Silently ignore audio playback errors
+      });
+    } catch (error) {
+      // Silently ignore audio creation errors
+    }
+  };
+
+  const playIncorrectSound = () => {
+    try {
+      const audio = new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZERE");
+      audio.volume = 0.3;
+      audio.play().catch(() => {
+        // Silently ignore audio playback errors
+      });
+    } catch (error) {
+      // Silently ignore audio creation errors
+    }
+  };
+
   const generateLessonQuestions = () => {
     const lessonQuestions: Question[] = [];
     const lessonLength = 10;
@@ -151,7 +176,7 @@ export default function ProgressivePractice() {
     setShowFeedback(true);
     
     if (correct) {
-      correctSound.play();
+      playCorrectSound();
       setXp(xp + questions[currentQuestionIndex].xp);
       toast({
         title: "🎉 Correct!",
@@ -159,7 +184,7 @@ export default function ProgressivePractice() {
         className: "bg-green-50 border-green-200"
       });
     } else {
-      incorrectSound.play();
+      playIncorrectSound();
       setHearts(Math.max(0, hearts - 1));
       if (hearts <= 1) {
         toast({
