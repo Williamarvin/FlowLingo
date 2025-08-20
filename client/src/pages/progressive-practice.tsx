@@ -2,21 +2,37 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { useLocation } from "wouter";
+import { toast } from "@/hooks/use-toast";
+
+interface Question {
+  id: number;
+  type: "multiple-choice" | "translation" | "matching" | "listening";
+  question: string;
+  chinese: string;
+  english: string;
+  options?: string[];
+  correctAnswer: string | number;
+  audio?: string;
+  image?: string;
+  xp: number;
+}
 
 export default function ProgressivePractice() {
+  const [, navigate] = useLocation();
   const [currentLevel, setCurrentLevel] = useState(1);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [userAnswer, setUserAnswer] = useState("");
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
-  const [sessionStats, setSessionStats] = useState({
-    questionsAnswered: 0,
-    correctAnswers: 0,
-    xpEarned: 0,
-    startTime: Date.now(),
-    consecutiveCorrect: 0,
-    levelSkipped: false
-  });
+  const [hearts, setHearts] = useState(5);
+  const [xp, setXp] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [lessonComplete, setLessonComplete] = useState(false);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [incorrectSound] = useState(new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE"));
+  const [correctSound] = useState(new Audio("data:audio/wav;base64,UklGRiQGAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YQAGAAD/////AAECAgIBAAAA//7+/v8AAAEAAQACAQEAAP///v7//wAAAQACAgICAAD+/f39/v8AAAEAAQADAQEAAP/+/f3+/wEAAQABAAECAQEAAP////7//wAAAAABAAEBAQEAAP///v7+/wAAAgABAAEBAQEBAP/////+/wEBAAEAAQABAAEBAQD//v7+//8AAAEBAQD/AAEBAQEAAP////7//wAAAQEBAAEAAQEBAQAA//7+/v8AAAEAAQACAQEAAP///v7//wAAAQACAgIBAAD+/f39/v8AAAEAAQADAQEAAP/+/f3+/wEAAQABAAECAQEAAP////7//wAAAAABAAEBAQEAAP///v7+/wAAAgABAAEBAQEBAP/////+/wEBAAEAAQABAAEBAQD//v7+//8AAAEBAQD/AAEBAQEAAP////7//wAAAQEBAAEAAQEBAQAA//7+/v8AAAEAAQACAQEAAP///v7//wAAAQACAgICAAD+/f39/v8AAAEAAQADAQEAAP/+/f3+/wEAAQABAAECAQEAAP////7//wAAAAABAAEBAQEAAP///v7+/wAAAgABAAEBAQEBAP/////+/wEBAAEAAQABAAEBAQD//v7+//8AAAEBAQD/AAEBAQEAAP////7//wAAAQEBAAEAAQEBAQAA//7+/v8AAAEAAQACAQEAAP///v7//wAAAQACAgIBAAD+/f39/v8AAAEAAQADAQEAAP/+/f3+/wEAAQABAAECAQEAAP////7//wAAAAABAAEBAQEAAP///v7+/wAAAgABAAEBAQEBAP/////+/wEBAAEAAQABAAEBAQD//v7+//8AAAEBAQD/AAEBAQEAAP////7//wAAAQEBAAEAAQEBAQAA//7+/v8AAAEAAQACAQEAAP///v7//wAAAQACAgICAAD+/f39/v8AAAEAAQADAQEAAP/+/f3+/wEAAQABAAECAQEAAP////7//wAAAAABAAEBAQEAAP///v7+/wAAAgABAAEBAQEBAP/////+/wEBAAEAAQABAAEBAQD//v7+//8AAAEBAQD/AAEBAQEAAP////7//wAAAQEBAAEAAQEBAQAA//7+/v8AAAEAAQACAQEAAP///v7//wAAAQACAgIBAAD+/f39/v8AAAEAAQADAQEAAP/+/f3+/wEAAQABAAECAQEAAP////7//wAAAAABAAEBAQEAAP///v7+/wAAAgABAAEBAQEBAP/////+/wEBAAEAAQABAAEBAQD//v7+//8AAAEBAQD/AAEBAQEAAP////7//wAAAQEBAAEAAQEBAQAA//7+/v8AAAEAAQACAQEAAP///v7//wAAAQACAgICAAD+/f39/v8AAAEAAQADAQEAAP/+/f3+/wEAAQABAAECAQEAAP////7//wAAAAABAAEBAQEAAP///v7+/wAAAgABAAEBAQEBAP/////+/wEBAAEAAQABAAEBAQD//v7+//8AAAEBAQD/AAEBAQEAAP////7//wAAAQEBAAEAAQEBAQAA//7+/v8AAAEAAQACAQEAAP///v7//wAAAQACAgIBAAD+/f39/v8AAAEAAQADAQEAAP/+/f3+/wEAAQABAAECAQEAAA=="));
 
   // Get user profile to determine level
   const { data: userProfile, isLoading: profileLoading } = useQuery<any>({
@@ -26,370 +42,340 @@ export default function ProgressivePractice() {
   useEffect(() => {
     if (userProfile?.level) {
       setCurrentLevel(userProfile.level);
-      // Reset session stats when level changes
-      setSessionStats({
-        questionsAnswered: 0,
-        correctAnswers: 0,
-        xpEarned: 0,
-        startTime: Date.now(),
-        consecutiveCorrect: 0,
-        levelSkipped: false
-      });
+      setXp(userProfile.xp || 0);
+      setStreak(userProfile.streakDays || 0);
     }
-  }, [userProfile?.level]);
+  }, [userProfile]);
 
-  // Generate practice questions based on level
-  const generateQuestion = () => {
-    const questionTypes = ["vocabulary", "grammar", "pronunciation", "sentence"];
-    const type = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+  // Generate lesson questions when component mounts or level changes
+  useEffect(() => {
+    generateLessonQuestions();
+  }, [currentLevel]);
+
+  const generateLessonQuestions = () => {
+    const lessonQuestions: Question[] = [];
+    const lessonLength = 10;
     
-    // Level-based difficulty with more granular levels (1-10)
-    const difficulties: Record<number, string[]> = {
-      1: ["你好", "谢谢", "再见", "早上好"],
-      2: ["学习", "朋友", "工作", "喜欢"],
-      3: ["电脑", "咖啡", "办公室", "周末"],
-      4: ["会议", "项目", "经理", "客户"],
-      5: ["发展", "经济", "文化", "社会"],
-      6: ["国际", "技术", "创新", "合作"],
-      7: ["战略", "分析", "优化", "整合"],
-      8: ["可持续", "全球化", "数字化", "人工智能"],
-      9: ["区块链", "量子计算", "生态系统", "颠覆性"],
-      10: ["范式转变", "协同效应", "价值链", "核心竞争力"]
+    // Level-based vocabulary
+    const vocabulary: Record<number, Array<{chinese: string, english: string}>> = {
+      1: [
+        {chinese: "你好", english: "hello"},
+        {chinese: "谢谢", english: "thank you"},
+        {chinese: "再见", english: "goodbye"},
+        {chinese: "早上好", english: "good morning"}
+      ],
+      2: [
+        {chinese: "学习", english: "study"},
+        {chinese: "朋友", english: "friend"},
+        {chinese: "工作", english: "work"},
+        {chinese: "喜欢", english: "like"}
+      ],
+      3: [
+        {chinese: "电脑", english: "computer"},
+        {chinese: "咖啡", english: "coffee"},
+        {chinese: "办公室", english: "office"},
+        {chinese: "周末", english: "weekend"}
+      ],
+      4: [
+        {chinese: "会议", english: "meeting"},
+        {chinese: "项目", english: "project"},
+        {chinese: "经理", english: "manager"},
+        {chinese: "客户", english: "customer"}
+      ],
+      5: [
+        {chinese: "发展", english: "development"},
+        {chinese: "经济", english: "economy"},
+        {chinese: "文化", english: "culture"},
+        {chinese: "社会", english: "society"}
+      ]
     };
 
-    const levelKey = Math.min(Math.max(Math.ceil(currentLevel / 2), 1), 10);
-    const words = difficulties[levelKey] || difficulties[1];
-    const word = words[Math.floor(Math.random() * words.length)];
-
-    const questions: Record<string, any> = {
-      vocabulary: {
-        question: `What does "${word}" mean in English?`,
-        answer: "friend", // This would be dynamic in production
-        type: "translation",
-        xp: 10 * currentLevel
-      },
-      grammar: {
-        question: `Complete the sentence: 我___${word}。`,
-        answer: "喜欢",
-        type: "fill-blank",
-        xp: 15 * currentLevel
-      },
-      pronunciation: {
-        question: `What is the correct pinyin for "${word}"?`,
-        answer: "péng yǒu",
-        type: "pinyin",
-        xp: 12 * currentLevel
-      },
-      sentence: {
-        question: `Create a sentence using "${word}"`,
-        answer: "open-ended",
-        type: "sentence",
-        xp: 20 * currentLevel
+    const levelVocab = vocabulary[Math.min(currentLevel, 5)] || vocabulary[1];
+    
+    for (let i = 0; i < lessonLength; i++) {
+      const questionType = Math.random() > 0.5 ? "multiple-choice" : "translation";
+      const vocabItem = levelVocab[Math.floor(Math.random() * levelVocab.length)];
+      
+      if (questionType === "multiple-choice") {
+        // Generate wrong options
+        const wrongOptions = levelVocab
+          .filter(v => v.english !== vocabItem.english)
+          .map(v => v.english)
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 3);
+        
+        const allOptions = [...wrongOptions, vocabItem.english].sort(() => Math.random() - 0.5);
+        
+        lessonQuestions.push({
+          id: i + 1,
+          type: "multiple-choice",
+          question: "What does this mean?",
+          chinese: vocabItem.chinese,
+          english: vocabItem.english,
+          options: allOptions,
+          correctAnswer: vocabItem.english,
+          xp: 10
+        });
+      } else {
+        // Translation question
+        const wrongTranslations = levelVocab
+          .filter(v => v.chinese !== vocabItem.chinese)
+          .map(v => v.chinese)
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 3);
+        
+        const allTranslations = [...wrongTranslations, vocabItem.chinese].sort(() => Math.random() - 0.5);
+        
+        lessonQuestions.push({
+          id: i + 1,
+          type: "translation",
+          question: "Select the correct translation",
+          chinese: vocabItem.chinese,
+          english: vocabItem.english,
+          options: allTranslations,
+          correctAnswer: vocabItem.chinese,
+          xp: 10
+        });
       }
-    };
-
-    return questions[type];
+    }
+    
+    setQuestions(lessonQuestions);
   };
 
-  const [currentPracticeQuestion, setCurrentPracticeQuestion] = useState(generateQuestion());
+  const handleAnswer = (answer: string | number) => {
+    if (showFeedback) return;
+    
+    setSelectedAnswer(answer);
+    const correct = answer === questions[currentQuestionIndex]?.correctAnswer;
+    setIsCorrect(correct);
+    setShowFeedback(true);
+    
+    if (correct) {
+      correctSound.play();
+      setXp(xp + questions[currentQuestionIndex].xp);
+      toast({
+        title: "🎉 Correct!",
+        description: `+${questions[currentQuestionIndex].xp} XP`,
+        className: "bg-green-50 border-green-200"
+      });
+    } else {
+      incorrectSound.play();
+      setHearts(Math.max(0, hearts - 1));
+      if (hearts <= 1) {
+        toast({
+          title: "💔 Out of hearts!",
+          description: "Practice session ending...",
+          variant: "destructive"
+        });
+        setTimeout(() => navigate("/"), 2000);
+      }
+    }
+  };
 
-  const submitAnswerMutation = useMutation({
-    mutationFn: async (correct: boolean) => {
-      const xpEarned = correct ? currentPracticeQuestion.xp : 5;
-      
-      // Update session stats
-      const newStats = {
-        ...sessionStats,
-        questionsAnswered: sessionStats.questionsAnswered + 1,
-        correctAnswers: sessionStats.correctAnswers + (correct ? 1 : 0),
-        xpEarned: sessionStats.xpEarned + xpEarned
-      };
-      setSessionStats(newStats);
+  const handleContinue = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setSelectedAnswer(null);
+      setShowFeedback(false);
+      setIsCorrect(false);
+    } else {
+      setLessonComplete(true);
+    }
+  };
 
-      // Save to database
+  const savePracticeMutation = useMutation({
+    mutationFn: async () => {
       await apiRequest("POST", "/api/practice/answer", {
         userId: "demo-user",
-        questionType: currentPracticeQuestion.type,
+        questionType: "vocabulary",
         level: currentLevel,
-        correct,
-        xpEarned
+        correct: true,
+        xpEarned: xp
       });
-
-      return { xpEarned, correct };
     },
-    onSuccess: async (data) => {
-      if (data.correct) {
-        const newConsecutive = sessionStats.consecutiveCorrect + 1;
-        
-        // Auto-skip level if user demonstrates mastery
-        // Skip after 5 consecutive correct answers with 100% accuracy in current session
-        if (newConsecutive >= 5 && sessionStats.correctAnswers >= 5) {
-          const accuracy = ((sessionStats.correctAnswers + 1) / (sessionStats.questionsAnswered + 1)) * 100;
-          
-          if (accuracy >= 90 && currentLevel < 10) {
-            // Skip to next level
-            const newLevel = Math.min(currentLevel + 1, 10);
-            setCurrentLevel(newLevel);
-            
-            // Update user level in database
-            await apiRequest("POST", "/api/user/level-up", {
-              userId: "demo-user",
-              newLevel,
-              reason: "performance"
-            });
-            
-            // Show level skip notification
-            setSessionStats(prev => ({ ...prev, levelSkipped: true }));
-            
-            // Reset consecutive counter
-            setSessionStats(prev => ({ ...prev, consecutiveCorrect: 0 }));
-          }
-        } else {
-          setSessionStats(prev => ({ ...prev, consecutiveCorrect: newConsecutive }));
-        }
-      } else {
-        // Reset consecutive on wrong answer
-        setSessionStats(prev => ({ ...prev, consecutiveCorrect: 0 }));
-      }
-      
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
     }
   });
 
-  const handleSubmit = () => {
-    // Simple check - in production this would be more sophisticated
-    const correct = userAnswer.toLowerCase().includes("friend") || 
-                   userAnswer.includes("朋友") ||
-                   userAnswer.includes("péng yǒu");
-    
-    setIsCorrect(correct);
-    setShowFeedback(true);
-    submitAnswerMutation.mutate(correct);
+  const handleCompletedLesson = () => {
+    savePracticeMutation.mutate();
+    navigate("/");
   };
 
-  const handleNext = () => {
-    setCurrentPracticeQuestion(generateQuestion());
-    setUserAnswer("");
-    setShowFeedback(false);
-    setCurrentQuestion(prev => prev + 1);
-  };
+  if (profileLoading || questions.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-green-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading lesson...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const accuracy = sessionStats.questionsAnswered > 0 
-    ? Math.round((sessionStats.correctAnswers / sessionStats.questionsAnswered) * 100)
-    : 0;
+  const currentQ = questions[currentQuestionIndex];
+  const progressPercentage = ((currentQuestionIndex + 1) / questions.length) * 100;
 
-  const getProgressMessage = () => {
-    // Check for level skip eligibility
-    if (sessionStats.consecutiveCorrect >= 3 && accuracy >= 90) {
-      return `🚀 Amazing! ${5 - sessionStats.consecutiveCorrect} more correct answers to skip to Level ${currentLevel + 1}!`;
-    }
-    
-    if (sessionStats.levelSkipped) {
-      return `🎉 Level skipped! You've advanced to Level ${currentLevel}!`;
-    }
-    
-    if (accuracy >= 80) return "Excellent! You're mastering this level!";
-    if (accuracy >= 60) return "Good job! Keep practicing!";
-    if (accuracy >= 40) return "You're learning! Don't give up!";
-    return "Take your time, you'll get there!";
-  };
+  if (lessonComplete) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-yellow-100 to-orange-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center">
+          <div className="text-6xl mb-4">🎉</div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Lesson Complete!</h1>
+          <p className="text-xl text-gray-600 mb-6">You earned {xp} XP</p>
+          
+          <div className="space-y-4 mb-6">
+            <div className="bg-green-100 rounded-2xl p-4">
+              <div className="text-2xl font-bold text-green-700">Accuracy</div>
+              <div className="text-4xl font-bold text-green-800">
+                {Math.round((questions.filter((_, idx) => idx <= currentQuestionIndex).length / questions.length) * 100)}%
+              </div>
+            </div>
+          </div>
+          
+          <Button
+            onClick={handleCompletedLesson}
+            className="w-full bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 text-white font-bold py-4 text-lg rounded-2xl shadow-lg transform transition hover:scale-105"
+          >
+            Continue
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">Progressive Practice</h2>
-        <p className="text-gray-700">
-          Practice adapts to your level and helps you improve step by step
-        </p>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50">
+      {/* Top Bar */}
+      <div className="sticky top-0 bg-white shadow-sm z-50">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => navigate("/")}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            
+            <Progress value={progressPercentage} className="flex-1 mx-4 h-3" />
+            
+            <div className="flex items-center space-x-4">
+              {/* Streak */}
+              <div className="flex items-center">
+                <span className="text-orange-500 text-xl">🔥</span>
+                <span className="ml-1 font-bold text-gray-700">{streak}</span>
+              </div>
+              
+              {/* XP */}
+              <div className="flex items-center">
+                <span className="text-blue-500 text-xl">⚡</span>
+                <span className="ml-1 font-bold text-gray-700">{xp}</span>
+              </div>
+              
+              {/* Hearts */}
+              <div className="flex items-center">
+                {[...Array(5)].map((_, i) => (
+                  <span key={i} className={`text-xl ${i < hearts ? 'text-red-500' : 'text-gray-300'}`}>
+                    {i < hearts ? '❤️' : '🤍'}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
-        {/* Practice Area */}
-        <div className="lg:col-span-2">
-          <div className="card-duo">
-            {/* Level Indicator */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-3">
-                <span className="text-sm font-semibold text-gray-700">Level</span>
-                <div className="flex space-x-1">
-                  {[...Array(10)].map((_, i) => (
-                    <div
-                      key={i}
-                      className={`w-8 h-2 rounded-full ${
-                        i < currentLevel 
-                          ? "bg-brand-primary" 
-                          : "bg-gray-200"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <span className="font-bold text-brand-primary text-lg">{currentLevel}</span>
+      {/* Question Card */}
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <div className="bg-white rounded-3xl shadow-xl p-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">{currentQ.question}</h2>
+          
+          {currentQ.type === "multiple-choice" && (
+            <div className="text-center mb-8">
+              <div className="text-6xl font-bold text-gray-900 mb-4 p-8 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl inline-block">
+                {currentQ.chinese}
               </div>
-              <span className="text-sm font-medium text-gray-700">
-                Question #{sessionStats.questionsAnswered + 1}
-              </span>
             </div>
-
-            {/* Question */}
-            <div className="bg-gradient-to-br from-brand-primary to-brand-primary-dark rounded-2xl p-8 text-white mb-6">
-              <div className="text-sm opacity-75 mb-2">
-                {currentPracticeQuestion.type.toUpperCase()} • {currentPracticeQuestion.xp} XP
+          )}
+          
+          {currentQ.type === "translation" && (
+            <div className="text-center mb-8">
+              <div className="text-3xl font-semibold text-gray-700 p-6 bg-gradient-to-br from-green-100 to-blue-100 rounded-2xl">
+                {currentQ.english}
               </div>
-              <h3 className="text-2xl font-bold mb-6">
-                {currentPracticeQuestion.question}
-              </h3>
-              
-              {!showFeedback && (
-                <div className="bg-white bg-opacity-20 rounded-xl p-4">
-                  <input
-                    type="text"
-                    value={userAnswer}
-                    onChange={(e) => setUserAnswer(e.target.value)}
-                    placeholder="Type your answer..."
-                    className="w-full bg-transparent placeholder-white placeholder-opacity-75 text-white text-lg outline-none"
-                    onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
-                  />
-                </div>
-              )}
-
-              {showFeedback && (
-                <div className={`rounded-xl p-4 ${
-                  isCorrect ? "bg-green-500 bg-opacity-30" : "bg-red-500 bg-opacity-30"
-                }`}>
-                  <div className="flex items-center mb-2">
-                    <i className={`fas ${isCorrect ? "fa-check-circle" : "fa-times-circle"} text-2xl mr-3`}></i>
-                    <span className="text-xl font-semibold">
-                      {isCorrect ? "Correct!" : "Not quite right"}
-                    </span>
-                  </div>
+            </div>
+          )}
+          
+          {/* Answer Options */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            {currentQ.options?.map((option, index) => (
+              <button
+                key={index}
+                onClick={() => handleAnswer(option)}
+                disabled={showFeedback}
+                className={`
+                  p-4 rounded-2xl font-semibold text-lg transition-all transform hover:scale-105
+                  ${!showFeedback ? 'bg-white border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50' : ''}
+                  ${showFeedback && selectedAnswer === option && isCorrect ? 'bg-green-100 border-2 border-green-500 scale-105' : ''}
+                  ${showFeedback && selectedAnswer === option && !isCorrect ? 'bg-red-100 border-2 border-red-500 animate-shake' : ''}
+                  ${showFeedback && option === currentQ.correctAnswer && selectedAnswer !== option ? 'bg-green-100 border-2 border-green-500' : ''}
+                  ${showFeedback && option !== currentQ.correctAnswer && selectedAnswer !== option ? 'opacity-50' : ''}
+                `}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+          
+          {/* Feedback Section */}
+          {showFeedback && (
+            <div className={`p-4 rounded-2xl mb-6 ${isCorrect ? 'bg-green-50' : 'bg-red-50'}`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`font-bold text-lg ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
+                    {isCorrect ? '✅ Correct!' : '❌ Not quite!'}
+                  </p>
                   {!isCorrect && (
-                    <p className="text-sm opacity-90">
-                      Example answer: "friend" or "péng yǒu"
+                    <p className="text-gray-600 mt-1">
+                      The correct answer is: <span className="font-semibold">{currentQ.correctAnswer}</span>
                     </p>
                   )}
-                  <p className="text-sm mt-2 opacity-90">
-                    +{isCorrect ? currentPracticeQuestion.xp : 5} XP earned
-                  </p>
                 </div>
-              )}
+              </div>
             </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-between">
-              {!showFeedback ? (
-                <>
-                  <Button
-                    variant="outline"
-                    onClick={() => setCurrentPracticeQuestion(generateQuestion())}
-                  >
-                    <i className="fas fa-random mr-2"></i>
-                    Skip
-                  </Button>
-                  <Button
-                    onClick={handleSubmit}
-                    disabled={!userAnswer.trim()}
-                    className="btn-primary"
-                  >
-                    Submit Answer
-                    <i className="fas fa-arrow-right ml-2"></i>
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  onClick={handleNext}
-                  className="btn-primary w-full"
-                >
-                  Next Question
-                  <i className="fas fa-arrow-right ml-2"></i>
-                </Button>
-              )}
-            </div>
-          </div>
+          )}
+          
+          {/* Continue Button */}
+          {showFeedback && (
+            <Button
+              onClick={handleContinue}
+              className={`
+                w-full py-4 text-lg font-bold rounded-2xl shadow-lg transform transition hover:scale-105
+                ${isCorrect 
+                  ? 'bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 text-white' 
+                  : 'bg-gradient-to-r from-red-400 to-red-500 hover:from-red-500 hover:to-red-600 text-white'
+                }
+              `}
+            >
+              Continue
+            </Button>
+          )}
         </div>
-
-        {/* Stats Panel */}
-        <div className="lg:col-span-1">
-          <div className="card-duo mb-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-6">Session Stats</h3>
-            
-            <div className="space-y-4">
-              {sessionStats.levelSkipped && (
-                <div className="p-4 bg-gradient-to-r from-brand-secondary to-brand-secondary-light rounded-xl text-white text-center animate-fade-in">
-                  <div className="text-xl font-bold mb-2">🎉 Level Skipped!</div>
-                  <div className="text-sm">Outstanding performance! Advanced to Level {currentLevel}</div>
-                </div>
-              )}
-              
-              {sessionStats.consecutiveCorrect >= 3 && (
-                <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-center">
-                  <div className="text-sm font-medium text-green-800">
-                    🔥 {sessionStats.consecutiveCorrect} correct in a row!
-                  </div>
-                </div>
-              )}
-              
-              <div className="text-center p-4 bg-brand-primary bg-opacity-10 rounded-xl">
-                <div className="text-3xl font-bold text-gray-900 mb-1">
-                  {sessionStats.xpEarned}
-                </div>
-                <div className="text-sm font-medium text-gray-700">XP Earned</div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">
-                    {sessionStats.correctAnswers}
-                  </div>
-                  <div className="text-xs font-medium text-gray-700">Correct</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-900">
-                    {sessionStats.questionsAnswered}
-                  </div>
-                  <div className="text-xs font-medium text-gray-700">Total</div>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="font-medium text-gray-700">Accuracy</span>
-                  <span className="font-bold text-brand-primary">{accuracy}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-gradient-to-r from-brand-primary to-brand-secondary h-2 rounded-full transition-all"
-                    style={{ width: `${accuracy}%` }}
-                  />
-                </div>
-              </div>
-
-              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-sm font-medium text-gray-800 text-center">
-                  {getProgressMessage()}
-                </p>
-              </div>
-            </div>
+        
+        {/* Skip Button */}
+        {!showFeedback && (
+          <div className="text-center mt-6">
+            <button
+              onClick={() => handleAnswer("")}
+              className="text-gray-500 hover:text-gray-700 font-semibold"
+            >
+              Skip
+            </button>
           </div>
-
-          {/* Tips */}
-          <div className="card-duo">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Tips</h3>
-            <ul className="space-y-2 text-sm text-gray-700">
-              <li className="flex items-start">
-                <i className="fas fa-lightbulb text-brand-secondary mr-2 mt-1"></i>
-                <span>Questions get harder as you level up</span>
-              </li>
-              <li className="flex items-start">
-                <i className="fas fa-trophy text-brand-secondary mr-2 mt-1"></i>
-                <span>Maintain 80% accuracy to level up faster</span>
-              </li>
-              <li className="flex items-start">
-                <i className="fas fa-brain text-brand-secondary mr-2 mt-1"></i>
-                <span>Take breaks to retain information better</span>
-              </li>
-            </ul>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
