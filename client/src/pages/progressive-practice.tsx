@@ -247,9 +247,49 @@ export default function ProgressivePractice() {
                   {!isCorrect && selectedAnswer && (
                     <div className="bg-white rounded-xl p-4 shadow-sm border">
                       <div className="text-center">
-                        <div className="text-4xl font-bold text-gray-800 mb-2">{currentQ.chinese}</div>
-                        <div className="text-lg text-blue-600 font-medium mb-2">{currentQ.pinyin}</div>
-                        <div className="text-xl font-semibold text-red-600">{selectedAnswer}</div>
+                        <p className="text-sm text-gray-600 mb-2">Your answer:</p>
+                        {/* Find the selected wrong answer's details */}
+                        {(() => {
+                          // For multiple-choice questions (Chinese to English)
+                          if (currentQ.type === "multiple-choice") {
+                            // selectedAnswer is the English translation
+                            // We need to find which Chinese word corresponds to this wrong English answer
+                            const wrongAnswerData = questions.find(q => 
+                              q.english === selectedAnswer && q.chinese !== currentQ.chinese
+                            );
+                            if (wrongAnswerData) {
+                              return (
+                                <>
+                                  <div className="text-3xl font-bold text-gray-800 mb-1">{wrongAnswerData.chinese}</div>
+                                  <div className="text-lg text-blue-600 font-medium mb-1">{wrongAnswerData.pinyin}</div>
+                                  <div className="text-xl text-red-600">{wrongAnswerData.english}</div>
+                                </>
+                              );
+                            } else {
+                              // Fallback: just show the selected answer
+                              return <div className="text-xl text-red-600">{selectedAnswer}</div>;
+                            }
+                          } else {
+                            // For translation questions (English to Chinese)
+                            // selectedAnswer is the Chinese character
+                            // We need to find which word corresponds to this wrong Chinese answer
+                            const wrongAnswerData = questions.find(q => 
+                              q.chinese === selectedAnswer && q.english !== currentQ.english
+                            );
+                            if (wrongAnswerData) {
+                              return (
+                                <>
+                                  <div className="text-3xl font-bold text-gray-800 mb-1">{wrongAnswerData.chinese}</div>
+                                  <div className="text-lg text-blue-600 font-medium mb-1">{wrongAnswerData.pinyin}</div>
+                                  <div className="text-xl text-red-600">{wrongAnswerData.english}</div>
+                                </>
+                              );
+                            } else {
+                              // Fallback: just show the selected answer
+                              return <div className="text-xl text-red-600">{selectedAnswer}</div>;
+                            }
+                          }
+                        })()}
                       </div>
                     </div>
                   )}

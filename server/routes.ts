@@ -82,6 +82,153 @@ function segmentChineseText(text: string) {
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+// Helper function to generate practice questions
+function generatePracticeQuestions(level: number) {
+  const questions = [];
+  const questionTypes = ["multiple-choice", "translation"] as const;
+  
+  // Level-based vocabulary
+  const levelVocabulary: Record<number, Array<{chinese: string, pinyin: string, english: string}>> = {
+    1: [
+      { chinese: "你好", pinyin: "nǐ hǎo", english: "hello" },
+      { chinese: "谢谢", pinyin: "xiè xiè", english: "thank you" },
+      { chinese: "再见", pinyin: "zài jiàn", english: "goodbye" },
+      { chinese: "是", pinyin: "shì", english: "yes/to be" },
+      { chinese: "不", pinyin: "bù", english: "no/not" },
+      { chinese: "我", pinyin: "wǒ", english: "I/me" },
+      { chinese: "你", pinyin: "nǐ", english: "you" },
+      { chinese: "他", pinyin: "tā", english: "he" },
+      { chinese: "她", pinyin: "tā", english: "she" },
+      { chinese: "们", pinyin: "men", english: "plural marker" }
+    ],
+    2: [
+      { chinese: "吃", pinyin: "chī", english: "to eat" },
+      { chinese: "喝", pinyin: "hē", english: "to drink" },
+      { chinese: "看", pinyin: "kàn", english: "to look/watch" },
+      { chinese: "听", pinyin: "tīng", english: "to listen" },
+      { chinese: "说", pinyin: "shuō", english: "to speak" },
+      { chinese: "读", pinyin: "dú", english: "to read" },
+      { chinese: "写", pinyin: "xiě", english: "to write" },
+      { chinese: "走", pinyin: "zǒu", english: "to walk" },
+      { chinese: "来", pinyin: "lái", english: "to come" },
+      { chinese: "去", pinyin: "qù", english: "to go" }
+    ],
+    3: [
+      { chinese: "学习", pinyin: "xué xí", english: "to study" },
+      { chinese: "工作", pinyin: "gōng zuò", english: "to work" },
+      { chinese: "休息", pinyin: "xiū xi", english: "to rest" },
+      { chinese: "旅行", pinyin: "lǚ xíng", english: "to travel" },
+      { chinese: "购物", pinyin: "gòu wù", english: "to shop" },
+      { chinese: "运动", pinyin: "yùn dòng", english: "to exercise" },
+      { chinese: "游泳", pinyin: "yóu yǒng", english: "to swim" },
+      { chinese: "跑步", pinyin: "pǎo bù", english: "to run" },
+      { chinese: "唱歌", pinyin: "chàng gē", english: "to sing" },
+      { chinese: "跳舞", pinyin: "tiào wǔ", english: "to dance" }
+    ],
+    4: [
+      { chinese: "电脑", pinyin: "diàn nǎo", english: "computer" },
+      { chinese: "手机", pinyin: "shǒu jī", english: "mobile phone" },
+      { chinese: "朋友", pinyin: "péng yǒu", english: "friend" },
+      { chinese: "家人", pinyin: "jiā rén", english: "family" },
+      { chinese: "老师", pinyin: "lǎo shī", english: "teacher" },
+      { chinese: "学生", pinyin: "xué shēng", english: "student" },
+      { chinese: "医生", pinyin: "yī shēng", english: "doctor" },
+      { chinese: "办公室", pinyin: "bàn gōng shì", english: "office" },
+      { chinese: "公司", pinyin: "gōng sī", english: "company" },
+      { chinese: "市场", pinyin: "shì chǎng", english: "market" }
+    ],
+    5: [
+      { chinese: "发展", pinyin: "fā zhǎn", english: "develop" },
+      { chinese: "经济", pinyin: "jīng jì", english: "economy" },
+      { chinese: "文化", pinyin: "wén huà", english: "culture" },
+      { chinese: "历史", pinyin: "lì shǐ", english: "history" },
+      { chinese: "社会", pinyin: "shè huì", english: "society" },
+      { chinese: "环境", pinyin: "huán jìng", english: "environment" },
+      { chinese: "科技", pinyin: "kē jì", english: "technology" },
+      { chinese: "教育", pinyin: "jiào yù", english: "education" },
+      { chinese: "健康", pinyin: "jiàn kāng", english: "health" },
+      { chinese: "安全", pinyin: "ān quán", english: "safety" }
+    ]
+  };
+  
+  // Default to level 1-3 vocabulary if level is too high
+  const maxLevel = Math.min(level, 5);
+  const availableVocab: Array<{chinese: string, pinyin: string, english: string}> = [];
+  
+  // Get vocabulary for current level and below
+  for (let i = 1; i <= maxLevel; i++) {
+    availableVocab.push(...(levelVocabulary[i] || []));
+  }
+  
+  // If no vocabulary available, use level 1
+  if (availableVocab.length === 0) {
+    availableVocab.push(...levelVocabulary[1]);
+  }
+  
+  // Generate 10 questions
+  for (let i = 0; i < 10; i++) {
+    const type = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+    const correctIndex = Math.floor(Math.random() * availableVocab.length);
+    const correctWord = availableVocab[correctIndex];
+    
+    if (type === "multiple-choice") {
+      // Chinese to English
+      const options = [correctWord.english];
+      const usedIndices = new Set([correctIndex]);
+      
+      while (options.length < 4 && options.length < availableVocab.length) {
+        const randomIndex = Math.floor(Math.random() * availableVocab.length);
+        if (!usedIndices.has(randomIndex)) {
+          options.push(availableVocab[randomIndex].english);
+          usedIndices.add(randomIndex);
+        }
+      }
+      
+      // Shuffle options
+      options.sort(() => Math.random() - 0.5);
+      
+      questions.push({
+        id: `q${i + 1}`,
+        type: "multiple-choice",
+        question: "What does this character mean?",
+        chinese: correctWord.chinese,
+        pinyin: correctWord.pinyin,
+        english: correctWord.english,
+        options: options,
+        correctAnswer: correctWord.english
+      });
+    } else {
+      // English to Chinese
+      const options = [correctWord.chinese];
+      const usedIndices = new Set([correctIndex]);
+      
+      while (options.length < 4 && options.length < availableVocab.length) {
+        const randomIndex = Math.floor(Math.random() * availableVocab.length);
+        if (!usedIndices.has(randomIndex)) {
+          options.push(availableVocab[randomIndex].chinese);
+          usedIndices.add(randomIndex);
+        }
+      }
+      
+      // Shuffle options
+      options.sort(() => Math.random() - 0.5);
+      
+      questions.push({
+        id: `q${i + 1}`,
+        type: "translation",
+        question: "How do you say this in Chinese?",
+        chinese: correctWord.chinese,
+        pinyin: correctWord.pinyin,
+        english: correctWord.english,
+        options: options,
+        correctAnswer: correctWord.chinese
+      });
+    }
+  }
+  
+  return questions;
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Mock user ID for demo purposes
   const DEMO_USER_ID = "demo-user";
@@ -516,6 +663,20 @@ Create substantially more comprehensive responses with extensive vocabulary prac
   });
   
   // Practice endpoints
+  app.get("/api/practice/questions/:level", async (req, res) => {
+    try {
+      const level = parseInt(req.params.level);
+      
+      // Generate practice questions based on level
+      const questions = generatePracticeQuestions(level);
+      
+      res.json(questions);
+    } catch (error) {
+      console.error("Error getting practice questions:", error);
+      res.status(500).json({ error: "Failed to get practice questions" });
+    }
+  });
+
   // Level up endpoint for auto-advancement
   app.post("/api/user/level-up", async (req, res) => {
     try {
