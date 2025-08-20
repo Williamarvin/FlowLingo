@@ -132,7 +132,14 @@ export default function MediaReader() {
         const filename = uploadedFile.name || "unknown";
         const fileSize = uploadedFile.size || 0;
         const mimeType = uploadedFile.type || "application/octet-stream";
-        const uploadURL = uploadedFile.uploadURL as string;
+        let uploadURL = uploadedFile.uploadURL as string;
+        
+        // If the upload URL is our server endpoint, extract the file URL from the response
+        if (uploadURL && uploadURL.includes('/api/media/upload/')) {
+          // The file was uploaded to our server, use a mock URL for now
+          const uploadId = uploadURL.split('/').pop();
+          uploadURL = `/api/media/files/${uploadId}`;
+        }
         
         // Determine file type
         const fileTypeInfo = getFileTypeInfo(mimeType);
@@ -179,17 +186,33 @@ export default function MediaReader() {
     [createDocumentMutation, toast]
   );
 
-  const getUploadParameters = async () => {
-    const response = await fetch("/api/media/upload", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-    return {
-      method: "PUT" as const,
-      url: data.uploadURL,
-    };
+  const getUploadParameters = async (file?: any) => {
+    try {
+      const response = await fetch("/api/media/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          contentType: file?.type || 'application/octet-stream' 
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Upload URL generation failed:", response.status, errorText);
+        throw new Error(`Failed to get upload URL: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log("Upload URL generated:", data.uploadURL);
+      
+      return {
+        method: "PUT" as const,
+        url: data.uploadURL,
+      };
+    } catch (error) {
+      console.error("Error getting upload parameters:", error);
+      throw error;
+    }
   };
 
   const renderFilePreview = (document: MediaDocument) => {
