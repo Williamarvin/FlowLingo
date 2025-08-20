@@ -63,54 +63,54 @@ export default function Home() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* User Progress Header */}
       {userProfile && (
-        <div className="bg-gradient-to-br from-brand-primary to-brand-primary-dark rounded-3xl shadow-xl p-6 mb-8 text-white">
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl shadow-xl p-6 mb-8 border border-blue-200">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              <h2 className="text-2xl font-bold mb-2">{greeting}!</h2>
+              <h2 className="text-2xl font-bold mb-2 text-gray-900">{greeting}!</h2>
               <div className="flex items-center space-x-6">
                 <div className="flex items-center">
                   <span className="text-3xl mr-2">🔥</span>
                   <div>
-                    <div className="text-2xl font-bold">{userProfile.streakDays || 0}</div>
-                    <div className="text-xs opacity-75">day streak</div>
+                    <div className="text-2xl font-bold text-gray-900">{userProfile.streakDays || 0}</div>
+                    <div className="text-xs text-gray-700">day streak</div>
                   </div>
                 </div>
                 <div className="flex items-center">
                   <span className="text-3xl mr-2">⭐</span>
                   <div>
-                    <div className="text-2xl font-bold">Level {userProfile.level || 1}</div>
-                    <div className="text-xs opacity-75">{userProfile.xp || 0} XP</div>
+                    <div className="text-2xl font-bold text-gray-900">Level {userProfile.level || 1}</div>
+                    <div className="text-xs text-gray-700">{userProfile.xp || 0} XP</div>
                   </div>
                 </div>
                 <div className="flex items-center">
                   <span className="text-3xl mr-2">📚</span>
                   <div>
-                    <div className="text-2xl font-bold">{userProfile.wordsLearned || 0}</div>
-                    <div className="text-xs opacity-75">words learned</div>
+                    <div className="text-2xl font-bold text-gray-900">{userProfile.wordsLearned || 0}</div>
+                    <div className="text-xs text-gray-700">words learned</div>
                   </div>
                 </div>
               </div>
             </div>
             
             <div className="flex flex-col items-end">
-              <div className="mb-2 text-sm opacity-90">XP Progress</div>
-              <div className="w-48 bg-white bg-opacity-20 rounded-full h-3 mb-1">
+              <div className="mb-2 text-sm text-gray-800 font-medium">XP Progress</div>
+              <div className="w-48 bg-gray-200 rounded-full h-3 mb-1">
                 <div 
-                  className="bg-brand-secondary h-3 rounded-full transition-all duration-500"
+                  className="bg-gradient-to-r from-brand-primary to-brand-secondary h-3 rounded-full transition-all duration-500"
                   style={{ width: `${Math.min(((userProfile.xp || 0) / (userProfile.xpToNextLevel || 100)) * 100, 100)}%` }}
                 />
               </div>
-              <div className="text-xs opacity-75">
+              <div className="text-xs text-gray-700">
                 {userProfile.xp || 0} / {userProfile.xpToNextLevel || 100} XP to Level {(userProfile.level || 1) + 1}
               </div>
             </div>
           </div>
           
           {!userProfile.assessmentCompleted && (
-            <div className="mt-4 p-3 bg-white bg-opacity-20 rounded-xl">
-              <p className="text-sm mb-2">🎯 Take the assessment test to determine your starting level!</p>
+            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-xl">
+              <p className="text-sm mb-2 text-gray-800">🎯 Take the assessment test to determine your starting level!</p>
               <Link href="/assessment">
-                <button className="btn-secondary text-sm px-4 py-2">
+                <button className="bg-brand-primary hover:bg-brand-primary-dark text-white font-bold text-sm px-4 py-2 rounded-lg transition-colors">
                   Start Assessment
                 </button>
               </Link>
