@@ -115,10 +115,13 @@ export default function MediaReader() {
 
   const handleFileUpload = useCallback(
     async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+      console.log("File upload result:", result);
+      
       if (!result.successful || result.successful.length === 0) {
+        console.error("Upload failed - no successful uploads");
         toast({
           title: "Upload failed",
-          description: "No files were uploaded successfully",
+          description: "No files were uploaded successfully. Please try again.",
           variant: "destructive",
         });
         return;
@@ -134,11 +137,14 @@ export default function MediaReader() {
         const mimeType = uploadedFile.type || "application/octet-stream";
         let uploadURL = uploadedFile.uploadURL as string;
         
+        console.log("Processing uploaded file:", { filename, fileSize, mimeType, uploadURL });
+        
         // If the upload URL is our server endpoint, extract the file URL from the response
         if (uploadURL && uploadURL.includes('/api/media/upload/')) {
           // The file was uploaded to our server, use a mock URL for now
           const uploadId = uploadURL.split('/').pop();
           uploadURL = `/api/media/files/${uploadId}`;
+          console.log("Converted upload URL to file URL:", uploadURL);
         }
         
         // Determine file type

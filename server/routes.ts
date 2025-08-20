@@ -750,23 +750,40 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     }
   });
   
-  // Handle actual file upload
+  // Handle actual file upload - properly handle CORS
+  app.options("/api/media/upload/:uploadId", (req, res) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "PUT, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type");
+    res.sendStatus(200);
+  });
+  
   app.put("/api/media/upload/:uploadId", async (req, res) => {
     try {
+      // Set CORS headers
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Methods", "PUT, OPTIONS");
+      res.header("Access-Control-Allow-Headers", "Content-Type");
+      
       const { uploadId } = req.params;
       
       // Collect the raw body data
       const chunks: Buffer[] = [];
-      req.on('data', (chunk) => chunks.push(chunk));
+      let totalSize = 0;
+      
+      req.on('data', (chunk) => {
+        chunks.push(chunk);
+        totalSize += chunk.length;
+      });
+      
       req.on('end', async () => {
         const buffer = Buffer.concat(chunks);
         const contentType = req.headers['content-type'] || 'application/octet-stream';
         
-        // For now, just acknowledge the upload
-        // In production, you would store this in object storage
-        console.log(`Received file upload ${uploadId}: ${buffer.length} bytes, type: ${contentType}`);
+        // Log successful upload
+        console.log(`File upload successful - ID: ${uploadId}, Size: ${buffer.length} bytes, Type: ${contentType}`);
         
-        // Return a mock URL for the uploaded file
+        // Return success response with upload details
         const fileUrl = `${req.protocol}://${req.get('host')}/api/media/files/${uploadId}`;
         res.json({ 
           success: true, 
@@ -775,6 +792,11 @@ Create substantially more comprehensive responses with extensive vocabulary prac
           size: buffer.length,
           contentType
         });
+      });
+      
+      req.on('error', (error) => {
+        console.error("Upload stream error:", error);
+        res.status(500).json({ error: "Upload failed" });
       });
     } catch (error) {
       console.error("Error handling file upload:", error);

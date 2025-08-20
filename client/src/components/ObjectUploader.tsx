@@ -75,13 +75,20 @@ export function ObjectUploader({
         shouldUseMultipart: false,
         getUploadParameters: async (file) => {
           try {
+            console.log("Requesting upload parameters for file:", file.name, "Type:", file.type);
             const params = await onGetUploadParameters(file);
-            return {
+            console.log("Received upload parameters:", params);
+            
+            // Add headers for PUT request
+            const uploadParams = {
               ...params,
               headers: {
                 'Content-Type': file.type || 'application/octet-stream',
               },
             };
+            
+            console.log("Final upload parameters:", uploadParams);
+            return uploadParams;
           } catch (error) {
             console.error("Failed to get upload parameters:", error);
             throw error;
@@ -89,10 +96,14 @@ export function ObjectUploader({
         },
       })
       .on("complete", (result) => {
+        console.log("Upload complete:", result);
         onComplete?.(result);
       })
       .on("upload-error", (file, error, response) => {
         console.error("Upload error for file:", file?.name, "Error:", error, "Response:", response);
+      })
+      .on("upload-success", (file, response) => {
+        console.log("Upload success for file:", file?.name, "Response:", response);
       })
   );
 
