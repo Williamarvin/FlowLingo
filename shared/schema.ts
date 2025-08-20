@@ -178,6 +178,7 @@ export const insertGeneratedTextSchema = createInsertSchema(generatedTexts).omit
 export const insertMediaDocumentSchema = createInsertSchema(mediaDocuments).omit({
   id: true,
   createdAt: true,
+  userId: true,  // userId is added server-side for security
 });
 
 export const insertPdfDocumentSchema = createInsertSchema(pdfDocuments).omit({
