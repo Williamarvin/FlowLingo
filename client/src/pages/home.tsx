@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import Sidebar from "@/components/sidebar";
 
 export default function Home() {
   const [greeting, setGreeting] = useState("");
@@ -60,9 +61,12 @@ export default function Home() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* User Progress Header */}
-      {userProfile && (
+    <div className="min-h-screen flex">
+      <Sidebar currentPage="/" />
+      <div className="flex-1 p-8">
+        <div className="max-w-7xl mx-auto">
+          {/* User Progress Header */}
+          {userProfile && (
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl shadow-xl p-6 mb-8 border border-blue-200">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
@@ -127,11 +131,11 @@ export default function Home() {
             </div>
           )}
         </div>
-      )}
+          )}
 
-      {/* Hero Section - Duolingo Inspired */}
-      <div className="text-center mb-20">
-        <div className="mb-12 relative">
+          {/* Hero Section - Duolingo Inspired */}
+          <div className="text-center mb-20">
+            <div className="mb-12 relative">
           {/* Main mascot area */}
           <div className="relative w-80 h-64 mx-auto mb-8">
             <div className="absolute inset-0 bg-gradient-to-br from-brand-primary to-brand-primary-light rounded-full opacity-10 floating-element"></div>
@@ -146,16 +150,16 @@ export default function Home() {
               ✨
             </div>
           </div>
-        </div>
-        
-        <h1 className="text-5xl md:text-6xl font-bold text-text-primary mb-6 leading-tight">
+            </div>
+            
+            <h1 className="text-5xl md:text-6xl font-bold text-text-primary mb-6 leading-tight">
           The fun, effective way to learn <span className="text-brand-primary">Mandarin!</span>
-        </h1>
-        <p className="text-xl text-text-secondary mb-12 max-w-2xl mx-auto leading-relaxed">
+            </h1>
+            <p className="text-xl text-text-secondary mb-12 max-w-2xl mx-auto leading-relaxed">
           Master Chinese with AI-powered conversations, interactive text translation, and smart vocabulary practice.
-        </p>
-        
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
           <Link href="/text-generator">
             <button className="btn-primary px-12 py-5 text-xl font-bold">
               GET STARTED
@@ -164,17 +168,17 @@ export default function Home() {
           <button className="btn-outline px-8 py-4 text-lg">
             I ALREADY HAVE AN ACCOUNT
           </button>
-        </div>
-        
-        {/* Streak counter */}
-        <div className="inline-flex items-center streak-counter">
+            </div>
+            
+            {/* Streak counter */}
+            <div className="inline-flex items-center streak-counter">
           <span className="mr-2">🔥</span>
           <span>Keep your 5-day streak going!</span>
-        </div>
-      </div>
+            </div>
+          </div>
 
-      {/* Feature Cards - Duolingo Style */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
+          {/* Feature Cards - Duolingo Style */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
         {features.map((feature, index) => (
           <Link key={feature.href} href={feature.href}>
             <div className="card-duo cursor-pointer group relative overflow-hidden">
@@ -193,10 +197,10 @@ export default function Home() {
             </div>
           </Link>
         ))}
-      </div>
+          </div>
 
-      {/* Progress & Stats Section */}
-      <div className="bg-white rounded-3xl shadow-xl p-8 mb-12 border-3 border-gray-100">
+          {/* Progress & Stats Section */}
+          <div className="bg-white rounded-3xl shadow-xl p-8 mb-12 border-3 border-gray-100">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-text-primary mb-4">personalized learning</h2>
           <p className="text-text-secondary text-lg max-w-2xl mx-auto">
@@ -215,10 +219,10 @@ export default function Home() {
             </div>
           ))}
         </div>
-      </div>
+          </div>
 
-      {/* Achievement Badges */}
-      <div className="text-center">
+          {/* Achievement Badges */}
+          <div className="text-center">
         <h3 className="text-2xl font-bold text-text-primary mb-6">Your Achievements</h3>
         <div className="flex flex-wrap justify-center gap-3">
           <span className="badge-achievement">
@@ -233,6 +237,8 @@ export default function Home() {
           <span className="badge-achievement">
             <i className="fas fa-comments mr-2 text-blue-600"></i>Conversationalist
           </span>
+          </div>
+          </div>
         </div>
       </div>
     </div>
