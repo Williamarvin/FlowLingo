@@ -5,10 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ObjectUploader } from "@/components/ObjectUploader";
 import { apiRequest } from "@/lib/queryClient";
 import type { MediaDocument } from "@shared/schema";
-import type { UploadResult } from "@uppy/core";
 import Sidebar from "@/components/sidebar";
 
 // File type configurations with support for multiple formats
@@ -113,110 +111,35 @@ export default function MediaReader() {
     },
   });
 
-  const handleFileUpload = useCallback(
-    async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
-      console.log("File upload result:", result);
-      
-      if (!result.successful || result.successful.length === 0) {
-        console.error("Upload failed - no successful uploads");
-        toast({
-          title: "Upload failed",
-          description: "No files were uploaded successfully. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      setIsProcessing(true);
-      const uploadedFile = result.successful[0];
-      
-      try {
-        // Extract file information
-        const filename = uploadedFile.name || "unknown";
-        const fileSize = uploadedFile.size || 0;
-        const mimeType = uploadedFile.type || "application/octet-stream";
-        let uploadURL = uploadedFile.uploadURL as string;
-        
-        console.log("Processing uploaded file:", { filename, fileSize, mimeType, uploadURL });
-        
-        // If the upload URL is our server endpoint, extract the file URL from the response
-        if (uploadURL && uploadURL.includes('/api/media/upload/')) {
-          // The file was uploaded to our server, use a mock URL for now
-          const uploadId = uploadURL.split('/').pop();
-          uploadURL = `/api/media/files/${uploadId}`;
-          console.log("Converted upload URL to file URL:", uploadURL);
-        }
-        
-        // Determine file type
-        const fileTypeInfo = getFileTypeInfo(mimeType);
-        
-        // For certain file types, we can extract text or metadata
-        let content = "";
-        let processedContent = {};
-        
-        if (fileTypeInfo.type === "pdf") {
-          // PDF text extraction would go here
-          content = "PDF content extraction not yet implemented";
-        } else if (fileTypeInfo.type === "image") {
-          // Image metadata extraction
-          processedContent = { width: 0, height: 0, format: mimeType };
-        } else if (fileTypeInfo.type === "video" || fileTypeInfo.type === "audio") {
-          // Media metadata extraction
-          processedContent = { duration: 0, format: mimeType };
-        }
-
-        // Save document information
-        await createDocumentMutation.mutateAsync({
-          filename,
-          fileType: fileTypeInfo.type,
-          fileSize,
-          fileUrl: uploadURL,
-          mimeType,
-          content,
-          segments: [], // Required field with default empty array
-          processedContent,
-        });
-
-      } catch (error) {
-        console.error("Processing error:", error);
-        const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-        toast({
-          title: "Processing failed",
-          description: `Failed to process uploaded file: ${errorMessage}`,
-          variant: "destructive",
-        });
-      } finally {
-        setIsProcessing(false);
-      }
-    },
-    [createDocumentMutation, toast]
-  );
-
-  const getUploadParameters = async (file?: any) => {
+  // Direct file upload function - replaces Uppy-based upload
+  const uploadFile = async (file: File) => {
     try {
-      const response = await fetch("/api/media/upload", {
+      console.log("Uploading file directly:", file.name, "Type:", file.type, "Size:", file.size);
+      
+      // Create FormData and append the file
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await fetch("/api/media/upload-direct", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          contentType: file?.type || 'application/octet-stream' 
-        }),
+        body: formData,
       });
       
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Upload URL generation failed:", response.status, errorText);
-        throw new Error(`Failed to get upload URL: ${response.status}`);
+        console.error("Direct upload failed:", response.status, errorText);
+        throw new Error(`Failed to upload file: ${response.status}`);
       }
       
       const data = await response.json();
-      console.log("Upload URL generated:", data.uploadURL);
+      console.log("File uploaded successfully:", data);
       
       return {
-        method: "PUT" as const,
-        url: data.uploadURL,
+        fileUrl: data.fileUrl,
+        content: data.content || ""
       };
     } catch (error) {
-      console.error("Error getting upload parameters:", error);
+      console.error("Error uploading file:", error);
       throw error;
     }
   };
@@ -376,16 +299,65 @@ export default function MediaReader() {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Upload Button */}
-              <ObjectUploader
-                maxNumberOfFiles={1}
-                maxFileSize={52428800} // 50MB
-                onGetUploadParameters={getUploadParameters}
-                onComplete={handleFileUpload}
-                buttonClassName="w-full"
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.svg,.mp4,.webm,.ogg,.avi,.mov,.mp3,.wav,.m4a,.flac,.doc,.docx,.txt,.rtf"
+                onChange={async (e) => {
+                  const files = e.target.files;
+                  if (!files || files.length === 0) return;
+                  
+                  setIsProcessing(true);
+                  
+                  for (const file of Array.from(files)) {
+                    try {
+                      console.log("Processing file:", file.name);
+                      
+                      // Upload file directly
+                      const uploadResult = await uploadFile(file);
+                      
+                      // Create media document
+                      await createDocumentMutation.mutateAsync({
+                        filename: file.name,
+                        fileType: getFileTypeInfo(file.type).type,
+                        fileSize: file.size,
+                        fileUrl: uploadResult.fileUrl,
+                        mimeType: file.type,
+                        content: uploadResult.content || "",
+                        segments: [],
+                        processedContent: {}
+                      });
+                      
+                      toast({
+                        title: "Success",
+                        description: `${file.name} uploaded successfully!`,
+                      });
+                    } catch (error) {
+                      console.error("Error processing file:", error);
+                      toast({
+                        title: "Upload failed",
+                        description: `Failed to upload ${file.name}`,
+                        variant: "destructive",
+                      });
+                    }
+                  }
+                  
+                  setIsProcessing(false);
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                  }
+                }}
+                className="hidden"
+              />
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full"
+                disabled={isProcessing}
               >
                 <Upload className="w-4 h-4 mr-2" />
-                Upload File
-              </ObjectUploader>
+                {isProcessing ? "Uploading..." : "Upload File"}
+              </Button>
 
               {isProcessing && (
                 <div className="text-center text-sm text-muted-foreground">

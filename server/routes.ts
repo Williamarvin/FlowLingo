@@ -824,6 +824,115 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     }
   });
 
+  // Direct file upload endpoint using multipart form data
+  app.post("/api/media/upload-direct", async (req, res) => {
+    try {
+      const chunks: Buffer[] = [];
+      let boundary: string | null = null;
+      
+      // Extract boundary from content-type
+      const contentType = req.headers['content-type'] || '';
+      const boundaryMatch = contentType.match(/boundary=(.+)$/);
+      if (boundaryMatch) {
+        boundary = boundaryMatch[1];
+      }
+      
+      // Collect all data
+      req.on('data', (chunk) => {
+        chunks.push(chunk);
+      });
+      
+      req.on('end', () => {
+        const buffer = Buffer.concat(chunks);
+        
+        if (!boundary) {
+          return res.status(400).json({ error: "No boundary found in multipart data" });
+        }
+        
+        // Parse multipart form data
+        const boundaryBuffer = Buffer.from(`--${boundary}`);
+        const parts: Buffer[] = [];
+        let start = 0;
+        
+        while (start < buffer.length) {
+          const boundaryIndex = buffer.indexOf(boundaryBuffer, start);
+          if (boundaryIndex === -1) break;
+          
+          const nextBoundaryIndex = buffer.indexOf(boundaryBuffer, boundaryIndex + boundaryBuffer.length);
+          if (nextBoundaryIndex === -1) {
+            // Last part
+            const part = buffer.slice(boundaryIndex + boundaryBuffer.length);
+            if (part.length > 4) { // Has content
+              parts.push(part);
+            }
+            break;
+          }
+          
+          const part = buffer.slice(boundaryIndex + boundaryBuffer.length, nextBoundaryIndex);
+          parts.push(part);
+          start = nextBoundaryIndex;
+        }
+        
+        if (parts.length === 0) {
+          return res.status(400).json({ error: "No file data found" });
+        }
+        
+        // Process the first file part
+        const filePart = parts[0];
+        const headerEnd = filePart.indexOf(Buffer.from('\r\n\r\n'));
+        
+        if (headerEnd === -1) {
+          return res.status(400).json({ error: "Invalid multipart data" });
+        }
+        
+        const headers = filePart.slice(0, headerEnd).toString();
+        const fileData = filePart.slice(headerEnd + 4, -2); // Remove trailing \r\n
+        
+        // Extract content type
+        const contentTypeMatch = headers.match(/Content-Type: (.*)/i);
+        const fileContentType = contentTypeMatch ? contentTypeMatch[1].trim() : 'application/octet-stream';
+        
+        // Extract filename
+        const filenameMatch = headers.match(/filename="([^"]+)"/);
+        const filename = filenameMatch ? filenameMatch[1] : 'upload';
+        
+        // Generate unique ID
+        const uploadId = randomUUID();
+        
+        // Store file in memory
+        const fileInfo = {
+          id: uploadId,
+          buffer: fileData,
+          size: fileData.length,
+          contentType: fileContentType,
+          uploadedAt: new Date()
+        };
+        
+        uploadedFiles.set(uploadId, fileInfo);
+        
+        console.log(`Direct file upload successful - ID: ${uploadId}, Size: ${fileData.length} bytes, Type: ${fileContentType}`);
+        
+        // Return success response
+        res.json({
+          success: true,
+          uploadId,
+          fileUrl: `${req.protocol}://${req.get('host')}/api/media/files/${uploadId}`,
+          size: fileData.length,
+          contentType: fileContentType,
+          filename
+        });
+      });
+      
+      req.on('error', (error) => {
+        console.error('Upload error:', error);
+        res.status(500).json({ error: 'Upload failed' });
+      });
+    } catch (error) {
+      console.error("Error handling direct upload:", error);
+      res.status(500).json({ error: "Failed to handle upload" });
+    }
+  });
+
   // Serve uploaded files from memory
   app.get("/api/media/files/:uploadId", (req, res) => {
     const { uploadId } = req.params;
