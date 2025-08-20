@@ -160,9 +160,9 @@ export default function Home() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-          <Link href="/text-generator">
+          <Link href={userProfile?.assessmentCompleted ? "/practice" : "/assessment"}>
             <button className="btn-primary px-12 py-5 text-xl font-bold">
-              GET STARTED
+              {userProfile?.assessmentCompleted ? "CONTINUE LEARNING" : "GET STARTED"}
             </button>
           </Link>
           <button className="btn-outline px-8 py-4 text-lg">

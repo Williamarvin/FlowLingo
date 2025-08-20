@@ -790,6 +790,23 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     }
   });
   
+  // Temporary endpoint to reset assessment status for testing
+  app.post("/api/user/reset-assessment", async (req, res) => {
+    try {
+      const userId = DEMO_USER_ID;
+      const user = await storage.updateUserProgress(userId, { 
+        assessmentCompleted: false,
+        initialLevel: null,
+        level: 1,
+        xp: 0
+      });
+      res.json({ message: "Assessment status reset", user });
+    } catch (error) {
+      console.error("Error resetting assessment:", error);
+      res.status(500).json({ error: "Failed to reset assessment" });
+    }
+  });
+
   // Assessment endpoints
   // Get assessment questions
   app.get("/api/assessment/questions", (req, res) => {
