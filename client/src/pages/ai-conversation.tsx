@@ -105,13 +105,13 @@ export default function AiConversation() {
           silenceTimerRef.current = null;
         }
         
-        // If we have speech content, start the 2-second silence timer
-        if (currentTranscript.trim()) {
-          console.log('Setting 2-second silence timer for:', currentTranscript);
+        // If we have final speech content, start the 2-second silence timer
+        if (finalTranscript.trim() && !conversationMutation.isPending) {
+          console.log('Setting 2-second silence timer for:', finalTranscript);
           silenceTimerRef.current = setTimeout(() => {
             const latestTranscript = currentTranscriptRef.current;
             console.log('2 seconds of silence detected, sending message:', latestTranscript);
-            if (latestTranscript.trim()) {
+            if (latestTranscript.trim() && !conversationMutation.isPending) {
               handleUserSpeech(latestTranscript);
             }
           }, 2000);
@@ -120,9 +120,23 @@ export default function AiConversation() {
       
       recognitionRef.current.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
-        // Don't auto-restart on no-speech error to allow silence detection
+        
+        // If there's a no-speech error and we have a transcript, send it
+        if (event.error === 'no-speech') {
+          const unsent = currentTranscriptRef.current;
+          if (unsent && unsent.trim() && !conversationMutation.isPending) {
+            console.log('No speech detected, sending existing transcript:', unsent);
+            if (silenceTimerRef.current) {
+              clearTimeout(silenceTimerRef.current);
+              silenceTimerRef.current = null;
+            }
+            handleUserSpeech(unsent);
+            return;
+          }
+        }
+        
+        // Restart on critical errors
         if (event.error === 'network' || event.error === 'audio-capture') {
-          // Only restart on critical errors
           if (isInCall && isListening && !conversationMutation.isPending) {
             setTimeout(() => {
               try {
@@ -139,6 +153,21 @@ export default function AiConversation() {
       
       recognitionRef.current.onend = () => {
         console.log('Speech recognition ended');
+        
+        // Check if we have unsent transcript when recognition ends
+        const unsent = currentTranscriptRef.current;
+        if (unsent && unsent.trim() && !conversationMutation.isPending) {
+          console.log('Recognition ended with unsent transcript, sending:', unsent);
+          // Clear any existing timer
+          if (silenceTimerRef.current) {
+            clearTimeout(silenceTimerRef.current);
+            silenceTimerRef.current = null;
+          }
+          // Send the message immediately
+          handleUserSpeech(unsent);
+          return;
+        }
+        
         // Only restart if we're still in call and actively listening
         if (isInCall && isListening && !isSpeaking && !conversationMutation.isPending) {
           // Check if there's a silence timer running - if so, don't restart yet
@@ -150,7 +179,7 @@ export default function AiConversation() {
           // Restart recognition after a short delay
           setTimeout(() => {
             try {
-              if (isListening && isInCall && !silenceTimerRef.current) {
+              if (isListening && isInCall && !silenceTimerRef.current && !conversationMutation.isPending) {
                 console.log('Restarting speech recognition...');
                 recognitionRef.current.start();
               }
@@ -205,31 +234,35 @@ export default function AiConversation() {
     });
   };
 
-  const speakMessage = (text: string) => {
-    if ('speechSynthesis' in window) {
-      // Cancel any ongoing speech
-      window.speechSynthesis.cancel();
-      
-      setIsSpeaking(true);
-      const utterance = new SpeechSynthesisUtterance(text);
-      
-      // Try to use a Chinese voice if available
-      const voices = window.speechSynthesis.getVoices();
-      const chineseVoice = voices.find(voice => 
-        voice.lang.includes('zh') || voice.lang.includes('cmn')
-      );
-      
-      if (chineseVoice) {
-        utterance.voice = chineseVoice;
+  const speakMessage = async (text: string) => {
+    setIsSpeaking(true);
+    
+    try {
+      // Call the OpenAI TTS endpoint
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate speech');
       }
+
+      // Get the audio blob
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
       
-      utterance.lang = 'zh-CN';
-      utterance.rate = 0.9; // Slightly slower for language learning
-      utterance.pitch = 1;
-      utterance.volume = 1;
+      // Play the audio
+      const audio = new Audio(audioUrl);
+      audio.playbackRate = 1.0; // Normal speed since we already set it slower on server
       
-      utterance.onend = () => {
+      audio.onended = () => {
         setIsSpeaking(false);
+        URL.revokeObjectURL(audioUrl);
+        
         // Resume listening after speaking
         if (isInCall) {
           setIsListening(true);
@@ -244,13 +277,45 @@ export default function AiConversation() {
         }
       };
       
-      utterance.onerror = () => {
+      audio.onerror = () => {
         setIsSpeaking(false);
         setIsListening(true);
+        URL.revokeObjectURL(audioUrl);
       };
       
-      synthRef.current = utterance;
-      window.speechSynthesis.speak(utterance);
+      await audio.play();
+    } catch (error) {
+      console.error('TTS error:', error);
+      setIsSpeaking(false);
+      
+      // Fallback to browser speech synthesis
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'zh-CN';
+        utterance.rate = 0.9;
+        
+        utterance.onend = () => {
+          setIsSpeaking(false);
+          if (isInCall) {
+            setIsListening(true);
+            if (recognitionRef.current) {
+              try {
+                recognitionRef.current.start();
+              } catch (e) {
+                console.log('Recognition restart after speaking fallback');
+              }
+            }
+          }
+        };
+        
+        utterance.onerror = () => {
+          setIsSpeaking(false);
+          setIsListening(true);
+        };
+        
+        window.speechSynthesis.speak(utterance);
+      }
     }
   };
 
