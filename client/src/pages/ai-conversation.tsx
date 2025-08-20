@@ -94,51 +94,67 @@ export default function AiConversation() {
         }
         
         // Update transcript display
-        setTranscript(interimTranscript || finalTranscript);
+        const currentTranscript = interimTranscript || finalTranscript;
+        setTranscript(currentTranscript);
         
-        // If we have a final transcript, process it
-        if (finalTranscript) {
+        // If we have a final transcript, process it immediately
+        if (finalTranscript.trim()) {
           handleUserSpeech(finalTranscript);
+          return; // Exit early, don't set silence timer
         }
         
-        // Reset silence timer
-        if (silenceTimerRef.current) {
-          clearTimeout(silenceTimerRef.current);
-        }
-        
-        // Set new silence timer (2 seconds of silence triggers processing)
-        silenceTimerRef.current = setTimeout(() => {
-          if ((interimTranscript || finalTranscript) && isListening) {
-            const speechToProcess = finalTranscript || interimTranscript;
-            if (speechToProcess.trim()) {
-              handleUserSpeech(speechToProcess);
-            }
+        // Only set silence timer for interim results
+        if (interimTranscript.trim()) {
+          // Clear existing timer
+          if (silenceTimerRef.current) {
+            clearTimeout(silenceTimerRef.current);
           }
-        }, 2000);
+          
+          // Set new silence timer (2 seconds of silence triggers processing)
+          silenceTimerRef.current = setTimeout(() => {
+            if (isListening && currentTranscript.trim()) {
+              console.log('Silence detected, processing:', currentTranscript);
+              handleUserSpeech(currentTranscript);
+            }
+          }, 2000);
+        }
       };
       
       recognitionRef.current.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
-        if (event.error === 'no-speech') {
-          // Restart recognition
-          if (isInCall && isListening) {
-            recognitionRef.current.start();
+        // Don't auto-restart on no-speech error to allow silence detection
+        if (event.error === 'network' || event.error === 'audio-capture') {
+          // Only restart on critical errors
+          if (isInCall && isListening && !conversationMutation.isPending) {
+            setTimeout(() => {
+              try {
+                if (isListening && isInCall) {
+                  recognitionRef.current.start();
+                }
+              } catch (e) {
+                console.log('Error restarting recognition:', e);
+              }
+            }, 1000);
           }
         }
       };
       
       recognitionRef.current.onend = () => {
-        // Restart if still in call and should be listening
+        // Only restart if we haven't processed speech and we're still in call
+        // Don't restart immediately to allow silence timer to work
         if (isInCall && isListening && !isSpeaking && !conversationMutation.isPending) {
+          // Wait longer to allow silence timer to trigger if needed
           setTimeout(() => {
             try {
-              if (isListening && isInCall) { // Double-check state
+              // Only restart if still listening and no silence timer is active
+              if (isListening && isInCall && !silenceTimerRef.current) {
+                console.log('Recognition ended, restarting...');
                 recognitionRef.current.start();
               }
             } catch (e) {
-              console.log('Restarting recognition...');
+              console.log('Error restarting recognition:', e);
             }
-          }, 100);
+          }, 500); // Increased delay to allow silence timer
         }
       };
     }
