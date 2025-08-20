@@ -86,6 +86,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 function generatePracticeQuestions(level: number) {
   const questions = [];
   const questionTypes = ["multiple-choice", "translation"] as const;
+  const usedWords = new Set<string>(); // Track words that have been used as correct answers
   
   // Level-based vocabulary
   const levelVocabulary: Record<number, Array<{chinese: string, pinyin: string, english: string}>> = {
@@ -168,19 +169,49 @@ function generatePracticeQuestions(level: number) {
   // Generate 10 questions
   for (let i = 0; i < 10; i++) {
     const type = questionTypes[Math.floor(Math.random() * questionTypes.length)];
-    const correctIndex = Math.floor(Math.random() * availableVocab.length);
-    const correctWord = availableVocab[correctIndex];
+    
+    // Find a word that hasn't been used yet
+    let correctWord = null;
+    let attempts = 0;
+    const maxAttempts = availableVocab.length * 2;
+    
+    while (!correctWord && attempts < maxAttempts) {
+      const randomIndex = Math.floor(Math.random() * availableVocab.length);
+      const candidate = availableVocab[randomIndex];
+      const wordKey = `${candidate.chinese}-${candidate.english}`;
+      
+      if (!usedWords.has(wordKey)) {
+        correctWord = candidate;
+        usedWords.add(wordKey);
+        break;
+      }
+      attempts++;
+    }
+    
+    // If all words have been used (shouldn't happen with our vocab size), pick a random one
+    if (!correctWord) {
+      const randomIndex = Math.floor(Math.random() * availableVocab.length);
+      correctWord = availableVocab[randomIndex];
+    }
     
     if (type === "multiple-choice") {
       // Chinese to English
       const optionWords = [correctWord];
-      const usedIndices = new Set([correctIndex]);
+      const usedOptionIndices = new Set<number>();
+      
+      // Find the index of the correct word
+      const correctWordIndex = availableVocab.findIndex(w => 
+        w.chinese === correctWord.chinese && w.english === correctWord.english
+      );
+      if (correctWordIndex !== -1) {
+        usedOptionIndices.add(correctWordIndex);
+      }
       
       while (optionWords.length < 4 && optionWords.length < availableVocab.length) {
         const randomIndex = Math.floor(Math.random() * availableVocab.length);
-        if (!usedIndices.has(randomIndex)) {
+        if (!usedOptionIndices.has(randomIndex)) {
           optionWords.push(availableVocab[randomIndex]);
-          usedIndices.add(randomIndex);
+          usedOptionIndices.add(randomIndex);
         }
       }
       
@@ -207,13 +238,21 @@ function generatePracticeQuestions(level: number) {
     } else {
       // English to Chinese
       const optionWords = [correctWord];
-      const usedIndices = new Set([correctIndex]);
+      const usedOptionIndices = new Set<number>();
+      
+      // Find the index of the correct word
+      const correctWordIndex = availableVocab.findIndex(w => 
+        w.chinese === correctWord.chinese && w.english === correctWord.english
+      );
+      if (correctWordIndex !== -1) {
+        usedOptionIndices.add(correctWordIndex);
+      }
       
       while (optionWords.length < 4 && optionWords.length < availableVocab.length) {
         const randomIndex = Math.floor(Math.random() * availableVocab.length);
-        if (!usedIndices.has(randomIndex)) {
+        if (!usedOptionIndices.has(randomIndex)) {
           optionWords.push(availableVocab[randomIndex]);
-          usedIndices.add(randomIndex);
+          usedOptionIndices.add(randomIndex);
         }
       }
       
