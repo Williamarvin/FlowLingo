@@ -33,49 +33,58 @@ export default function TranslationPopup({ isOpen, onClose, translation, onSaveW
 
   if (!isOpen || !translation) return null;
 
-  const handleSpeak = () => {
-    if ('speechSynthesis' in window) {
-      // Stop any current speech
-      speechSynthesis.cancel();
-      setIsPlaying(true);
+  const handleSpeak = async () => {
+    if (!translation) return;
+    
+    setIsPlaying(true);
+    
+    try {
+      // Call the OpenAI TTS endpoint
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: translation.character }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate speech');
+      }
+
+      // Get the audio blob
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
       
-      const utterance = new SpeechSynthesisUtterance(translation.character);
-      utterance.lang = 'zh-CN';
-      utterance.rate = 0.8; // Slower rate for learning
-      utterance.pitch = 1.0;
-      utterance.volume = 1.0;
+      // Play the audio
+      const audio = new Audio(audioUrl);
+      audio.playbackRate = 1.0; // Normal speed since we already set it slower on server
       
-      // Event handlers for speech synthesis
-      utterance.onstart = () => setIsPlaying(true);
-      utterance.onend = () => setIsPlaying(false);
-      utterance.onerror = () => setIsPlaying(false);
-      
-      // Load voices and try to use a Chinese voice
-      const loadVoicesAndSpeak = () => {
-        const voices = speechSynthesis.getVoices();
-        const chineseVoice = voices.find(voice => 
-          voice.lang.includes('zh') || 
-          voice.lang.includes('cmn') ||
-          voice.name.toLowerCase().includes('chinese')
-        );
-        
-        if (chineseVoice) {
-          utterance.voice = chineseVoice;
-        }
-        
-        speechSynthesis.speak(utterance);
+      audio.onended = () => {
+        setIsPlaying(false);
+        URL.revokeObjectURL(audioUrl);
       };
       
-      // Check if voices are already loaded
-      if (speechSynthesis.getVoices().length > 0) {
-        loadVoicesAndSpeak();
-      } else {
-        // Wait for voices to load
-        speechSynthesis.onvoiceschanged = loadVoicesAndSpeak;
+      audio.onerror = () => {
+        setIsPlaying(false);
+        URL.revokeObjectURL(audioUrl);
+      };
+      
+      await audio.play();
+    } catch (error) {
+      console.error('TTS error:', error);
+      setIsPlaying(false);
+      
+      // Fallback to browser speech synthesis
+      if ('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(translation.character);
+        utterance.lang = 'zh-CN';
+        utterance.rate = 0.8;
+        utterance.onend = () => setIsPlaying(false);
+        utterance.onerror = () => setIsPlaying(false);
+        speechSynthesis.speak(utterance);
       }
-    } else {
-      // Fallback notification if speech synthesis not supported
-      alert('Speech synthesis is not supported in your browser. Please try a different browser.');
     }
   };
 

@@ -175,14 +175,45 @@ export default function MediaReader() {
     }
   }, [toast]);
 
-  // Text-to-speech handler
-  const handleSpeak = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'zh-CN';
-      utterance.rate = 0.8;
-      window.speechSynthesis.speak(utterance);
+  // Text-to-speech handler using OpenAI TTS
+  const handleSpeak = async (text: string) => {
+    try {
+      // Call the OpenAI TTS endpoint
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate speech');
+      }
+
+      // Get the audio blob
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      
+      // Play the audio
+      const audio = new Audio(audioUrl);
+      audio.playbackRate = 1.0; // Normal speed since we already set it slower on server
+      await audio.play();
+      
+      // Clean up the URL after playing
+      audio.onended = () => {
+        URL.revokeObjectURL(audioUrl);
+      };
+    } catch (error) {
+      console.error('TTS error:', error);
+      // Fallback to browser speech synthesis
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'zh-CN';
+        utterance.rate = 0.8;
+        window.speechSynthesis.speak(utterance);
+      }
     }
   };
 
@@ -246,23 +277,12 @@ export default function MediaReader() {
             </div>
           </div>
 
-          {/* Show image first if it's an image file */}
-          {isImage && document.fileUrl && (
-            <div className="mb-6">
-              <img 
-                src={document.fileUrl} 
-                alt={document.filename}
-                className="max-w-full h-auto rounded-lg border shadow-lg"
-                onError={(e) => {
-                  console.error("Image failed to load:", document.fileUrl);
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
-              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
-                <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
-                  🔍 OCR Extracted Chinese Text (click to translate):
-                </p>
-              </div>
+          {/* For OCR-processed images, show a note about extracted text */}
+          {isImage && document.content && (
+            <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
+              <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
+                🔍 OCR Extracted Chinese Text from {document.filename} (click to translate):
+              </p>
             </div>
           )}
 

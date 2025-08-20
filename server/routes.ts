@@ -509,6 +509,38 @@ Output: Only Chinese text, no explanations.`;
     }
   });
 
+  // Text-to-Speech endpoint using OpenAI
+  app.post("/api/tts", async (req, res) => {
+    try {
+      const { text } = req.body;
+      
+      if (!text) {
+        return res.status(400).json({ error: "Text is required" });
+      }
+
+      // Use OpenAI's TTS API
+      const mp3 = await openai.audio.speech.create({
+        model: "tts-1",
+        voice: "nova", // Nova is a natural-sounding voice good for language learning
+        input: text,
+        speed: 0.8 // Slower speed for language learning
+      });
+
+      // Convert the response to a buffer
+      const buffer = Buffer.from(await mp3.arrayBuffer());
+      
+      // Send the audio buffer as response
+      res.set({
+        'Content-Type': 'audio/mpeg',
+        'Content-Length': buffer.length.toString()
+      });
+      res.send(buffer);
+    } catch (error) {
+      console.error("TTS error:", error);
+      res.status(500).json({ error: "Failed to generate speech" });
+    }
+  });
+
   // Voice Conversation endpoint for natural dialogue
   app.post("/api/conversation/voice", async (req, res) => {
     try {
