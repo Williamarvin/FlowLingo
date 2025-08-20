@@ -355,6 +355,96 @@ Return only the Chinese text without any additional formatting or explanations.`
     }
   });
 
+  // Voice Conversation endpoint for natural dialogue
+  app.post("/api/conversation/voice", async (req, res) => {
+    try {
+      const { message, topic, difficulty, level, conversationHistory = [] } = req.body;
+      
+      // Build conversation context
+      const contextMessages = conversationHistory.map((msg: any) => ({
+        role: msg.role,
+        content: msg.content
+      }));
+      
+      // Create system prompt for natural voice conversation
+      const systemPrompt = `You are a native Mandarin Chinese teacher having a natural voice conversation with a student. 
+Your personality: Friendly, patient, encouraging, and conversational.
+Student level: ${level} (${difficulty})
+Topic preference: ${topic}
+
+IMPORTANT RULES FOR VOICE CONVERSATION:
+1. Respond ONLY in Chinese characters (no pinyin or English in main response)
+2. Keep responses natural and conversational, like real speech
+3. Use short, clear sentences appropriate for ${difficulty} level
+4. Be encouraging and supportive
+5. Occasionally ask questions to keep conversation flowing
+6. React naturally to what the student says
+7. Use appropriate level vocabulary (HSK ${level <= 3 ? '1-2' : level <= 6 ? '3-4' : '5-6'})
+8. Sound like a real person, not a textbook
+
+After your Chinese response, provide a JSON block with this format:
+\`\`\`json
+{
+  "pinyin": "pinyin transcription",
+  "english": "English translation"
+}
+\`\`\``;
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...contextMessages,
+          { role: "user", content: message }
+        ],
+        temperature: 0.8, // More natural conversation
+        max_tokens: 200 // Keep responses concise for voice
+      });
+
+      const aiResponse = response.choices[0].message.content || "";
+      
+      // Parse the response to extract Chinese, pinyin, and English
+      let chinese = aiResponse;
+      let pinyin = "";
+      let english = "";
+      
+      // Extract JSON block if present
+      const jsonMatch = aiResponse.match(/```json\n([\s\S]*?)\n```/);
+      if (jsonMatch) {
+        try {
+          const jsonData = JSON.parse(jsonMatch[1]);
+          pinyin = jsonData.pinyin || "";
+          english = jsonData.english || "";
+          // Remove JSON block from main message
+          chinese = aiResponse.replace(/```json[\s\S]*?```/, "").trim();
+        } catch (e) {
+          console.error("Failed to parse JSON from response:", e);
+        }
+      }
+      
+      // Save conversation to storage
+      await storage.createConversation({
+        userId: DEMO_USER_ID,
+        topic,
+        difficulty,
+        messages: [
+          { role: "user", content: message, timestamp: new Date() },
+          { role: "assistant", content: chinese, timestamp: new Date() }
+        ]
+      });
+      
+      res.json({ 
+        message: chinese,
+        pinyin,
+        english,
+        chinese
+      });
+    } catch (error) {
+      console.error("Voice conversation error:", error);
+      res.status(500).json({ error: "Failed to generate voice response" });
+    }
+  });
+
   // AI conversation endpoint
   app.post("/api/conversation", async (req, res) => {
     try {
