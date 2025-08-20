@@ -544,9 +544,8 @@ export default function ProgressivePractice() {
                 {!isCorrect && (
                   <div className="mt-4 p-3 bg-red-100 rounded-lg">
                     <p className="text-red-700 font-medium">
-                      The correct answer was: <span className="font-bold">{currentQ.correctAnswer}</span>
+                      That's not quite right. Try again!
                     </p>
-                    <p className="text-sm text-red-600 mt-1">Try again to continue!</p>
                   </div>
                 )}
                 
