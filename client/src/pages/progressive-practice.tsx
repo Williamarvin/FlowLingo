@@ -575,8 +575,12 @@ export default function ProgressivePractice() {
                 
 {!isCorrect && selectedAnswer && (
                   <div className="bg-white rounded-xl p-4 shadow-sm border">
-                    <p className="text-sm text-gray-500 mb-2">You selected:</p>
+                    <p className="text-sm text-gray-500 mb-3">You selected:</p>
                     <div className="text-3xl font-bold text-red-600 mb-2">{selectedAnswer}</div>
+                    <div className="mb-3">
+                      <div className="text-4xl font-bold text-gray-800 mb-1">{currentQ.chinese}</div>
+                      <div className="text-lg text-blue-600 font-medium">{currentQ.pinyin}</div>
+                    </div>
                     <p className="text-red-700 font-medium">This is not the correct translation.</p>
                   </div>
                 )}
