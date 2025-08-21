@@ -9,6 +9,7 @@ import { CheckCircle, XCircle, Trophy, ArrowRight, Home } from "lucide-react";
 import { useLocation } from "wouter";
 import ModernNav from "@/components/modern-nav";
 import { audioManager } from "@/lib/audioManager";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 interface AssessmentQuestion {
   id: string;
@@ -31,7 +32,7 @@ interface AssessmentResult {
   recommendations: string[];
 }
 
-export default function Assessment() {
+function AssessmentContent() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -316,5 +317,13 @@ export default function Assessment() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Assessment() {
+  return (
+    <ProtectedRoute>
+      <AssessmentContent />
+    </ProtectedRoute>
   );
 }

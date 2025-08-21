@@ -1,3 +1,4 @@
+import ProtectedRoute from "@/components/ProtectedRoute";
 import { useState, useRef, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -19,7 +20,7 @@ interface Message {
   english?: string;
 }
 
-export default function AiConversation() {
+function AiConversationContent() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [topic, setTopic] = useState("Free Conversation");
   const [difficulty, setDifficulty] = useState("beginner");
@@ -790,5 +791,12 @@ export default function AiConversation() {
         </div>
       </div>
     </div>
+  );
+}
+export default function AiConversation() {
+  return (
+    <ProtectedRoute>
+      <AiConversationContent />
+    </ProtectedRoute>
   );
 }

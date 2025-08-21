@@ -1,3 +1,4 @@
+import ProtectedRoute from "@/components/ProtectedRoute";
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,7 @@ interface TranslationResult {
   english: string;
 }
 
-export default function VoiceTranslator() {
+function VoiceTranslatorContent() {
   const { toast } = useToast();
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
@@ -304,5 +305,12 @@ export default function VoiceTranslator() {
         </div>
       </div>
     </div>
+  );
+}
+export default function VoiceTranslator() {
+  return (
+    <ProtectedRoute>
+      <VoiceTranslatorContent />
+    </ProtectedRoute>
   );
 }

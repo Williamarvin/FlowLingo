@@ -1,3 +1,4 @@
+import ProtectedRoute from "@/components/ProtectedRoute";
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -53,7 +54,7 @@ interface Flashcard {
   timesWrong: number;
 }
 
-export default function Flashcards() {
+function FlashcardsContent() {
   const { toast } = useToast();
   const [showAnswer, setShowAnswer] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -565,5 +566,12 @@ export default function Flashcards() {
         </div>
       </div>
     </div>
+  );
+}
+export default function Flashcards() {
+  return (
+    <ProtectedRoute>
+      <FlashcardsContent />
+    </ProtectedRoute>
   );
 }

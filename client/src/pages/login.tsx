@@ -24,7 +24,15 @@ export default function Login() {
         title: "Welcome back!",
         description: "You have successfully logged in to FlowLingo.",
       });
-      setLocation("/");
+      
+      // Check if there's a redirect path stored
+      const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+      if (redirectPath) {
+        sessionStorage.removeItem('redirectAfterLogin');
+        setLocation(redirectPath);
+      } else {
+        setLocation("/");
+      }
     },
     onError: (error: any) => {
       toast({

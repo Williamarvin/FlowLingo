@@ -1,3 +1,4 @@
+import ProtectedRoute from "@/components/ProtectedRoute";
 import { useState, useRef, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { FileUp, PlayCircle, Download, BookOpen, Image, FileText, Video, Music, Trash2, Upload, Volume2, Copy, Bookmark } from "lucide-react";
@@ -37,7 +38,7 @@ function formatFileSize(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 }
 
-export default function MediaReader() {
+function MediaReaderContent() {
   const [selectedDocument, setSelectedDocument] = useState<MediaDocument | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
@@ -659,5 +660,12 @@ export default function MediaReader() {
         </div>
       </div>
     </div>
+  );
+}
+export default function MediaReader() {
+  return (
+    <ProtectedRoute>
+      <MediaReaderContent />
+    </ProtectedRoute>
   );
 }

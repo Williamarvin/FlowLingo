@@ -1,3 +1,4 @@
+import ProtectedRoute from "@/components/ProtectedRoute";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -40,7 +41,7 @@ interface UserProfile {
   lessonsCompleted: number;
 }
 
-export default function Rewards() {
+function RewardsContent() {
   const { toast } = useToast();
   const [selectedMascot, setSelectedMascot] = useState<string | null>(null);
 
@@ -391,5 +392,12 @@ export default function Rewards() {
         </Tabs>
       </main>
     </div>
+  );
+}
+export default function Rewards() {
+  return (
+    <ProtectedRoute>
+      <RewardsContent />
+    </ProtectedRoute>
   );
 }

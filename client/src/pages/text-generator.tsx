@@ -1,3 +1,4 @@
+import ProtectedRoute from "@/components/ProtectedRoute";
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -7,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ModernNav from "@/components/modern-nav";
 import { audioManager } from "@/lib/audioManager";
 
-export default function TextGenerator() {
+function TextGeneratorContent() {
   const [topic, setTopic] = useState("Daily Conversation");
   const [difficulty, setDifficulty] = useState("Beginner (HSK 1-2)");
   const [length, setLength] = useState("Short (300-400 characters)");
@@ -210,5 +211,13 @@ export default function TextGenerator() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function TextGenerator() {
+  return (
+    <ProtectedRoute>
+      <TextGeneratorContent />
+    </ProtectedRoute>
   );
 }

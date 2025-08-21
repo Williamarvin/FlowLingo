@@ -23,37 +23,14 @@ import Rewards from "@/pages/rewards";
 import NotFound from "@/pages/not-found";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
-  
-  // Show loading while checking authentication
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <span className="text-3xl">🐬</span>
-          </div>
-          <p className="text-gray-600">Loading FlowLingo...</p>
-        </div>
-      </div>
-    );
-  }
-  
-  // Show login/signup for unauthenticated users
-  if (!isAuthenticated) {
-    return (
-      <Switch>
-        <Route path="/signup" component={Signup} />
-        <Route path="/login" component={Login} />
-        <Route component={Login} /> {/* Default to login for any other route */}
-      </Switch>
-    );
-  }
-  
-  // Show authenticated routes
   return (
     <Switch>
+      {/* Public routes - accessible without authentication */}
       <Route path="/" component={Home} />
+      <Route path="/login" component={Login} />
+      <Route path="/signup" component={Signup} />
+      
+      {/* Protected routes - require authentication */}
       <Route path="/text-generator" component={TextGenerator} />
       <Route path="/ai-conversation" component={AiConversation} />
       <Route path="/pdf-converter" component={PdfConverter} />

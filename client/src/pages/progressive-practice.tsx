@@ -1,3 +1,4 @@
+import ProtectedRoute from "@/components/ProtectedRoute";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -19,7 +20,7 @@ interface Question {
   question: string;
 }
 
-export default function ProgressivePractice() {
+function ProgressivePracticeContent() {
   const [, navigate] = useLocation();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -693,5 +694,12 @@ export default function ProgressivePractice() {
         </div>
       </div>
     </div>
+  );
+}
+export default function ProgressivePractice() {
+  return (
+    <ProtectedRoute>
+      <ProgressivePracticeContent />
+    </ProtectedRoute>
   );
 }

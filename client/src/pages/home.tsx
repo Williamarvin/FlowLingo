@@ -1,15 +1,20 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import ModernNav from "@/components/modern-nav";
-import { ArrowRight, Trophy, Flame, BookOpen, MessageCircle, Headphones, FileText } from "lucide-react";
+import { ArrowRight, Trophy, Flame, BookOpen, MessageCircle, Headphones, FileText, LogIn } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const [greeting, setGreeting] = useState("");
+  const [, setLocation] = useLocation();
+  const { isAuthenticated, isLoading } = useAuth();
   
-  // Get user profile data
+  // Get user profile data (only if authenticated)
   const { data: userProfile } = useQuery<any>({
     queryKey: ["/api/user/profile"],
+    enabled: isAuthenticated,
   });
 
   useEffect(() => {
@@ -70,6 +75,127 @@ export default function Home() {
     }
   ];
 
+  // Handle feature click for non-authenticated users
+  const handleFeatureClick = (href: string) => {
+    if (!isAuthenticated) {
+      // Store the intended destination
+      sessionStorage.setItem('redirectAfterLogin', href);
+      setLocation('/login');
+    } else {
+      setLocation(href);
+    }
+  };
+
+  // Show different navbar for non-authenticated users
+  if (!isAuthenticated && !isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
+        {/* Simple Header for non-authenticated users */}
+        <header className="bg-white/90 backdrop-blur-sm border-b border-green-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center">
+                  <span className="text-xl">🐬</span>
+                </div>
+                <span className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                  FlowLingo
+                </span>
+              </div>
+              <div className="flex items-center gap-4">
+                <Link href="/login">
+                  <Button variant="ghost" className="text-gray-700">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700">
+                    Get Started
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          {/* Hero Section for non-authenticated users */}
+          <div className="text-center mb-16">
+            <h1 className="text-5xl font-bold text-gray-900 mb-6">
+              Master Chinese with <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">FlowLingo</span>
+            </h1>
+            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+              Learn Mandarin through AI-powered conversations, interactive lessons, and personalized practice sessions.
+            </p>
+            <div className="flex gap-4 justify-center">
+              <Link href="/signup">
+                <Button size="lg" className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-lg px-8 py-6">
+                  Start Learning Free
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+              <Link href="/login">
+                <Button size="lg" variant="outline" className="border-green-600 text-green-600 hover:bg-green-50 text-lg px-8 py-6">
+                  <LogIn className="mr-2 w-5 h-5" />
+                  Sign In
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Features Grid */}
+          <div className="mb-16">
+            <h2 className="text-3xl font-bold text-center text-gray-900 mb-10">
+              Everything you need to learn Chinese
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {features.map((feature) => {
+                const Icon = feature.icon;
+                return (
+                  <div 
+                    key={feature.href} 
+                    onClick={() => handleFeatureClick(feature.href)}
+                    className="group bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-all duration-200 cursor-pointer h-full"
+                  >
+                    <div className={`inline-flex p-3 rounded-lg ${feature.bgColor} mb-4`}>
+                      <Icon className={`w-6 h-6 ${feature.color}`} />
+                    </div>
+                    
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-green-600">
+                      {feature.title}
+                    </h3>
+                    
+                    <p className="text-sm text-gray-600 mb-4">
+                      {feature.description}
+                    </p>
+                    
+                    <div className="flex items-center text-sm font-medium text-green-600">
+                      <span>Start Learning</span>
+                      <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* CTA Section */}
+          <div className="bg-gradient-to-br from-green-600 to-emerald-600 rounded-2xl p-12 text-center text-white">
+            <h2 className="text-3xl font-bold mb-4">Ready to start your journey?</h2>
+            <p className="text-lg mb-8 opacity-90">Join thousands of learners mastering Chinese with FlowLingo</p>
+            <Link href="/signup">
+              <Button size="lg" className="bg-white text-green-600 hover:bg-gray-50 text-lg px-8 py-6">
+                Get Started for Free
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </Link>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // Show authenticated user interface
   return (
     <div className="min-h-screen bg-gray-50">
       <ModernNav />
