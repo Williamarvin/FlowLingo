@@ -219,7 +219,7 @@
 /* Achievement badges */
 .badge-achievement {
   @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium text-white;
-  background: linear-gradient(135deg, var(--brand-secondary) 0%, var(--brand-secondary-light) 100%);
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
 }
 
 /* Character display styling */
