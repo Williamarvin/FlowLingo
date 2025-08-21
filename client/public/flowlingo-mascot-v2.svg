@@ -1,0 +1,110 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- FlowLingo Mascot - Friendly Learning Panda -->
+  
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f0fdf4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#dcfce7;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="bambooGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#22c55e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16a34a;stop-opacity:1" />
+    </linearGradient>
+    <filter id="softShadow">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+      <feOffset dx="0" dy="3" result="offsetblur"/>
+      <feFlood flood-color="#000000" flood-opacity="0.15"/>
+      <feComposite in2="offsetblur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="url(#bgGradient)"/>
+  
+  <!-- Bamboo decorations -->
+  <g opacity="0.3">
+    <rect x="20" y="40" width="8" height="120" fill="url(#bambooGrad)" rx="2"/>
+    <rect x="172" y="50" width="8" height="110" fill="url(#bambooGrad)" rx="2"/>
+    <line x1="20" y1="70" x2="28" y2="70" stroke="#16a34a" stroke-width="1"/>
+    <line x1="20" y1="100" x2="28" y2="100" stroke="#16a34a" stroke-width="1"/>
+    <line x1="172" y1="80" x2="180" y2="80" stroke="#16a34a" stroke-width="1"/>
+    <line x1="172" y1="110" x2="180" y2="110" stroke="#16a34a" stroke-width="1"/>
+  </g>
+  
+  <!-- Panda Body -->
+  <ellipse cx="100" cy="140" rx="45" ry="50" fill="white" filter="url(#softShadow)"/>
+  
+  <!-- Panda Arms -->
+  <ellipse cx="65" cy="130" rx="18" ry="35" fill="#1f2937" transform="rotate(-25 65 130)"/>
+  <ellipse cx="135" cy="130" rx="18" ry="35" fill="#1f2937" transform="rotate(25 135 130)"/>
+  
+  <!-- Panda Head -->
+  <circle cx="100" cy="80" r="40" fill="white" filter="url(#softShadow)"/>
+  
+  <!-- Ears -->
+  <circle cx="70" cy="55" r="15" fill="#1f2937"/>
+  <circle cx="130" cy="55" r="15" fill="#1f2937"/>
+  <circle cx="70" cy="55" r="8" fill="#374151"/>
+  <circle cx="130" cy="55" r="8" fill="#374151"/>
+  
+  <!-- Eye patches -->
+  <ellipse cx="85" cy="75" rx="13" ry="15" fill="#1f2937" transform="rotate(-20 85 75)"/>
+  <ellipse cx="115" cy="75" rx="13" ry="15" fill="#1f2937" transform="rotate(20 115 75)"/>
+  
+  <!-- Eyes -->
+  <ellipse cx="85" cy="75" rx="7" ry="8" fill="white"/>
+  <ellipse cx="115" cy="75" rx="7" ry="8" fill="white"/>
+  <circle cx="86" cy="76" r="5" fill="#1f2937"/>
+  <circle cx="114" cy="76" r="5" fill="#1f2937"/>
+  
+  <!-- Eye sparkles -->
+  <circle cx="88" cy="74" r="2" fill="white"/>
+  <circle cx="116" cy="74" r="2" fill="white"/>
+  <circle cx="84" cy="78" r="1" fill="white" opacity="0.7"/>
+  <circle cx="112" cy="78" r="1" fill="white" opacity="0.7"/>
+  
+  <!-- Nose -->
+  <ellipse cx="100" cy="88" rx="6" ry="4" fill="#1f2937"/>
+  
+  <!-- Mouth -->
+  <path d="M 92 92 Q 100 96, 108 92" stroke="#1f2937" stroke-width="2" fill="none" stroke-linecap="round"/>
+  
+  <!-- Blush -->
+  <ellipse cx="65" cy="85" rx="8" ry="5" fill="#fbbf24" opacity="0.3"/>
+  <ellipse cx="135" cy="85" rx="8" ry="5" fill="#fbbf24" opacity="0.3"/>
+  
+  <!-- Holding a book -->
+  <g transform="translate(100, 145)">
+    <rect x="-20" y="-10" width="40" height="30" fill="#3b82f6" rx="2" transform="rotate(-5 0 0)"/>
+    <rect x="-18" y="-8" width="36" height="26" fill="#60a5fa" rx="1" transform="rotate(-5 0 0)"/>
+    <line x1="-15" y1="-3" x2="15" y2="-3" stroke="#1e40af" stroke-width="1" transform="rotate(-5 0 0)"/>
+    <line x1="-15" y1="2" x2="10" y2="2" stroke="#1e40af" stroke-width="1" transform="rotate(-5 0 0)"/>
+    <line x1="-15" y1="7" x2="12" y2="7" stroke="#1e40af" stroke-width="1" transform="rotate(-5 0 0)"/>
+    <text x="0" y="14" font-family="Arial" font-size="6" fill="white" text-anchor="middle" transform="rotate(-5 0 14)">中文</text>
+  </g>
+  
+  <!-- Speech bubble with greeting -->
+  <g transform="translate(140, 40)">
+    <ellipse cx="0" cy="0" rx="35" ry="20" fill="white" stroke="#10b981" stroke-width="2"/>
+    <path d="M -15 15 L -20 25 L -10 18 Z" fill="white" stroke="#10b981" stroke-width="2" stroke-linejoin="round"/>
+    
+    <!-- Animated greeting -->
+    <text x="0" y="0" font-family="Arial" font-size="10" fill="#10b981" text-anchor="middle">
+      <tspan x="0" dy="-3">你好!</tspan>
+      <tspan x="0" dy="12" font-size="8">Hello!</tspan>
+    </text>
+  </g>
+  
+  <!-- Graduation cap -->
+  <g transform="translate(100, 50)">
+    <rect x="-18" y="-3" width="36" height="10" fill="#1f2937" rx="1"/>
+    <path d="M 75 47 L 100 42 L 125 47 L 100 52 Z" fill="#374151"/>
+    <line x1="125" y1="47" x2="125" y2="58" stroke="#fbbf24" stroke-width="2"/>
+    <circle cx="125" cy="60" r="3" fill="#fbbf24"/>
+  </g>
+</svg>

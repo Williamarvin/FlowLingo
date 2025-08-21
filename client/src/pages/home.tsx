@@ -146,7 +146,7 @@ export default function Home() {
           <div className="relative w-80 h-64 mx-auto mb-8">
             <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-full blur-2xl animate-pulse"></div>
             <div className="relative z-10 flex items-center justify-center h-full">
-              <div className="text-8xl animate-float">📚</div>
+              <img src="/flowlingo-mascot-v2.svg" alt="FlowLingo Mascot" className="w-56 h-56 drop-shadow-xl animate-float" />
             </div>
             {/* Floating elements with glass effect */}
             <div className="absolute -top-4 -right-4 w-12 h-12 glass-effect rounded-full flex items-center justify-center animate-float-delayed text-2xl">
