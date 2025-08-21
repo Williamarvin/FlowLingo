@@ -33,6 +33,7 @@ export default function AiConversation() {
   const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const currentTranscriptRef = useRef<string>("");
+  const lastTranscriptRef = useRef<string>("");
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -102,22 +103,28 @@ export default function AiConversation() {
         setTranscript(currentTranscript);
         currentTranscriptRef.current = currentTranscript;
         
-        // Clear any existing silence timer since user is speaking
-        if (silenceTimerRef.current) {
-          clearTimeout(silenceTimerRef.current);
-          silenceTimerRef.current = null;
-        }
-        
-        // If we have any speech content (final or interim), start the 2-second silence timer
-        if (currentTranscript.trim() && !conversationMutation.isPending) {
-          console.log('Setting 2-second silence timer for:', currentTranscript);
-          silenceTimerRef.current = setTimeout(() => {
-            const latestTranscript = currentTranscriptRef.current;
-            console.log('2 seconds of silence detected, sending message:', latestTranscript);
-            if (latestTranscript.trim() && !conversationMutation.isPending) {
-              handleUserSpeech(latestTranscript);
-            }
-          }, 2000);
+        // Only handle timer logic if transcript has actually changed
+        if (currentTranscript !== lastTranscriptRef.current) {
+          console.log('Transcript changed from:', lastTranscriptRef.current, 'to:', currentTranscript);
+          lastTranscriptRef.current = currentTranscript;
+          
+          // Clear any existing silence timer since user is speaking
+          if (silenceTimerRef.current) {
+            clearTimeout(silenceTimerRef.current);
+            silenceTimerRef.current = null;
+          }
+          
+          // If we have any speech content, start the 2-second silence timer
+          if (currentTranscript.trim() && !conversationMutation.isPending) {
+            console.log('Starting 2-second silence timer');
+            silenceTimerRef.current = setTimeout(() => {
+              const latestTranscript = currentTranscriptRef.current;
+              console.log('2 seconds of silence detected, sending message:', latestTranscript);
+              if (latestTranscript.trim() && !conversationMutation.isPending && isInCall) {
+                handleUserSpeech(latestTranscript);
+              }
+            }, 2000);
+          }
         }
       };
       
@@ -206,9 +213,10 @@ export default function AiConversation() {
       silenceTimerRef.current = null;
     }
     
-    // Clear transcript display
+    // Clear transcript display and references
     setTranscript("");
     currentTranscriptRef.current = "";
+    lastTranscriptRef.current = "";
     
     // Stop speech recognition temporarily while processing
     if (recognitionRef.current) {
@@ -279,6 +287,11 @@ export default function AiConversation() {
     setIsInCall(true);
     setIsListening(true);
     setMessages([]);
+    
+    // Clear all transcript references
+    setTranscript("");
+    currentTranscriptRef.current = "";
+    lastTranscriptRef.current = "";
     
     // Start with a greeting from the AI
     const greetingMessage: Message = {
