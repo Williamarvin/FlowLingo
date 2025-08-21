@@ -75,16 +75,37 @@ export default function AiConversation() {
     }
   });
 
-  // Initialize speech recognition
+  // Initialize speech recognition ONCE on component mount
   useEffect(() => {
+    console.log('Initializing speech recognition (one-time setup)...');
     if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
+      console.log('webkitSpeechRecognition is available');
       const SpeechRecognition = (window as any).webkitSpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = true;
       recognitionRef.current.interimResults = true;
       recognitionRef.current.lang = 'zh-CN'; // Mandarin Chinese
       
+      console.log('Speech recognition configured');
+      
+      recognitionRef.current.onstart = () => {
+        console.log('Speech recognition started');
+      };
+      
+      recognitionRef.current.onend = () => {
+        console.log('Speech recognition ended');
+      };
+      
+      recognitionRef.current.onspeechstart = () => {
+        console.log('Speech detected!');
+      };
+      
+      recognitionRef.current.onspeechend = () => {
+        console.log('Speech ended');
+      };
+      
       recognitionRef.current.onresult = (event: any) => {
+        console.log('Got speech result event:', event);
         let finalTranscript = '';
         let interimTranscript = '';
         
@@ -161,13 +182,14 @@ export default function AiConversation() {
       };
       
       recognitionRef.current.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
+        console.error('Speech recognition error:', event.error, 'message:', event.message);
         
         // If there's a no-speech error and we have a transcript, send it
         if (event.error === 'no-speech') {
           const unsent = currentTranscriptRef.current;
+          console.log('No-speech error, current transcript:', unsent);
           if (unsent && unsent.trim() && !conversationMutation.isPending) {
-            console.log('No speech detected, sending existing transcript:', unsent);
+            console.log('Sending existing transcript after no-speech error:', unsent);
             if (silenceTimerRef.current) {
               clearTimeout(silenceTimerRef.current);
               silenceTimerRef.current = null;
@@ -178,11 +200,13 @@ export default function AiConversation() {
         }
         
         // Restart on critical errors
-        if (event.error === 'network' || event.error === 'audio-capture') {
+        if (event.error === 'network' || event.error === 'audio-capture' || event.error === 'not-allowed') {
+          console.log('Critical error, attempting to restart recognition...');
           if (isInCall && isListening && !conversationMutation.isPending) {
             setTimeout(() => {
               try {
                 if (isListening && isInCall) {
+                  console.log('Restarting recognition after error');
                   recognitionRef.current.start();
                 }
               } catch (e) {
@@ -231,8 +255,25 @@ export default function AiConversation() {
           }, 100);
         }
       };
+    } else {
+      console.error('Speech recognition not supported in this browser! Please use Chrome or Edge.');
     }
-  }, [isInCall, isListening, isSpeaking, conversationMutation.isPending]);
+  }, []); // Empty deps - only run once on mount!
+  
+  // Separate effect to handle recognition restart when needed
+  useEffect(() => {
+    if (!recognitionRef.current) return;
+    
+    // Restart recognition after AI finishes speaking
+    if (isInCall && isListening && !isSpeaking && !conversationMutation.isPending) {
+      try {
+        recognitionRef.current.start();
+        console.log('Restarted recognition (separate effect)');
+      } catch (e) {
+        // Already started
+      }
+    }
+  }, [isSpeaking, conversationMutation.isPending]);
 
   const handleUserSpeech = (speech: string) => {
     if (!speech.trim() || !isInCall) return;
@@ -346,11 +387,15 @@ export default function AiConversation() {
     
     // Start speech recognition
     if (recognitionRef.current) {
+      console.log('Starting speech recognition for conversation');
       try {
         recognitionRef.current.start();
+        console.log('Recognition start() called successfully');
       } catch (e) {
-        console.log('Recognition already started');
+        console.log('Recognition already started or error:', e);
       }
+    } else {
+      console.error('Recognition not initialized!')
     }
   };
 
