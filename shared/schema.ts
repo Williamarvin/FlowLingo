@@ -138,6 +138,18 @@ export const practiceSessions = pgTable("practice_sessions", {
   completedAt: timestamp("completed_at").defaultNow(),
 });
 
+// Practice Progress - tracks current progress within a level
+export const practiceProgress = pgTable("practice_progress", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  level: integer("level").notNull(),
+  currentQuestion: integer("current_question").notNull().default(1), // Current question number (1-10)
+  correctAnswers: integer("correct_answers").notNull().default(0),
+  incorrectAnswers: integer("incorrect_answers").notNull().default(0),
+  answeredQuestions: jsonb("answered_questions").notNull().default('[]'), // Array of answered question IDs
+  lastUpdated: timestamp("last_updated").defaultNow(),
+});
+
 // Achievements & Badges
 export const achievements = pgTable("achievements", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -210,6 +222,11 @@ export const insertUserAchievementSchema = createInsertSchema(userAchievements).
   unlockedAt: true,
 });
 
+export const insertPracticeProgressSchema = createInsertSchema(practiceProgress).omit({
+  id: true,
+  lastUpdated: true,
+});
+
 // Type exports
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -233,3 +250,5 @@ export type Achievement = typeof achievements.$inferSelect;
 export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
 export type UserAchievement = typeof userAchievements.$inferSelect;
 export type InsertUserAchievement = z.infer<typeof insertUserAchievementSchema>;
+export type PracticeProgress = typeof practiceProgress.$inferSelect;
+export type InsertPracticeProgress = z.infer<typeof insertPracticeProgressSchema>;

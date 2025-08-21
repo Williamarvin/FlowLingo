@@ -613,7 +613,9 @@ Output: Only Chinese text, no explanations.`;
       if (ttsCache.size >= TTS_CACHE_MAX_SIZE) {
         // Remove oldest entry (first item in Map)
         const firstKey = ttsCache.keys().next().value;
-        ttsCache.delete(firstKey);
+        if (firstKey) {
+          ttsCache.delete(firstKey);
+        }
       }
       ttsCache.set(cacheKey, buffer);
       
@@ -1557,6 +1559,42 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     } catch (error) {
       console.error("Error getting practice questions:", error);
       res.status(500).json({ error: "Failed to get practice questions" });
+    }
+  });
+
+  // Get practice progress for a specific level
+  app.get("/api/practice/progress/:level", async (req, res) => {
+    try {
+      const level = parseInt(req.params.level);
+      const userId = DEMO_USER_ID;
+      
+      const progress = await storage.getPracticeProgress(userId, level);
+      
+      res.json(progress || {
+        currentQuestion: 1,
+        correctAnswers: 0,
+        incorrectAnswers: 0,
+        answeredQuestions: []
+      });
+    } catch (error) {
+      console.error("Error getting practice progress:", error);
+      res.status(500).json({ error: "Failed to get practice progress" });
+    }
+  });
+
+  // Save practice progress after each question
+  app.post("/api/practice/progress/:level", async (req, res) => {
+    try {
+      const level = parseInt(req.params.level);
+      const userId = DEMO_USER_ID;
+      const progress = req.body;
+      
+      const savedProgress = await storage.savePracticeProgress(userId, level, progress);
+      
+      res.json(savedProgress);
+    } catch (error) {
+      console.error("Error saving practice progress:", error);
+      res.status(500).json({ error: "Failed to save practice progress" });
     }
   });
 

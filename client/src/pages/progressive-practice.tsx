@@ -72,6 +72,19 @@ export default function ProgressivePractice() {
     queryKey: ["/api/practice/questions", currentLevel],
   });
 
+  // Fetch practice progress for current level
+  const { data: practiceProgress, refetch: refetchProgress } = useQuery<any>({
+    queryKey: ["/api/practice/progress", currentLevel],
+    enabled: !!currentLevel,
+  });
+
+  // Save practice progress mutation
+  const saveProgressMutation = useMutation({
+    mutationFn: async (progress: any) => {
+      return await apiRequest("POST", `/api/practice/progress/${currentLevel}`, progress);
+    },
+  });
+
   const currentQ = questions[currentQuestionIndex] || null;
 
   // Update hearts mutation
@@ -129,6 +142,15 @@ export default function ProgressivePractice() {
       }
     }
   }, [userProfile]);
+
+  // Load saved progress when it's fetched
+  useEffect(() => {
+    if (practiceProgress && practiceProgress.currentQuestion > 1) {
+      setCurrentQuestionIndex(practiceProgress.currentQuestion - 1);
+      setCorrectAnswers(practiceProgress.correctAnswers || 0);
+      setWrongAnswers(practiceProgress.incorrectAnswers || 0);
+    }
+  }, [practiceProgress]);
 
   // Load voices for speech synthesis
   useEffect(() => {
@@ -202,14 +224,32 @@ export default function ProgressivePractice() {
     if (isCorrect) {
       // Move to next question
       if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex(prev => prev + 1);
+        const nextIndex = currentQuestionIndex + 1;
+        setCurrentQuestionIndex(nextIndex);
         setSelectedAnswer(null);
         setShowFeedback(false);
         setWrongAttempts(0);
         setShowDifficultyOption(false);
+        
+        // Save progress to database
+        const answeredQuestions = questions.slice(0, nextIndex).map(q => q.id);
+        saveProgressMutation.mutate({
+          currentQuestion: nextIndex + 1,
+          correctAnswers,
+          incorrectAnswers: wrongAnswers,
+          answeredQuestions
+        });
       } else {
         // Complete the lesson
         setShowCompletedScreen(true);
+        
+        // Clear progress when lesson is completed
+        saveProgressMutation.mutate({
+          currentQuestion: 1,
+          correctAnswers: 0,
+          incorrectAnswers: 0,
+          answeredQuestions: []
+        });
       }
     } else {
       // Try again - reset for same question
@@ -220,9 +260,20 @@ export default function ProgressivePractice() {
 
   const handleGoToPreviousLevel = () => {
     if (currentLevel > 1) {
+      // Clear progress for current level
+      saveProgressMutation.mutate({
+        currentQuestion: 1,
+        correctAnswers: 0,
+        incorrectAnswers: 0,
+        answeredQuestions: []
+      });
+      
       setCurrentLevel(currentLevel - 1);
       queryClient.invalidateQueries({ queryKey: ["/api/practice/questions", currentLevel - 1] });
+      queryClient.invalidateQueries({ queryKey: ["/api/practice/progress", currentLevel - 1] });
       setCurrentQuestionIndex(0);
+      setCorrectAnswers(0);
+      setWrongAnswers(0);
       setSelectedAnswer(null);
       setShowFeedback(false);
       setWrongAttempts(0);
@@ -237,7 +288,7 @@ export default function ProgressivePractice() {
     const timeSpent = Math.floor((Date.now() - sessionStartTime) / 1000); // Time in seconds
     
     // Save practice session and get the result
-    const result = await savePracticeMutation.mutateAsync({
+    const result: any = await savePracticeMutation.mutateAsync({
       level: currentLevel,
       questionsAnswered: questions.length,
       correctAnswers: correctAnswers,

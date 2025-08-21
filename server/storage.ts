@@ -50,6 +50,11 @@ export interface IStorageExtended extends IStorage {
   getAchievements(): Promise<any[]>;
   getUserAchievements(userId: string): Promise<any[]>;
   unlockAchievement(userId: string, achievementId: string): Promise<any>;
+  
+  // Practice progress methods
+  getPracticeProgress(userId: string, level: number): Promise<any | undefined>;
+  savePracticeProgress(userId: string, level: number, progress: any): Promise<any>;
+  clearPracticeProgress(userId: string, level: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorageExtended {
@@ -386,6 +391,73 @@ export class DatabaseStorage implements IStorageExtended {
       .values({ userId, achievementId })
       .returning();
     return newAchievement;
+  }
+
+  async getPracticeProgress(userId: string, level: number): Promise<any | undefined> {
+    const { db } = await import("./db");
+    const { practiceProgress } = await import("@shared/schema");
+    const { eq, and } = await import("drizzle-orm");
+    
+    const [progress] = await db.select()
+      .from(practiceProgress)
+      .where(and(
+        eq(practiceProgress.userId, userId),
+        eq(practiceProgress.level, level)
+      ));
+    return progress;
+  }
+
+  async savePracticeProgress(userId: string, level: number, progress: any): Promise<any> {
+    const { db } = await import("./db");
+    const { practiceProgress } = await import("@shared/schema");
+    const { eq, and } = await import("drizzle-orm");
+    
+    // Check if progress exists
+    const existing = await this.getPracticeProgress(userId, level);
+    
+    if (existing) {
+      // Update existing progress
+      const [updated] = await db.update(practiceProgress)
+        .set({
+          currentQuestion: progress.currentQuestion,
+          correctAnswers: progress.correctAnswers,
+          incorrectAnswers: progress.incorrectAnswers,
+          answeredQuestions: progress.answeredQuestions,
+          lastUpdated: new Date()
+        })
+        .where(and(
+          eq(practiceProgress.userId, userId),
+          eq(practiceProgress.level, level)
+        ))
+        .returning();
+      return updated;
+    } else {
+      // Create new progress
+      const [created] = await db.insert(practiceProgress)
+        .values({
+          userId,
+          level,
+          currentQuestion: progress.currentQuestion,
+          correctAnswers: progress.correctAnswers,
+          incorrectAnswers: progress.incorrectAnswers,
+          answeredQuestions: progress.answeredQuestions
+        })
+        .returning();
+      return created;
+    }
+  }
+
+  async clearPracticeProgress(userId: string, level: number): Promise<boolean> {
+    const { db } = await import("./db");
+    const { practiceProgress } = await import("@shared/schema");
+    const { eq, and } = await import("drizzle-orm");
+    
+    await db.delete(practiceProgress)
+      .where(and(
+        eq(practiceProgress.userId, userId),
+        eq(practiceProgress.level, level)
+      ));
+    return true;
   }
 }
 
