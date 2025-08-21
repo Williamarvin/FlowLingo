@@ -4,6 +4,7 @@ import { randomUUID } from "crypto";
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser & { id?: string }): Promise<User>;
   
   getVocabularyWords(userId: string): Promise<VocabularyWord[]>;
@@ -79,6 +80,15 @@ export class DatabaseStorage implements IStorageExtended {
     const { eq } = await import("drizzle-orm");
     
     const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const { db } = await import("./db");
+    const { users } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const [user] = await db.select().from(users).where(eq(users.email, email));
     return user;
   }
 

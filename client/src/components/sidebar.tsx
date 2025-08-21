@@ -1,6 +1,10 @@
 import { useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface SidebarProps {
   currentPage: string;
@@ -9,11 +13,24 @@ interface SidebarProps {
 export default function Sidebar({ currentPage }: SidebarProps) {
   const [, navigate] = useLocation();
   const [timeToNextHeart, setTimeToNextHeart] = useState<string>("");
+  const { toast } = useToast();
+  const { user } = useAuth();
   
   // Get user profile data for stats
   const { data: userProfile } = useQuery<any>({
     queryKey: ["/api/user/profile"],
     refetchInterval: 10000, // Refetch every 10 seconds to update hearts
+  });
+  
+  // Logout mutation
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("POST", "/api/auth/logout");
+    },
+    onSuccess: () => {
+      queryClient.clear();
+      window.location.href = "/login";
+    },
   });
 
   // Calculate current level XP
@@ -149,13 +166,32 @@ export default function Sidebar({ currentPage }: SidebarProps) {
       </nav>
       
       {/* Quick Actions - Modern Glass Footer */}
-      <div className="p-4 bg-green-800/20 backdrop-blur-md border-t border-green-400/20">
+      <div className="p-4 bg-green-800/20 backdrop-blur-md border-t border-green-400/20 space-y-3">
         <button 
           onClick={() => navigate("/practice")}
           className="w-full bg-gradient-to-r from-green-400 to-emerald-400 text-green-900 font-bold py-3 px-4 rounded-xl hover:from-green-300 hover:to-emerald-300 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
         >
           Start Practice 🚀
         </button>
+        
+        {/* User Info & Logout */}
+        <div className="flex items-center justify-between px-2">
+          <div className="text-xs text-green-200/70">
+            {user?.email ? (
+              <span className="truncate block max-w-[150px]">{user.email}</span>
+            ) : (
+              <span>Guest</span>
+            )}
+          </div>
+          <button
+            onClick={() => logoutMutation.mutate()}
+            disabled={logoutMutation.isPending}
+            className="text-green-200/70 hover:text-green-100 transition-colors p-1.5 hover:bg-green-600/20 rounded-lg"
+            title="Logout"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </div>
   );

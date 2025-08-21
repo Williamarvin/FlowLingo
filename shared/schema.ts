@@ -5,8 +5,13 @@ import { z } from "zod";
 
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
+  email: text("email").notNull().unique(),
+  username: text("username"),
+  password: text("password"), // nullable for Google OAuth users
+  googleId: text("google_id"), // for Google OAuth
+  profilePicture: text("profile_picture"),
+  authMethod: text("auth_method").notNull().default('email'), // 'email' or 'google'
+  emailVerified: boolean("email_verified").notNull().default(false),
   
   // Progress & Levels
   level: integer("level").notNull().default(1),
@@ -97,6 +102,15 @@ export const pdfDocuments = pgTable("pdf_documents", {
   content: text("content").notNull(),
   segments: jsonb("segments").notNull().default('[]'),
   pageCount: integer("page_count").default(1),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Authentication Sessions
+export const sessions = pgTable("sessions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  token: text("token").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

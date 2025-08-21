@@ -6,6 +6,8 @@ import { insertVocabularyWordSchema, insertConversationSchema, insertGeneratedTe
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import OpenAI from "openai";
+import { requireAuth, hashPassword, verifyPassword, createSession, verifyGoogleToken, getOrCreateGoogleUser } from "./auth";
+import cookieParser from "cookie-parser";
 
 // In-memory storage for uploaded files (in production, use cloud storage)
 const uploadedFiles = new Map<string, {
@@ -425,8 +427,156 @@ function generatePracticeQuestions(level: number) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Mock user ID for demo purposes
+  // Add cookie parser middleware
+  app.use(cookieParser());
+  
+  // Mock user ID for demo purposes (will be replaced with real auth)
   const DEMO_USER_ID = "demo-user";
+  
+  // Authentication Routes
+  app.post("/api/auth/signup", async (req, res) => {
+    try {
+      const { email, password, username } = req.body;
+      
+      // Validate input
+      if (!email || !password) {
+        return res.status(400).json({ error: "Email and password are required" });
+      }
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(409).json({ error: "User already exists" });
+      }
+      
+      // Hash password and create user
+      const hashedPassword = await hashPassword(password);
+      const user = await storage.createUser({
+        email,
+        password: hashedPassword,
+        username: username || email.split('@')[0],
+        authMethod: 'email',
+        emailVerified: false,
+        level: 1,
+        xp: 0,
+        xpToNextLevel: 100,
+        hearts: 5,
+        maxHearts: 5,
+      });
+      
+      // Create session
+      const token = await createSession(user.id);
+      
+      // Set cookie and return user
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+      
+      res.status(201).json({ user: { id: user.id, email: user.email, username: user.username } });
+    } catch (error) {
+      console.error("Signup error:", error);
+      res.status(500).json({ error: "Failed to create account" });
+    }
+  });
+  
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      // Validate input
+      if (!email || !password) {
+        return res.status(400).json({ error: "Email and password are required" });
+      }
+      
+      // Find user
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+      
+      // Check password
+      if (!user.password) {
+        return res.status(401).json({ error: "Please sign in with Google" });
+      }
+      
+      const isValid = await verifyPassword(password, user.password);
+      if (!isValid) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+      
+      // Create session
+      const token = await createSession(user.id);
+      
+      // Set cookie and return user
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+      
+      res.json({ user: { id: user.id, email: user.email, username: user.username } });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ error: "Failed to sign in" });
+    }
+  });
+  
+  app.post("/api/auth/google", async (req, res) => {
+    try {
+      const { idToken } = req.body;
+      
+      if (!idToken) {
+        return res.status(400).json({ error: "Google token is required" });
+      }
+      
+      // Verify Google token
+      const googleUser = await verifyGoogleToken(idToken);
+      if (!googleUser) {
+        return res.status(401).json({ error: "Invalid Google token" });
+      }
+      
+      // Get or create user
+      const user = await getOrCreateGoogleUser(googleUser);
+      
+      // Create session
+      const token = await createSession(user.id);
+      
+      // Set cookie and return user
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+      
+      res.json({ user: { id: user.id, email: user.email, username: user.username, profilePicture: user.profilePicture } });
+    } catch (error) {
+      console.error("Google auth error:", error);
+      res.status(500).json({ error: "Failed to authenticate with Google" });
+    }
+  });
+  
+  app.post("/api/auth/logout", (req, res) => {
+    res.clearCookie('token');
+    res.json({ message: "Logged out successfully" });
+  });
+  
+  app.get("/api/auth/me", requireAuth, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      res.json({ user: { id: user.id, email: user.email, username: user.username, profilePicture: user.profilePicture } });
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ error: "Failed to fetch user" });
+    }
+  });
 
   // Text generation endpoint - optimized for speed
   app.post("/api/generate-text", async (req, res) => {
@@ -1315,20 +1465,22 @@ Create substantially more comprehensive responses with extensive vocabulary prac
         return res.status(400).json({ error: "Invalid media document data", details: result.error.issues });
       }
 
-      const mediaDoc = await storage.createMediaDocument({
-        userId: DEMO_USER_ID,
-        filename: result.data.filename,
-        fileType: result.data.fileType,
-        mimeType: result.data.mimeType,
-        fileUrl: result.data.fileUrl,
-        fileSize: result.data.fileSize,
-        content: result.data.content,
-        segments: result.data.segments,
-        pageCount: result.data.pageCount,
-        duration: result.data.duration,
-        thumbnailUrl: result.data.thumbnailUrl,
-        processedContent: result.data.processedContent
-      });
+      const mediaDoc = await storage.createMediaDocument(
+        DEMO_USER_ID,
+        {
+          filename: result.data.filename,
+          fileType: result.data.fileType,
+          mimeType: result.data.mimeType,
+          fileUrl: result.data.fileUrl,
+          fileSize: result.data.fileSize,
+          content: result.data.content,
+          segments: result.data.segments,
+          pageCount: result.data.pageCount,
+          duration: result.data.duration,
+          thumbnailUrl: result.data.thumbnailUrl,
+          processedContent: result.data.processedContent
+        }
+      );
 
       res.status(201).json(mediaDoc);
     } catch (error) {
