@@ -3,12 +3,9 @@
 ## IMPORTANT: You need to add this environment variable in Vercel for your app to work!
 
 ### Step 1: Get Your Replit Backend URL
-Your Replit backend URL is: `https://flowlingo-[YOUR-REPLIT-USERNAME].replit.app`
+Your Replit backend URL is: `https://workspace-williamarvin.replit.app`
 
-To find your exact URL:
-1. Look at the preview window in Replit
-2. Copy the URL from the browser address bar
-3. It should look like: `https://flowlingo-username.replit.app`
+This is the URL where your backend server is running on Replit.
 
 ### Step 2: Add Environment Variable in Vercel
 
