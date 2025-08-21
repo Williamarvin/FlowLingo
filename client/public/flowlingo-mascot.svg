@@ -1,0 +1,102 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- FlowLingo Mascot - Friendly Owl -->
+  
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="owlBodyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="owlBellyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#d1fae5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a7f3d0;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="wingsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#14b8a6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0d9488;stop-opacity:1" />
+    </linearGradient>
+    <filter id="softShadow">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+      <feOffset dx="0" dy="2" result="offsetblur"/>
+      <feFlood flood-color="#000000" flood-opacity="0.1"/>
+      <feComposite in2="offsetblur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="90" fill="#f0fdf4" opacity="0.5"/>
+  
+  <!-- Owl body -->
+  <ellipse cx="100" cy="115" rx="55" ry="65" fill="url(#owlBodyGradient)" filter="url(#softShadow)"/>
+  
+  <!-- Owl belly -->
+  <ellipse cx="100" cy="120" rx="35" ry="45" fill="url(#owlBellyGradient)"/>
+  
+  <!-- Wings -->
+  <ellipse cx="60" cy="115" rx="20" ry="40" fill="url(#wingsGradient)" transform="rotate(-15 60 115)"/>
+  <ellipse cx="140" cy="115" rx="20" ry="40" fill="url(#wingsGradient)" transform="rotate(15 140 115)"/>
+  
+  <!-- Head -->
+  <circle cx="100" cy="65" r="40" fill="url(#owlBodyGradient)" filter="url(#softShadow)"/>
+  
+  <!-- Ear tufts -->
+  <path d="M 70 45 L 65 30 L 75 40 Z" fill="#059669"/>
+  <path d="M 130 45 L 135 30 L 125 40 Z" fill="#059669"/>
+  
+  <!-- Eye backgrounds (white) -->
+  <circle cx="85" cy="65" r="18" fill="white"/>
+  <circle cx="115" cy="65" r="18" fill="white"/>
+  
+  <!-- Eye outer rings -->
+  <circle cx="85" cy="65" r="15" fill="#fef3c7" stroke="#f59e0b" stroke-width="1"/>
+  <circle cx="115" cy="65" r="15" fill="#fef3c7" stroke="#f59e0b" stroke-width="1"/>
+  
+  <!-- Pupils -->
+  <g id="leftEye">
+    <circle cx="85" cy="65" r="10" fill="#1f2937"/>
+    <circle cx="87" cy="63" r="4" fill="white"/>
+    <circle cx="83" cy="67" r="2" fill="white" opacity="0.7"/>
+  </g>
+  
+  <g id="rightEye">
+    <circle cx="115" cy="65" r="10" fill="#1f2937"/>
+    <circle cx="117" cy="63" r="4" fill="white"/>
+    <circle cx="113" cy="67" r="2" fill="white" opacity="0.7"/>
+  </g>
+  
+  <!-- Blinking animation -->
+  <animate attributeName="opacity" begin="0s;blink.end+3s" dur="0.15s" 
+           values="1;0;1" id="blink" target="leftEye"/>
+  
+  <!-- Beak -->
+  <path d="M 100 75 L 95 82 L 100 85 L 105 82 Z" fill="#f59e0b" stroke="#d97706" stroke-width="1"/>
+  
+  <!-- Feet -->
+  <path d="M 85 165 L 85 175 M 85 175 L 80 180 M 85 175 L 85 180 M 85 175 L 90 180" 
+        stroke="#f59e0b" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <path d="M 115 165 L 115 175 M 115 175 L 110 180 M 115 175 L 115 180 M 115 175 L 120 180" 
+        stroke="#f59e0b" stroke-width="3" stroke-linecap="round" fill="none"/>
+  
+  <!-- Speech bubble with languages -->
+  <g transform="translate(100, 25)">
+    <ellipse cx="0" cy="0" rx="35" ry="20" fill="white" stroke="#10b981" stroke-width="2" opacity="0.95"/>
+    <path d="M -10 15 L -15 25 L 0 18 Z" fill="white" stroke="#10b981" stroke-width="2" stroke-linejoin="round" opacity="0.95"/>
+    
+    <!-- Language characters -->
+    <text x="-25" y="3" font-family="Arial" font-size="10" fill="#10b981">你好</text>
+    <text x="-3" y="3" font-family="Arial" font-size="10" fill="#14b8a6">Hello</text>
+    <text x="15" y="3" font-family="Arial" font-size="10" fill="#06b6d4">Hola</text>
+  </g>
+  
+  <!-- Graduation cap (optional academic touch) -->
+  <g transform="translate(100, 45)">
+    <rect x="-15" y="-5" width="30" height="8" fill="#1f2937" transform="rotate(-5 0 0)"/>
+    <path d="M -20 -5 L 0 -10 L 20 -5 L 0 0 Z" fill="#374151"/>
+    <path d="M 20 -5 L 20 5 L 18 7" stroke="#f59e0b" stroke-width="2" fill="none"/>
+    <circle cx="18" cy="9" r="2" fill="#f59e0b"/>
+  </g>
+</svg>

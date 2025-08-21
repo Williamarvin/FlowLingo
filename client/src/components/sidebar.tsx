@@ -71,7 +71,7 @@ export default function Sidebar({ currentPage }: SidebarProps) {
       {/* Logo/Brand - Modern */}
       <div className="p-5 bg-white/10 backdrop-blur-md border-b border-white/20">
         <div className="flex items-center gap-3">
-          <img src="/flowlingo-icon.svg" alt="FlowLingo" className="w-10 h-10" />
+          <img src="/flowlingo-mascot-icon.svg" alt="FlowLingo" className="w-10 h-10 rounded-lg" />
           <h1 className="text-2xl font-bold text-white tracking-tight">FlowLingo</h1>
         </div>
       </div>
