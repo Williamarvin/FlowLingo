@@ -1,11 +1,15 @@
 <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-  <!-- FlowLingo Mascot Icon - Friendly Panda -->
+  <!-- FlowLingo Mascot Icon - Friendly Dolphin -->
   
   <!-- Gradient definitions -->
   <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#14b8a6;stop-opacity:1" />
+    <linearGradient id="oceanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0ea5e9;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="dolphinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#94a3b8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#64748b;stop-opacity:1" />
     </linearGradient>
     <filter id="shadow">
       <feGaussianBlur in="SourceAlpha" stdDeviation="1"/>
@@ -20,41 +24,41 @@
   </defs>
   
   <!-- Background -->
-  <rect width="64" height="64" rx="16" fill="url(#bgGrad)"/>
+  <rect width="64" height="64" rx="16" fill="url(#oceanGrad)"/>
   
-  <!-- Panda Face -->
+  <!-- Dolphin -->
   <g transform="translate(32, 32)">
-    <!-- Main head -->
-    <circle cx="0" cy="0" r="16" fill="white" filter="url(#shadow)"/>
+    <!-- Body -->
+    <ellipse cx="0" cy="2" rx="18" ry="12" fill="url(#dolphinGrad)" filter="url(#shadow)" transform="rotate(-15 0 2)"/>
     
-    <!-- Ears -->
-    <circle cx="-12" cy="-12" r="7" fill="#1f2937"/>
-    <circle cx="12" cy="-12" r="7" fill="#1f2937"/>
+    <!-- Belly -->
+    <ellipse cx="0" cy="4" rx="14" ry="8" fill="#cbd5e1" transform="rotate(-15 0 4)"/>
     
-    <!-- Eye patches -->
-    <ellipse cx="-6" cy="-2" rx="6" ry="7" fill="#1f2937" transform="rotate(-20 -6 -2)"/>
-    <ellipse cx="6" cy="-2" rx="6" ry="7" fill="#1f2937" transform="rotate(20 6 -2)"/>
+    <!-- Dorsal fin -->
+    <path d="M -2 -8 L 2 -8 L 0 -14 Z" fill="#64748b"/>
     
-    <!-- Eyes -->
-    <circle cx="-5" cy="-2" r="3" fill="white"/>
-    <circle cx="5" cy="-2" r="3" fill="white"/>
-    <circle cx="-5" cy="-1" r="2" fill="#1f2937"/>
-    <circle cx="5" cy="-1" r="2" fill="#1f2937"/>
+    <!-- Side fins -->
+    <ellipse cx="-8" cy="2" rx="8" ry="3" fill="#64748b" transform="rotate(-30 -8 2)"/>
+    <ellipse cx="8" cy="2" rx="8" ry="3" fill="#64748b" transform="rotate(30 8 2)"/>
     
-    <!-- Eye sparkles -->
-    <circle cx="-4.5" cy="-1.5" r="0.8" fill="white"/>
-    <circle cx="5.5" cy="-1.5" r="0.8" fill="white"/>
+    <!-- Tail -->
+    <path d="M 12 8 L 18 6 L 18 10 Z" fill="#64748b" transform="rotate(-15 12 8)"/>
+    <path d="M 12 8 L 18 10 L 18 14 Z" fill="#64748b" transform="rotate(-15 12 8)"/>
     
-    <!-- Nose -->
-    <ellipse cx="0" cy="4" rx="3" ry="2" fill="#1f2937"/>
+    <!-- Head/Rostrum -->
+    <ellipse cx="-10" cy="-2" rx="8" ry="6" fill="url(#dolphinGrad)" transform="rotate(-15 -10 -2)"/>
     
-    <!-- Mouth -->
-    <path d="M -3 6 Q 0 8, 3 6" stroke="#1f2937" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- Eye -->
+    <circle cx="-8" cy="-2" r="3" fill="white"/>
+    <circle cx="-7.5" cy="-2" r="2" fill="#1e293b"/>
+    <circle cx="-7" cy="-2.5" r="0.8" fill="white"/>
     
-    <!-- Bamboo leaf accent -->
-    <g transform="translate(10, 10)">
-      <ellipse cx="0" cy="0" rx="3" ry="6" fill="#22c55e" transform="rotate(-30 0 0)" opacity="0.9"/>
-      <line x1="0" y1="-6" x2="0" y2="6" stroke="#16a34a" stroke-width="0.5" transform="rotate(-30 0 0)"/>
-    </g>
+    <!-- Smile -->
+    <path d="M -14 0 Q -10 2, -6 0" stroke="#475569" stroke-width="1" fill="none" stroke-linecap="round"/>
+    
+    <!-- Water splash -->
+    <circle cx="10" cy="-10" r="2" fill="#e0f2fe" opacity="0.8"/>
+    <circle cx="14" cy="-8" r="1.5" fill="#e0f2fe" opacity="0.7"/>
+    <circle cx="12" cy="-12" r="1" fill="#e0f2fe" opacity="0.6"/>
   </g>
 </svg>

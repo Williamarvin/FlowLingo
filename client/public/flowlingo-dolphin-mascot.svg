@@ -1,0 +1,124 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- FlowLingo Mascot - Friendly Learning Dolphin -->
+  
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="oceanBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e0f2fe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#bae6fd;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="dolphinBody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0ea5e9;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#0284c7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0369a1;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="dolphinBelly" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f0f9ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e0f2fe;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="waveGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#22d3ee;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:0.5" />
+    </linearGradient>
+    <filter id="softShadow">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+      <feOffset dx="0" dy="3" result="offsetblur"/>
+      <feFlood flood-color="#000000" flood-opacity="0.15"/>
+      <feComposite in2="offsetblur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="url(#oceanBg)"/>
+  
+  <!-- Water waves -->
+  <path d="M 20 140 Q 40 130, 60 140 T 100 140 T 140 140 T 180 140" stroke="url(#waveGrad)" stroke-width="2" fill="none" opacity="0.6"/>
+  <path d="M 20 150 Q 40 140, 60 150 T 100 150 T 140 150 T 180 150" stroke="url(#waveGrad)" stroke-width="2" fill="none" opacity="0.5"/>
+  <path d="M 20 160 Q 40 150, 60 160 T 100 160 T 140 160 T 180 160" stroke="url(#waveGrad)" stroke-width="2" fill="none" opacity="0.4"/>
+  
+  <!-- Dolphin Body -->
+  <g transform="translate(100, 100)">
+    <!-- Main body -->
+    <ellipse cx="0" cy="0" rx="45" ry="25" fill="url(#dolphinBody)" filter="url(#softShadow)" transform="rotate(-10 0 0)"/>
+    
+    <!-- Belly -->
+    <ellipse cx="2" cy="5" rx="35" ry="18" fill="url(#dolphinBelly)" transform="rotate(-10 2 5)"/>
+    
+    <!-- Head/Rostrum -->
+    <ellipse cx="-25" cy="-5" rx="25" ry="18" fill="url(#dolphinBody)" transform="rotate(-15 -25 -5)"/>
+    <ellipse cx="-35" cy="-3" rx="15" ry="8" fill="url(#dolphinBody)" transform="rotate(-20 -35 -3)"/>
+    
+    <!-- Dorsal fin -->
+    <path d="M -5 -20 Q 0 -35, 5 -20 L 3 -15 L -3 -15 Z" fill="#0284c7" filter="url(#softShadow)"/>
+    
+    <!-- Pectoral fins -->
+    <ellipse cx="-15" cy="5" rx="20" ry="6" fill="#0284c7" transform="rotate(-35 -15 5)" filter="url(#softShadow)"/>
+    <ellipse cx="15" cy="5" rx="20" ry="6" fill="#0284c7" transform="rotate(35 15 5)" filter="url(#softShadow)"/>
+    
+    <!-- Tail flukes -->
+    <g transform="translate(35, 3) rotate(-10 0 0)">
+      <path d="M 0 0 Q 10 -8, 20 -10 L 18 -5 Q 10 -3, 0 0" fill="#0284c7"/>
+      <path d="M 0 0 Q 10 8, 20 10 L 18 5 Q 10 3, 0 0" fill="#0284c7"/>
+    </g>
+    
+    <!-- Eye -->
+    <circle cx="-25" cy="-8" r="5" fill="white"/>
+    <circle cx="-24" cy="-8" r="3.5" fill="#1e293b"/>
+    <circle cx="-23" cy="-9" r="1.5" fill="white"/>
+    <circle cx="-25" cy="-7" r="0.8" fill="white" opacity="0.7"/>
+    
+    <!-- Blowhole -->
+    <ellipse cx="-5" cy="-18" rx="2" ry="3" fill="#0369a1"/>
+    
+    <!-- Smile -->
+    <path d="M -42 -2 Q -35 2, -28 -2" stroke="#0369a1" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    
+    <!-- Water spray from blowhole -->
+    <g transform="translate(-5, -25)">
+      <circle cx="0" cy="-3" r="2" fill="#7dd3fc" opacity="0.6"/>
+      <circle cx="-2" cy="-6" r="1.5" fill="#7dd3fc" opacity="0.5"/>
+      <circle cx="2" cy="-5" r="1.2" fill="#7dd3fc" opacity="0.4"/>
+      <circle cx="0" cy="-8" r="1" fill="#7dd3fc" opacity="0.3"/>
+    </g>
+  </g>
+  
+  <!-- Graduation cap on dolphin -->
+  <g transform="translate(95, 65)">
+    <rect x="-15" y="-3" width="30" height="8" fill="#1f2937" rx="1" transform="rotate(-15 0 0)"/>
+    <path d="M -20 -5 L 0 -10 L 20 -5 L 0 0 Z" fill="#374151" transform="rotate(-15 0 0)"/>
+    <line x1="20" y1="-5" x2="22" y2="5" stroke="#fbbf24" stroke-width="2" transform="rotate(-15 20 -5)"/>
+    <circle cx="22" cy="7" r="2" fill="#fbbf24" transform="rotate(-15 22 7)"/>
+  </g>
+  
+  <!-- Book floating nearby -->
+  <g transform="translate(140, 100)">
+    <rect x="-15" y="-10" width="30" height="20" fill="#10b981" rx="2" transform="rotate(10 0 0)"/>
+    <rect x="-13" y="-8" width="26" height="16" fill="#34d399" rx="1" transform="rotate(10 0 0)"/>
+    <text x="0" y="0" font-family="Arial" font-size="8" fill="white" text-anchor="middle" transform="rotate(10 0 0)">中文</text>
+    <line x1="-10" y1="-4" x2="10" y2="-4" stroke="white" stroke-width="1" transform="rotate(10 0 0)"/>
+  </g>
+  
+  <!-- Speech bubble -->
+  <g transform="translate(50, 50)">
+    <ellipse cx="0" cy="0" rx="28" ry="18" fill="white" stroke="#0ea5e9" stroke-width="2"/>
+    <path d="M 10 10 L 15 20 L 20 12 Z" fill="white" stroke="#0ea5e9" stroke-width="2" stroke-linejoin="round"/>
+    
+    <!-- Greeting text -->
+    <text x="0" y="-2" font-family="Arial" font-size="9" fill="#0284c7" text-anchor="middle" font-weight="bold">
+      你好!
+    </text>
+    <text x="0" y="8" font-family="Arial" font-size="7" fill="#0ea5e9" text-anchor="middle">
+      Let's learn!
+    </text>
+  </g>
+  
+  <!-- Decorative bubbles -->
+  <circle cx="30" cy="120" r="4" fill="#7dd3fc" opacity="0.4"/>
+  <circle cx="170" cy="80" r="3" fill="#7dd3fc" opacity="0.3"/>
+  <circle cx="160" cy="130" r="5" fill="#7dd3fc" opacity="0.3"/>
+  <circle cx="40" cy="70" r="2.5" fill="#7dd3fc" opacity="0.4"/>
+</svg>
