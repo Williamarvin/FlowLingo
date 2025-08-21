@@ -526,6 +526,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Google OAuth redirect endpoint
+  app.get("/api/auth/google", (req, res) => {
+    // For now, we'll use a simplified OAuth flow
+    // In production, you'd use proper Google OAuth with redirect URLs
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Google Sign In - FlowLingo</title>
+        <style>
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          }
+          .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+          }
+          h2 {
+            color: #10b981;
+            margin-bottom: 1rem;
+          }
+          .message {
+            color: #666;
+            margin: 1rem 0;
+          }
+          .btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 1rem;
+          }
+          .btn:hover {
+            opacity: 0.9;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h2>🐬 FlowLingo</h2>
+          <div class="message">
+            Google Sign-In is being set up.<br><br>
+            For now, please use email and password to sign in.<br><br>
+            If you're having trouble logging in after signing up, please try these steps:<br>
+            1. Make sure you're using the exact email and password<br>
+            2. Check for any typos or extra spaces<br>
+            3. Try signing up with a different email if needed
+          </div>
+          <button class="btn" onclick="window.close()">Close Window</button>
+        </div>
+        <script>
+          // Auto close after 5 seconds
+          setTimeout(() => {
+            window.close();
+          }, 5000);
+        </script>
+      </body>
+      </html>
+    `;
+    res.send(html);
+  });
+  
   app.post("/api/auth/google", async (req, res) => {
     try {
       const { idToken } = req.body;

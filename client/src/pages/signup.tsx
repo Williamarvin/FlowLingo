@@ -70,12 +70,52 @@ export default function Signup() {
     signupMutation.mutate({ email, password, username });
   };
 
-  const handleGoogleSignUp = () => {
-    // This will be implemented with Google OAuth
-    toast({
-      title: "Google Sign-Up",
-      description: "Google sign-up coming soon!",
-    });
+  const handleGoogleSignUp = async () => {
+    try {
+      // Open Google OAuth popup
+      const width = 500;
+      const height = 600;
+      const left = window.screenX + (window.outerWidth - width) / 2;
+      const top = window.screenY + (window.outerHeight - height) / 2;
+      
+      const popup = window.open(
+        '/api/auth/google',
+        'google-auth',
+        `width=${width},height=${height},left=${left},top=${top}`
+      );
+      
+      // Listen for auth success message
+      const handleMessage = (event: MessageEvent) => {
+        if (event.data.type === 'auth-success') {
+          window.removeEventListener('message', handleMessage);
+          if (popup) popup.close();
+          
+          toast({
+            title: "Welcome to FlowLingo!",
+            description: "Successfully signed up with Google",
+          });
+          
+          // Refresh the page to update auth state
+          window.location.href = '/';
+        }
+      };
+      
+      window.addEventListener('message', handleMessage);
+      
+      // Clean up if popup is closed manually
+      const checkClosed = setInterval(() => {
+        if (popup?.closed) {
+          clearInterval(checkClosed);
+          window.removeEventListener('message', handleMessage);
+        }
+      }, 1000);
+    } catch (error) {
+      toast({
+        title: "Google Sign-Up Error",
+        description: "Failed to open Google sign-up window",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
