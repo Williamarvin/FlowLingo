@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, XCircle, Trophy, ArrowRight, Home } from "lucide-react";
 import { useLocation } from "wouter";
 import ModernNav from "@/components/modern-nav";
+import { audioManager } from "@/lib/audioManager";
 
 interface AssessmentQuestion {
   id: string;
@@ -38,6 +39,15 @@ export default function Assessment() {
   const [showResult, setShowResult] = useState(false);
   const [assessmentResult, setAssessmentResult] = useState<AssessmentResult | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Function to speak Chinese text using OpenAI TTS
+  const speakChinese = async (text: string) => {
+    try {
+      await audioManager.playTTS(text, 1.0);
+    } catch (error) {
+      console.error('TTS error:', error);
+    }
+  };
 
   // Fetch assessment questions
   const { data: questions = [], isLoading } = useQuery<AssessmentQuestion[]>({
@@ -262,6 +272,18 @@ export default function Assessment() {
                 <div className="grid grid-cols-1 gap-3">
                   {currentQuestion.options.map((option, index) => {
                     const isSelected = getSelectedAnswer() === option;
+                    
+                    // Determine what text to speak based on question type
+                    const getTextToSpeak = () => {
+                      if (currentQuestion.type === "translation") {
+                        // For translation questions, options are Chinese
+                        return option;
+                      } else {
+                        // For multiple-choice, speak the Chinese from the question
+                        return currentQuestion.chinese;
+                      }
+                    };
+                    
                     return (
                       <Button
                         key={index}
@@ -272,7 +294,9 @@ export default function Assessment() {
                             : "hover:bg-gray-50"
                         }`}
                         onClick={() => handleAnswer(option)}
+                        onMouseEnter={() => speakChinese(getTextToSpeak())}
                         disabled={isSubmitting}
+                        title="Hover to hear pronunciation"
                       >
                         <span className="text-lg">{option}</span>
                       </Button>

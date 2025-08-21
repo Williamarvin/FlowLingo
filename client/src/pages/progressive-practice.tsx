@@ -6,6 +6,7 @@ import ModernNav from "@/components/modern-nav";
 import { useLocation } from "wouter";
 import { toast } from "@/hooks/use-toast";
 import { Heart, Clock, Trophy, X } from "lucide-react";
+import { audioManager } from "@/lib/audioManager";
 
 interface Question {
   id: string;
@@ -35,30 +36,13 @@ export default function ProgressivePractice() {
   const [timeUntilNextHeart, setTimeUntilNextHeart] = useState<number | null>(null);
   const [sessionStartTime] = useState(Date.now());
 
-  // Function to speak Chinese text using browser TTS
-  const speakChinese = (text: string) => {
-    if ('speechSynthesis' in window) {
-      // Cancel any ongoing speech
-      window.speechSynthesis.cancel();
-      
-      const utterance = new SpeechSynthesisUtterance(text);
-      
-      // Try to find a Chinese voice
-      const voices = window.speechSynthesis.getVoices();
-      const chineseVoice = voices.find(voice => 
-        voice.lang.includes('zh') || voice.lang.includes('cmn')
-      );
-      
-      if (chineseVoice) {
-        utterance.voice = chineseVoice;
-      }
-      
-      utterance.lang = 'zh-CN';
-      utterance.rate = 0.8;
-      utterance.pitch = 1.0;
-      utterance.volume = 1.0;
-
-      window.speechSynthesis.speak(utterance);
+  // Function to speak Chinese text using OpenAI TTS
+  const speakChinese = async (text: string) => {
+    try {
+      // Use audioManager with normal speed for pronunciation
+      await audioManager.playTTS(text, 1.0);
+    } catch (error) {
+      console.error('TTS error:', error);
     }
   };
 
@@ -547,22 +531,42 @@ export default function ProgressivePractice() {
             
             {/* Answer Options */}
             <div className="grid grid-cols-2 gap-4 mb-6">
-              {currentQ.options?.map((option, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleAnswer(option)}
-                  disabled={showFeedback}
-                  className={`
-                    p-4 rounded-2xl font-semibold text-lg transition-all transform hover:scale-105
-                    ${!showFeedback ? 'bg-white border-2 border-gray-200 hover:border-green-400 hover:bg-green-50' : ''}
-                    ${showFeedback && selectedAnswer === option && isCorrect ? 'bg-green-100 border-2 border-green-500 scale-105' : ''}
-                    ${showFeedback && selectedAnswer === option && !isCorrect ? 'bg-red-100 border-2 border-red-500 animate-shake' : ''}
-                    ${showFeedback && option !== currentQ.correctAnswer && selectedAnswer !== option ? 'opacity-50' : ''}
-                  `}
-                >
-                  {option}
-                </button>
-              ))}
+              {currentQ.options?.map((option, index) => {
+                // Determine what text to speak based on question type
+                const getTextToSpeak = () => {
+                  if (currentQ.type === "translation") {
+                    // For translation questions (English to Chinese), options are Chinese
+                    return option;
+                  } else {
+                    // For multiple-choice (Chinese to English), try to get Chinese text
+                    const optionDetails = (currentQ as any).optionDetails;
+                    if (optionDetails && optionDetails[index]) {
+                      return optionDetails[index].chinese;
+                    }
+                    // If no Chinese available for this option, speak the Chinese question instead
+                    return currentQ.chinese;
+                  }
+                };
+
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleAnswer(option)}
+                    onMouseEnter={() => speakChinese(getTextToSpeak())}
+                    disabled={showFeedback}
+                    className={`
+                      p-4 rounded-2xl font-semibold text-lg transition-all transform hover:scale-105
+                      ${!showFeedback ? 'bg-white border-2 border-gray-200 hover:border-green-400 hover:bg-green-50' : ''}
+                      ${showFeedback && selectedAnswer === option && isCorrect ? 'bg-green-100 border-2 border-green-500 scale-105' : ''}
+                      ${showFeedback && selectedAnswer === option && !isCorrect ? 'bg-red-100 border-2 border-red-500 animate-shake' : ''}
+                      ${showFeedback && option !== currentQ.correctAnswer && selectedAnswer !== option ? 'opacity-50' : ''}
+                    `}
+                    title="Hover to hear pronunciation"
+                  >
+                    {option}
+                  </button>
+                );
+              })}
             </div>
             
             {/* Feedback Section */}
