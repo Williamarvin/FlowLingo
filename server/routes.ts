@@ -632,6 +632,52 @@ Output: Only Chinese text, no explanations.`;
     }
   });
 
+  // Voice Translation endpoint
+  app.post("/api/translate/voice", async (req, res) => {
+    try {
+      const { text } = req.body;
+      
+      if (!text || typeof text !== 'string') {
+        return res.status(400).json({ error: "Text is required" });
+      }
+
+      // Use OpenAI to translate and get pinyin
+      const prompt = `Translate the following Chinese text to English and provide pinyin. 
+      Return ONLY a JSON object with this exact format:
+      {
+        "chinese": "the original Chinese text",
+        "pinyin": "pinyin with tone marks",
+        "english": "English translation"
+      }
+      
+      Chinese text: ${text}`;
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { 
+            role: "system", 
+            content: "You are a Chinese language translator. Always return valid JSON in the exact format requested."
+          },
+          { role: "user", content: prompt }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.3,
+      });
+
+      const result = JSON.parse(response.choices[0].message.content || "{}");
+      
+      res.json({
+        chinese: result.chinese || text,
+        pinyin: result.pinyin || "",
+        english: result.english || ""
+      });
+    } catch (error) {
+      console.error("Voice translation error:", error);
+      res.status(500).json({ error: "Translation failed" });
+    }
+  });
+
   // Voice Conversation endpoint for natural dialogue
   app.post("/api/conversation/voice", async (req, res) => {
     try {

@@ -14,6 +14,7 @@ import MediaReader from "@/pages/media-reader";
 import Vocabulary from "@/pages/vocabulary";
 import Assessment from "@/pages/assessment";
 import ProgressivePractice from "@/pages/progressive-practice";
+import VoiceTranslator from "@/pages/voice-translator";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -27,6 +28,7 @@ function Router() {
       <Route path="/vocabulary" component={Vocabulary} />
       <Route path="/assessment" component={Assessment} />
       <Route path="/practice" component={ProgressivePractice} />
+      <Route path="/voice-translator" component={VoiceTranslator} />
       <Route component={NotFound} />
     </Switch>
   );
