@@ -64,7 +64,7 @@ export default function Vocabulary() {
   const answerButtons = [
     { key: "again", label: "Again", icon: "fas fa-times", color: "bg-red-500 hover:bg-red-600" },
     { key: "hard", label: "Hard", icon: "fas fa-exclamation", color: "bg-orange-500 hover:bg-orange-600" },
-    { key: "good", label: "Good", icon: "fas fa-check", color: "bg-blue-500 hover:bg-blue-600" },
+    { key: "good", label: "Good", icon: "fas fa-check", color: "bg-green-500 hover:bg-green-600" },
     { key: "easy", label: "Easy", icon: "fas fa-check-double", color: "bg-green-500 hover:bg-green-600" }
   ];
 
@@ -108,7 +108,7 @@ export default function Vocabulary() {
     return (
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center py-20">
-          <i className="fas fa-spinner fa-spin text-4xl text-brand-blue mb-4"></i>
+          <i className="fas fa-spinner fa-spin text-4xl text-brand-primary mb-4"></i>
           <p className="text-text-secondary">Loading vocabulary...</p>
         </div>
       </div>
@@ -356,11 +356,11 @@ export default function Vocabulary() {
                   </p>
                   
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200 hover:shadow-lg transition-shadow cursor-pointer">
-                      <i className="fas fa-bolt text-3xl text-blue-500 mb-3"></i>
+                    <div className="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200 hover:shadow-lg transition-shadow cursor-pointer">
+                      <i className="fas fa-bolt text-3xl text-green-500 mb-3"></i>
                       <h4 className="font-semibold text-gray-800 mb-2">Speed Match</h4>
                       <p className="text-sm text-gray-600 mb-4">Match characters to meanings as fast as you can!</p>
-                      <Button variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-50">
+                      <Button variant="outline" className="border-green-300 text-green-700 hover:bg-green-50">
                         Play Now
                       </Button>
                     </div>
@@ -404,9 +404,9 @@ export default function Vocabulary() {
                   
                   {/* Stats Grid */}
                   <div className="grid md:grid-cols-4 gap-6 mb-8">
-                    <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
-                      <div className="text-3xl font-bold text-blue-600">{totalWords}</div>
-                      <div className="text-sm text-blue-800 font-medium">Total Words</div>
+                    <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200">
+                      <div className="text-3xl font-bold text-green-600">{totalWords}</div>
+                      <div className="text-sm text-green-800 font-medium">Total Words</div>
                     </div>
                     <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200">
                       <div className="text-3xl font-bold text-green-600">{learnedWords}</div>

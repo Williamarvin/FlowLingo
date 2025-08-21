@@ -86,7 +86,7 @@ export default function HighlightableText({ text, onSaveWord }: HighlightableTex
       return (
         <span
           key={index}
-          className="highlightable cursor-pointer hover:bg-brand-blue hover:bg-opacity-10 transition-colors px-1 rounded"
+          className="highlightable cursor-pointer hover:bg-brand-primary hover:bg-opacity-10 transition-colors px-1 rounded"
           onClick={() => {
             setSelectedText(segment);
             translateMutation.mutate(segment);
@@ -168,8 +168,8 @@ export default function HighlightableText({ text, onSaveWord }: HighlightableTex
           key={index}
           className={`highlightable cursor-pointer transition-all duration-200 px-1 rounded ${
             isCurrentlyReading 
-              ? 'bg-brand-blue text-white shadow-md scale-105' 
-              : 'hover:bg-brand-blue hover:bg-opacity-10'
+              ? 'bg-brand-primary text-white shadow-md scale-105' 
+              : 'hover:bg-brand-primary hover:bg-opacity-10'
           }`}
           onClick={() => {
             if (!isPunctuation) {
@@ -192,7 +192,7 @@ export default function HighlightableText({ text, onSaveWord }: HighlightableTex
           className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-md hover:shadow-lg flex items-center space-x-2 ${
             isReadingAll
               ? 'bg-red-500 hover:bg-red-600 text-white'
-              : 'bg-gradient-to-r from-brand-blue to-brand-blue-light hover:from-brand-blue-dark hover:to-brand-blue text-white'
+              : 'bg-gradient-to-r from-brand-primary to-brand-primary-light hover:from-brand-primary-dark hover:to-brand-primary text-white'
           }`}
         >
           <i className={`fas ${isReadingAll ? 'fa-stop' : 'fa-volume-up'} text-lg`}></i>

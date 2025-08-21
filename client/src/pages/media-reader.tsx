@@ -14,7 +14,7 @@ import { audioManager } from "@/lib/audioManager";
 // File type configurations with support for multiple formats
 const FILE_TYPES = {
   pdf: { icon: FileText, color: "bg-red-500", accepts: ["application/pdf"] },
-  image: { icon: Image, color: "bg-blue-500", accepts: ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"] },
+  image: { icon: Image, color: "bg-green-500", accepts: ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"] },
   video: { icon: Video, color: "bg-purple-500", accepts: ["video/mp4", "video/webm", "video/ogg", "video/avi", "video/mov"] },
   audio: { icon: Music, color: "bg-green-500", accepts: ["audio/mp3", "audio/wav", "audio/ogg", "audio/m4a", "audio/flac"] },
   document: { icon: BookOpen, color: "bg-orange-500", accepts: ["application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "text/plain", "application/rtf"] }
@@ -250,8 +250,8 @@ export default function MediaReader() {
 
           {/* For OCR-processed images, show a note about extracted text */}
           {isImage && document.content && (
-            <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
-              <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
+            <div className="mb-4 p-3 bg-green-50 dark:bg-green-950 rounded-lg">
+              <p className="text-sm text-green-700 dark:text-green-300 font-medium">
                 🔍 OCR Extracted Chinese Text from {document.filename} (click to translate):
               </p>
             </div>

@@ -131,7 +131,7 @@ export default function Assessment() {
         <div className="ml-64 p-8">
           <div className="max-w-4xl mx-auto">
             <div className="text-center py-20">
-              <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+              <div className="animate-spin w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full mx-auto mb-4"></div>
               <p className="text-gray-600">Loading assessment questions...</p>
             </div>
           </div>
@@ -156,7 +156,7 @@ export default function Assessment() {
               <CardContent className="text-center space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="bg-white p-4 rounded-lg border">
-                    <div className="text-3xl font-bold text-blue-600">{assessmentResult.score}/10</div>
+                    <div className="text-3xl font-bold text-green-600">{assessmentResult.score}/10</div>
                     <div className="text-sm text-gray-600">Final Score</div>
                   </div>
                   <div className="bg-white p-4 rounded-lg border">
@@ -174,12 +174,12 @@ export default function Assessment() {
                 </div>
 
                 {assessmentResult.levelMaintained && (
-                  <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                  <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
                     <div className="flex items-start">
-                      <Trophy className="w-5 h-5 text-blue-600 mr-2 mt-0.5" />
+                      <Trophy className="w-5 h-5 text-green-600 mr-2 mt-0.5" />
                       <div>
-                        <p className="text-blue-800 font-semibold">Level Maintained!</p>
-                        <p className="text-blue-700 text-sm mt-1">
+                        <p className="text-green-800 font-semibold">Level Maintained!</p>
+                        <p className="text-green-700 text-sm mt-1">
                           Your assessment score would place you at Level {assessmentResult.placementLevel}, 
                           but you're already at Level {assessmentResult.level}. Great job maintaining your progress!
                         </p>
@@ -204,7 +204,7 @@ export default function Assessment() {
                 </div>
 
                 <div className="flex gap-4 justify-center">
-                  <Button onClick={() => navigate("/practice")} className="bg-blue-600 hover:bg-blue-700">
+                  <Button onClick={() => navigate("/practice")} className="bg-green-600 hover:bg-green-700">
                     <ArrowRight className="w-4 h-4 mr-2" />
                     Start Practice
                   </Button>
@@ -247,7 +247,7 @@ export default function Assessment() {
                 <CardTitle className="text-xl">{currentQuestion.question}</CardTitle>
                 {currentQuestion.type === "multiple-choice" && (
                   <div className="text-center py-4">
-                    <div className="text-4xl font-bold text-blue-600 mb-2">{currentQuestion.chinese}</div>
+                    <div className="text-4xl font-bold text-green-600 mb-2">{currentQuestion.chinese}</div>
                     <div className="text-lg text-gray-600">{currentQuestion.pinyin}</div>
                   </div>
                 )}
@@ -268,7 +268,7 @@ export default function Assessment() {
                         variant={isSelected ? "default" : "outline"}
                         className={`p-4 h-auto text-left justify-start ${
                           isSelected 
-                            ? "bg-blue-600 hover:bg-blue-700 text-white" 
+                            ? "bg-green-600 hover:bg-green-700 text-white" 
                             : "hover:bg-gray-50"
                         }`}
                         onClick={() => handleAnswer(option)}
@@ -282,7 +282,7 @@ export default function Assessment() {
                 
                 {isSubmitting && (
                   <div className="text-center mt-6">
-                    <div className="animate-spin w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                    <div className="animate-spin w-6 h-6 border-4 border-green-500 border-t-transparent rounded-full mx-auto mb-2"></div>
                     <p className="text-gray-600">Calculating your level...</p>
                   </div>
                 )}

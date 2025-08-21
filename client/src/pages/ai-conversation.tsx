@@ -467,7 +467,7 @@ export default function AiConversation() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-emerald-50">
       <Sidebar currentPage="/ai-conversation" />
       
       <div className="ml-64 p-8">
@@ -574,7 +574,7 @@ export default function AiConversation() {
                     
                     <Card className={`p-4 ${
                       message.role === 'user' 
-                        ? 'bg-blue-100 border-blue-200' 
+                        ? 'bg-green-100 border-green-200' 
                         : 'bg-white border-gray-200'
                     }`}>
                       <div className="flex items-start justify-between gap-2">
@@ -583,7 +583,7 @@ export default function AiConversation() {
                             {message.content}
                           </div>
                           {message.pinyin && (
-                            <div className="text-sm text-blue-600 mb-1">
+                            <div className="text-sm text-green-600 mb-1">
                               {message.pinyin}
                             </div>
                           )}
@@ -753,7 +753,7 @@ export default function AiConversation() {
                     <span className="text-gray-600">Microphone</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${isSpeaking ? 'bg-blue-500 animate-pulse' : 'bg-gray-300'}`} />
+                    <div className={`w-2 h-2 rounded-full ${isSpeaking ? 'bg-green-500 animate-pulse' : 'bg-gray-300'}`} />
                     <span className="text-gray-600">Speaker</span>
                   </div>
                 </div>
@@ -766,23 +766,23 @@ export default function AiConversation() {
             <h3 className="font-semibold text-gray-800 mb-3">How it works:</h3>
             <ul className="space-y-2 text-gray-600">
               <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-1">•</span>
+                <span className="text-green-500 mt-1">•</span>
                 <span>Click "Start Conversation" to begin your practice session</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-1">•</span>
+                <span className="text-green-500 mt-1">•</span>
                 <span>Speak naturally in Mandarin - the AI will listen and respond</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-1">•</span>
+                <span className="text-green-500 mt-1">•</span>
                 <span>The AI tutor will speak back to you in Mandarin with proper pronunciation</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-1">•</span>
+                <span className="text-green-500 mt-1">•</span>
                 <span>You'll see pinyin and English translations to help you understand</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-1">•</span>
+                <span className="text-green-500 mt-1">•</span>
                 <span>Practice real conversations adapted to your level</span>
               </li>
             </ul>

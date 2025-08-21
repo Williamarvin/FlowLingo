@@ -210,7 +210,7 @@ export default function Flashcards() {
   const getSourceColor = (source: string) => {
     switch(source) {
       case "assessment": return "bg-red-100 text-red-700";
-      case "practice": return "bg-blue-100 text-blue-700";
+      case "practice": return "bg-green-100 text-green-700";
       case "new": return "bg-green-100 text-green-700";
       default: return "bg-gray-100 text-gray-700";
     }
@@ -222,7 +222,7 @@ export default function Flashcards() {
         <Sidebar currentPage="/flashcards" />
         <div className="ml-64 p-8">
           <div className="text-center py-20">
-            <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <div className="animate-spin w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full mx-auto mb-4"></div>
             <p className="text-gray-600">Loading flashcards...</p>
           </div>
         </div>
@@ -355,12 +355,12 @@ export default function Flashcards() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500">From Practice</p>
-                  <p className="text-2xl font-bold text-blue-600">
+                  <p className="text-2xl font-bold text-green-600">
                     {flashcards.filter(f => f.source === "practice").length}
                   </p>
                 </div>
-                <div className="p-3 bg-blue-100 rounded-xl">
-                  <Target className="w-6 h-6 text-blue-600" />
+                <div className="p-3 bg-green-100 rounded-xl">
+                  <Target className="w-6 h-6 text-green-600" />
                 </div>
               </div>
             </div>
@@ -486,9 +486,9 @@ export default function Flashcards() {
                         </div>
 
                         {/* English */}
-                        <div className="p-4 bg-blue-50 rounded-xl">
+                        <div className="p-4 bg-green-50 rounded-xl">
                           <p className="text-sm text-gray-500 mb-1">English</p>
-                          <p className="text-xl font-medium text-blue-700">{currentCard.english}</p>
+                          <p className="text-xl font-medium text-green-700">{currentCard.english}</p>
                         </div>
 
                         {/* Stats */}

@@ -193,7 +193,7 @@
 .text-text-light { color: var(--text-light); }
 
 /* Brand colors specifically for icons */
-.text-brand-blue { color: hsl(215 100% 45%); }
+.text-brand-green { color: hsl(142 70% 45%); }
 .text-brand-yellow { color: hsl(45 100% 45%); }
 
 .bg-brand-primary { background-color: var(--brand-primary); }
@@ -282,11 +282,11 @@
   background: linear-gradient(135deg, hsl(35 95% 55%) 0%, hsl(35 95% 65%) 100%);
 }
 
-.hover\:bg-brand-blue:hover { background-color: hsl(215, 85%, 55%); }
-.hover\:bg-brand-blue-dark:hover { background-color: hsl(215, 85%, 45%); }
+.hover\:bg-brand-green:hover { background-color: hsl(142, 70%, 55%); }
+.hover\:bg-brand-green-dark:hover { background-color: hsl(142, 70%, 45%); }
 .hover\:bg-brand-yellow:hover { background-color: hsl(45, 95%, 58%); }
 .hover\:bg-brand-yellow-light:hover { background-color: hsl(45, 95%, 68%); }
-.hover\:text-brand-blue:hover { color: hsl(215, 85%, 55%); }
+.hover\:text-brand-green:hover { color: hsl(142, 70%, 55%); }
 
 /* Falou-style interactive text */
 .highlightable {

@@ -69,7 +69,7 @@ export default function TranslationPopup({ isOpen, onClose, translation, onSaveW
         <div className="space-y-6">
           <div className="text-center">
             <div className="text-7xl font-bold text-text-primary mb-6">{translation.character}</div>
-            <div className="text-3xl text-brand-blue mb-4">{translation.pinyin}</div>
+            <div className="text-3xl text-brand-primary mb-4">{translation.pinyin}</div>
             <div className="text-2xl text-text-secondary">{translation.english}</div>
           </div>
           
@@ -80,7 +80,7 @@ export default function TranslationPopup({ isOpen, onClose, translation, onSaveW
               className={`flex-1 py-3 rounded-lg font-medium transition-colors ${
                 isPlaying 
                   ? 'bg-gray-400 text-white cursor-not-allowed'
-                  : 'bg-brand-blue text-white hover:bg-brand-blue-dark'
+                  : 'bg-brand-primary text-white hover:bg-brand-primary-dark'
               }`}
             >
               <i className={`fas ${isPlaying ? 'fa-spinner fa-spin' : 'fa-volume-up'} mr-2`}></i>

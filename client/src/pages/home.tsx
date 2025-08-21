@@ -54,7 +54,7 @@ export default function Home() {
   ];
 
   const stats = [
-    { value: "10K+", label: "Words Learned", color: "text-brand-blue" },
+    { value: "10K+", label: "Words Learned", color: "text-brand-primary" },
     { value: "5K+", label: "Conversations", color: "text-brand-yellow" },
     { value: "1K+", label: "PDFs Processed", color: "text-green-500" },
     { value: "95%", label: "Success Rate", color: "text-purple-500" }
@@ -91,7 +91,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="flex items-center">
-                  <div className="p-3 bg-blue-100 rounded-xl mr-3">
+                  <div className="p-3 bg-green-100 rounded-xl mr-3">
                     <span className="text-2xl">📚</span>
                   </div>
                   <div>
@@ -241,7 +241,7 @@ export default function Home() {
             <i className="fas fa-trophy mr-2 text-amber-600"></i>HSK Level 1
           </span>
           <span className="badge-achievement">
-            <i className="fas fa-comments mr-2 text-blue-600"></i>Conversationalist
+            <i className="fas fa-comments mr-2 text-green-600"></i>Conversationalist
           </span>
           </div>
           </div>

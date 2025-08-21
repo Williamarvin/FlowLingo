@@ -528,7 +528,7 @@ export default function ProgressivePractice() {
             {currentQ.type === "multiple-choice" && (
               <div className="text-center mb-8">
                 <div 
-                  className="text-6xl font-bold text-gray-900 mb-4 p-8 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl inline-block cursor-pointer hover:bg-gradient-to-br hover:from-blue-200 hover:to-purple-200 transition-all duration-200"
+                  className="text-6xl font-bold text-gray-900 mb-4 p-8 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl inline-block cursor-pointer hover:bg-gradient-to-br hover:from-green-200 hover:to-emerald-200 transition-all duration-200"
                   onMouseEnter={() => speakChinese(currentQ.chinese)}
                   title="Hover to hear pronunciation"
                 >
@@ -539,7 +539,7 @@ export default function ProgressivePractice() {
             
             {currentQ.type === "translation" && (
               <div className="text-center mb-8">
-                <div className="text-3xl font-semibold text-gray-700 p-6 bg-gradient-to-br from-green-100 to-blue-100 rounded-2xl">
+                <div className="text-3xl font-semibold text-gray-700 p-6 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl">
                   {currentQ.english}
                 </div>
               </div>
@@ -554,7 +554,7 @@ export default function ProgressivePractice() {
                   disabled={showFeedback}
                   className={`
                     p-4 rounded-2xl font-semibold text-lg transition-all transform hover:scale-105
-                    ${!showFeedback ? 'bg-white border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50' : ''}
+                    ${!showFeedback ? 'bg-white border-2 border-gray-200 hover:border-green-400 hover:bg-green-50' : ''}
                     ${showFeedback && selectedAnswer === option && isCorrect ? 'bg-green-100 border-2 border-green-500 scale-105' : ''}
                     ${showFeedback && selectedAnswer === option && !isCorrect ? 'bg-red-100 border-2 border-red-500 animate-shake' : ''}
                     ${showFeedback && option !== currentQ.correctAnswer && selectedAnswer !== option ? 'opacity-50' : ''}
@@ -590,7 +590,7 @@ export default function ProgressivePractice() {
                               return (
                                 <>
                                   <div className="text-3xl font-bold text-gray-800 mb-1">{optionDetails[selectedIndex].chinese}</div>
-                                  <div className="text-lg text-blue-600 font-medium mb-1">{optionDetails[selectedIndex].pinyin}</div>
+                                  <div className="text-lg text-green-600 font-medium mb-1">{optionDetails[selectedIndex].pinyin}</div>
                                   <div className="text-xl text-red-600">{selectedAnswer}</div>
                                 </>
                               );
@@ -609,7 +609,7 @@ export default function ProgressivePractice() {
                               return (
                                 <>
                                   <div className="text-3xl font-bold text-gray-800 mb-1">{selectedAnswer}</div>
-                                  <div className="text-lg text-blue-600 font-medium mb-1">{optionDetails[selectedIndex].pinyin}</div>
+                                  <div className="text-lg text-green-600 font-medium mb-1">{optionDetails[selectedIndex].pinyin}</div>
                                   <div className="text-xl text-red-600">{optionDetails[selectedIndex].english}</div>
                                 </>
                               );
@@ -626,7 +626,7 @@ export default function ProgressivePractice() {
                   {isCorrect && (
                     <div className="bg-white rounded-xl p-4 shadow-sm border">
                       <div className="text-4xl font-bold text-gray-800 mb-2">{currentQ.chinese}</div>
-                      <div className="text-lg text-blue-600 font-medium mb-1">{currentQ.pinyin}</div>
+                      <div className="text-lg text-green-600 font-medium mb-1">{currentQ.pinyin}</div>
                       <div className="text-lg text-gray-700">{currentQ.english}</div>
                     </div>
                   )}

@@ -58,7 +58,7 @@ export default function Sidebar({ currentPage }: SidebarProps) {
   const menuItems = [
     { path: "/", icon: "🏠", label: "Home", color: "text-orange-500" },
     { path: "/assessment", icon: "📊", label: "Assessment", color: "text-indigo-500" },
-    { path: "/practice", icon: "🎯", label: "Practice", color: "text-blue-500" },
+    { path: "/practice", icon: "🎯", label: "Practice", color: "text-green-500" },
     { path: "/ai-conversation", icon: "💬", label: "Conversation", color: "text-green-500" },
     { path: "/voice-translator", icon: "🎙️", label: "Voice Translator", color: "text-cyan-500" },
     { path: "/flashcards", icon: "📚", label: "Flashcards", color: "text-yellow-500" },

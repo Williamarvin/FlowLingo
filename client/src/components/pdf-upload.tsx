@@ -99,8 +99,8 @@ export default function PdfUpload({ onUploadSuccess }: PdfUploadProps) {
     <div
       className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
         isDragging 
-          ? "border-brand-blue bg-brand-blue bg-opacity-5" 
-          : "border-gray-300 hover:border-brand-blue"
+          ? "border-brand-primary bg-brand-primary bg-opacity-5" 
+          : "border-gray-300 hover:border-brand-primary"
       }`}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
@@ -116,7 +116,7 @@ export default function PdfUpload({ onUploadSuccess }: PdfUploadProps) {
       />
       
       {uploadMutation.isPending ? (
-        <div className="text-brand-blue">
+        <div className="text-brand-primary">
           <i className="fas fa-spinner fa-spin text-4xl mb-4"></i>
           <p>Processing PDF...</p>
         </div>
@@ -125,7 +125,7 @@ export default function PdfUpload({ onUploadSuccess }: PdfUploadProps) {
           <i className="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
           <p className="text-text-secondary mb-2">Drag & drop your PDF or text file here</p>
           <p className="text-sm text-text-secondary mb-4">or click to browse files</p>
-          <button className="bg-brand-blue text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-blue-dark transition-colors">
+          <button className="bg-brand-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-primary-dark transition-colors">
             Choose File
           </button>
         </>
