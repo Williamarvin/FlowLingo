@@ -1632,6 +1632,7 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       if (storage.createPracticeSession) {
         await storage.createPracticeSession({
           userId,
+          sessionType: 'practice', // Add the required session_type field
           level,
           questionsAnswered,
           correctAnswers,
