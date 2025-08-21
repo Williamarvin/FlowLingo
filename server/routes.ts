@@ -231,11 +231,71 @@ function generatePracticeQuestions(level: number) {
       { chinese: "教育", pinyin: "jiào yù", english: "education" },
       { chinese: "健康", pinyin: "jiàn kāng", english: "health" },
       { chinese: "安全", pinyin: "ān quán", english: "safety" }
+    ],
+    6: [
+      { chinese: "国际", pinyin: "guó jì", english: "international" },
+      { chinese: "政府", pinyin: "zhèng fǔ", english: "government" },
+      { chinese: "管理", pinyin: "guǎn lǐ", english: "management" },
+      { chinese: "投资", pinyin: "tóu zī", english: "investment" },
+      { chinese: "市场营销", pinyin: "shì chǎng yíng xiāo", english: "marketing" },
+      { chinese: "金融", pinyin: "jīn róng", english: "finance" },
+      { chinese: "贸易", pinyin: "mào yì", english: "trade" },
+      { chinese: "创新", pinyin: "chuàng xīn", english: "innovation" },
+      { chinese: "合作", pinyin: "hé zuò", english: "cooperation" },
+      { chinese: "竞争", pinyin: "jìng zhēng", english: "competition" }
+    ],
+    7: [
+      { chinese: "全球化", pinyin: "quán qiú huà", english: "globalization" },
+      { chinese: "可持续", pinyin: "kě chí xù", english: "sustainable" },
+      { chinese: "数字化", pinyin: "shù zì huà", english: "digitalization" },
+      { chinese: "人工智能", pinyin: "rén gōng zhì néng", english: "artificial intelligence" },
+      { chinese: "大数据", pinyin: "dà shù jù", english: "big data" },
+      { chinese: "云计算", pinyin: "yún jì suàn", english: "cloud computing" },
+      { chinese: "物联网", pinyin: "wù lián wǎng", english: "Internet of Things" },
+      { chinese: "区块链", pinyin: "qū kuài liàn", english: "blockchain" },
+      { chinese: "自动化", pinyin: "zì dòng huà", english: "automation" },
+      { chinese: "智能制造", pinyin: "zhì néng zhì zào", english: "smart manufacturing" }
+    ],
+    8: [
+      { chinese: "战略规划", pinyin: "zhàn lüè guī huà", english: "strategic planning" },
+      { chinese: "风险管理", pinyin: "fēng xiǎn guǎn lǐ", english: "risk management" },
+      { chinese: "供应链", pinyin: "gōng yìng liàn", english: "supply chain" },
+      { chinese: "品牌建设", pinyin: "pǐn pái jiàn shè", english: "brand building" },
+      { chinese: "客户关系", pinyin: "kè hù guān xì", english: "customer relations" },
+      { chinese: "市场研究", pinyin: "shì chǎng yán jiū", english: "market research" },
+      { chinese: "产品开发", pinyin: "chǎn pǐn kāi fā", english: "product development" },
+      { chinese: "质量控制", pinyin: "zhì liàng kòng zhì", english: "quality control" },
+      { chinese: "成本效益", pinyin: "chéng běn xiào yì", english: "cost-effectiveness" },
+      { chinese: "绩效评估", pinyin: "jì xiào píng gū", english: "performance evaluation" }
+    ],
+    9: [
+      { chinese: "企业文化", pinyin: "qǐ yè wén huà", english: "corporate culture" },
+      { chinese: "知识产权", pinyin: "zhī shí chǎn quán", english: "intellectual property" },
+      { chinese: "跨文化交流", pinyin: "kuà wén huà jiāo liú", english: "cross-cultural communication" },
+      { chinese: "社会责任", pinyin: "shè huì zé rèn", english: "social responsibility" },
+      { chinese: "利益相关者", pinyin: "lì yì xiāng guān zhě", english: "stakeholder" },
+      { chinese: "商业模式", pinyin: "shāng yè mó shì", english: "business model" },
+      { chinese: "价值链", pinyin: "jià zhí liàn", english: "value chain" },
+      { chinese: "竞争优势", pinyin: "jìng zhēng yōu shì", english: "competitive advantage" },
+      { chinese: "市场细分", pinyin: "shì chǎng xì fēn", english: "market segmentation" },
+      { chinese: "并购重组", pinyin: "bìng gòu chóng zǔ", english: "mergers and acquisitions" }
+    ],
+    10: [
+      { chinese: "宏观经济政策", pinyin: "hóng guān jīng jì zhèng cè", english: "macroeconomic policy" },
+      { chinese: "产业升级转型", pinyin: "chǎn yè shēng jí zhuǎn xíng", english: "industrial upgrading" },
+      { chinese: "创新生态系统", pinyin: "chuàng xīn shēng tài xì tǒng", english: "innovation ecosystem" },
+      { chinese: "数字化转型", pinyin: "shù zì huà zhuǎn xíng", english: "digital transformation" },
+      { chinese: "可持续发展目标", pinyin: "kě chí xù fā zhǎn mù biāo", english: "sustainable development goals" },
+      { chinese: "全球价值链", pinyin: "quán qiú jià zhí liàn", english: "global value chain" },
+      { chinese: "风险评估框架", pinyin: "fēng xiǎn píng gū kuàng jià", english: "risk assessment framework" },
+      { chinese: "企业社会责任报告", pinyin: "qǐ yè shè huì zé rèn bào gào", english: "CSR report" },
+      { chinese: "人才培养战略", pinyin: "rén cái péi yǎng zhàn lüè", english: "talent development strategy" },
+      { chinese: "技术创新驱动", pinyin: "jì shù chuàng xīn qū dòng", english: "technology innovation-driven" }
     ]
   };
   
-  // Default to level 1-3 vocabulary if level is too high
-  const maxLevel = Math.min(level, 5);
+  // Support all levels up to 10
+  const maxLevel = Math.min(level, 10);
   const availableVocab: Array<{chinese: string, pinyin: string, english: string}> = [];
   
   // Get vocabulary for current level and below
@@ -1535,6 +1595,67 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     } catch (error) {
       console.error("Error recording practice answer:", error);
       res.status(500).json({ error: "Failed to record answer" });
+    }
+  });
+
+  // Save practice session and handle level progression
+  app.post("/api/practice/save-session", async (req, res) => {
+    try {
+      const { level, questionsAnswered, correctAnswers, wrongAnswers, accuracy, xpEarned } = req.body;
+      const userId = DEMO_USER_ID; // Using demo user for now
+      
+      // Award XP to user
+      const updatedUser = await storage.addXpToUser(userId, xpEarned);
+      
+      if (!updatedUser) {
+        throw new Error("User not found");
+      }
+      
+      // Check if user completed the level with good accuracy (80% or higher)
+      // and advance to next level if so
+      let newLevel = updatedUser.level;
+      if (accuracy >= 80 && level === updatedUser.level) {
+        // User completed their current level with good accuracy, advance to next level
+        newLevel = level + 1;
+        await storage.updateUserProgress(userId, {
+          level: newLevel,
+          lessonsCompleted: updatedUser.lessonsCompleted + 1
+        });
+      } else {
+        // Just update lessons completed
+        await storage.updateUserProgress(userId, {
+          lessonsCompleted: updatedUser.lessonsCompleted + 1
+        });
+      }
+      
+      // Save practice session (if storage supports it)
+      if (storage.createPracticeSession) {
+        await storage.createPracticeSession({
+          userId,
+          level,
+          questionsAnswered,
+          correctAnswers,
+          wrongAnswers,
+          accuracy,
+          xpEarned,
+          completedAt: new Date()
+        });
+      }
+      
+      res.json({ 
+        success: true, 
+        xpEarned,
+        newLevel,
+        leveledUp: newLevel > level,
+        userProfile: {
+          level: newLevel,
+          xp: updatedUser.xp,
+          xpToNextLevel: updatedUser.xpToNextLevel
+        }
+      });
+    } catch (error) {
+      console.error("Error saving practice session:", error);
+      res.status(500).json({ error: "Failed to save practice session" });
     }
   });
 

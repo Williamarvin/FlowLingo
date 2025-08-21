@@ -213,12 +213,13 @@ export default function ProgressivePractice() {
     }
   };
 
-  const handleCompletedLesson = () => {
+  const handleCompletedLesson = async () => {
     const totalQuestions = questions.length;
     const accuracy = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
     const xp = Math.round(accuracy * 10);
     
-    savePracticeMutation.mutate({
+    // Save practice session and get the result
+    const result = await savePracticeMutation.mutateAsync({
       level: currentLevel,
       questionsAnswered: totalQuestions,
       correctAnswers: correctAnswers,
@@ -227,7 +228,20 @@ export default function ProgressivePractice() {
       xpEarned: xp,
     });
 
-    navigate("/");
+    // If user leveled up, navigate to the next level's practice page
+    if (result && result.leveledUp) {
+      toast({
+        title: "Level Up! 🎉",
+        description: `Congratulations! You've advanced to Level ${result.newLevel}!`,
+      });
+      // Navigate to the practice page which will now show the new level
+      setTimeout(() => {
+        window.location.reload(); // Reload to get the new level from profile
+      }, 1500);
+    } else {
+      // Navigate home if they didn't level up
+      navigate("/");
+    }
   };
 
   // Format time for display
@@ -359,6 +373,7 @@ export default function ProgressivePractice() {
                 : 'bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600'
               } text-white font-bold py-4 text-lg rounded-2xl shadow-lg transform transition hover:scale-105`}
             >
+              {passed ? `Continue to Level ${currentLevel + 1}` : 'Return Home'}
               Continue
             </Button>
           </div>
