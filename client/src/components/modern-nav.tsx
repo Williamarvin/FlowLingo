@@ -40,7 +40,9 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
             {/* Logo */}
             <Link href="/">
               <div className="flex items-center gap-2 cursor-pointer">
-                <img src="/flowlingo-mascot-icon.svg" alt="FlowLingo" className="w-10 h-10" />
+                <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg p-1.5 shadow-sm">
+                  <img src="/flowlingo-mascot-icon.svg" alt="FlowLingo" className="w-full h-full" />
+                </div>
                 <span className="text-xl font-semibold text-gray-900 hidden sm:block">FlowLingo</span>
               </div>
             </Link>
