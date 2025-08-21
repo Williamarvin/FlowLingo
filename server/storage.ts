@@ -37,6 +37,7 @@ export interface IStorageExtended extends IStorage {
   updateUserProgress(userId: string, updates: Partial<User>): Promise<User | undefined>;
   updateUserStreak(userId: string): Promise<User | undefined>;
   addXpToUser(userId: string, xp: number): Promise<User | undefined>;
+  updateUserPassword(userId: string, hashedPassword: string): Promise<User | undefined>;
   
   // Assessment methods
   getAssessmentQuestions(difficulty?: number): Promise<any[]>;
@@ -191,6 +192,22 @@ export class DatabaseStorage implements IStorageExtended {
         xp: newXp,
         level: newLevel,
         xpToNextLevel: newXpToNextLevel,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId))
+      .returning();
+      
+    return updatedUser;
+  }
+
+  async updateUserPassword(userId: string, hashedPassword: string): Promise<User | undefined> {
+    const { db } = await import("./db");
+    const { users } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const [updatedUser] = await db.update(users)
+      .set({ 
+        password: hashedPassword,
         updatedAt: new Date()
       })
       .where(eq(users.id, userId))
