@@ -98,7 +98,13 @@ export default function ProgressivePractice() {
   useEffect(() => {
     if (userProfile) {
       setCurrentLevel(userProfile.level || 1);
-      setHearts(userProfile.hearts !== undefined ? userProfile.hearts : 5);
+      const currentHearts = userProfile.hearts !== undefined ? userProfile.hearts : 5;
+      setHearts(currentHearts);
+      
+      // If hearts are 0, immediately show out of hearts screen
+      if (currentHearts === 0) {
+        setShowOutOfHeartsScreen(true);
+      }
       
       // Calculate time until next heart
       if (userProfile.hearts < userProfile.maxHearts && userProfile.lastHeartLostAt) {
@@ -110,6 +116,10 @@ export default function ProgressivePractice() {
         if (heartsToRegenerate > 0) {
           // Regenerate hearts
           updateHeartsMutation.mutate(heartsToRegenerate);
+          // If hearts were 0 and now regenerated, hide out of hearts screen
+          if (currentHearts === 0) {
+            setShowOutOfHeartsScreen(false);
+          }
         } else {
           // Calculate time until next heart
           const nextHeartTime = lastLost + (1000 * 60 * 60); // 1 hour from last lost
@@ -150,6 +160,12 @@ export default function ProgressivePractice() {
 
   const handleAnswer = (answer: string) => {
     if (showFeedback) return;
+    
+    // Don't allow answering if hearts are 0
+    if (hearts === 0) {
+      setShowOutOfHeartsScreen(true);
+      return;
+    }
 
     setSelectedAnswer(answer);
     const correct = answer === currentQ.correctAnswer;
