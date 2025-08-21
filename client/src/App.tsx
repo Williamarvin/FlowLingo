@@ -19,6 +19,7 @@ import Assessment from "@/pages/assessment";
 import ProgressivePractice from "@/pages/progressive-practice";
 import VoiceTranslator from "@/pages/voice-translator";
 import TestConnection from "@/pages/test-connection";
+import Rewards from "@/pages/rewards";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -61,6 +62,7 @@ function Router() {
       <Route path="/assessment" component={Assessment} />
       <Route path="/practice" component={ProgressivePractice} />
       <Route path="/voice-translator" component={VoiceTranslator} />
+      <Route path="/rewards" component={Rewards} />
       <Route path="/test-connection" component={TestConnection} />
       <Route component={NotFound} />
     </Switch>

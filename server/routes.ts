@@ -8,6 +8,7 @@ import { ObjectPermission } from "./objectAcl";
 import OpenAI from "openai";
 import { requireAuth, hashPassword, verifyPassword, createSession, verifyGoogleToken, getOrCreateGoogleUser } from "./auth";
 import cookieParser from "cookie-parser";
+import { registerRewardsRoutes } from "./rewardsRoutes";
 
 // In-memory storage for uploaded files (in production, use cloud storage)
 const uploadedFiles = new Map<string, {
@@ -629,6 +630,21 @@ Output: Only Chinese text, no explanations.`;
       // Cache the response
       setCachedText(cacheKey, generatedText);
       
+      // Award XP for generating text (5 XP per generation)
+      if (storage.addXpTransaction) {
+        try {
+          await storage.addXpTransaction(
+            DEMO_USER_ID,
+            5,
+            'text_generation',
+            generatedText.id,
+            `Generated ${difficulty} text about ${topic}`
+          );
+        } catch (error) {
+          console.error("Error awarding XP for text generation:", error);
+        }
+      }
+      
       // Log generation time
       const generationTime = Date.now() - startTime;
       console.log(`Text generated in ${generationTime}ms for: ${topic}`);
@@ -1197,6 +1213,25 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       };
       
       const updatedWord = await storage.updateVocabularyWord(id, updates);
+      
+      // Award XP for reviewing flashcards (2 XP per review, 3 for easy, 1 for again)
+      if (storage.addXpTransaction) {
+        try {
+          let xpAwarded = 2; // Base XP
+          if (difficulty === 'easy') xpAwarded = 3;
+          else if (difficulty === 'again') xpAwarded = 1;
+          
+          await storage.addXpTransaction(
+            DEMO_USER_ID,
+            xpAwarded,
+            'flashcard_review',
+            id,
+            `Reviewed flashcard with ${difficulty} difficulty`
+          );
+        } catch (error) {
+          console.error("Error awarding XP for flashcard review:", error);
+        }
+      }
 
       res.json(updatedWord);
     } catch (error) {
@@ -2030,6 +2065,8 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       // Check if user completed the level with good accuracy (80% or higher)
       // and advance to next level if so
       let newLevel = updatedUser.level;
+      let earnedReward = null;
+      
       if (accuracy >= 80 && level === updatedUser.level) {
         // User completed their current level with good accuracy, advance to next level
         newLevel = level + 1;
@@ -2037,6 +2074,23 @@ Create substantially more comprehensive responses with extensive vocabulary prac
           level: newLevel,
           lessonsCompleted: updatedUser.lessonsCompleted + 1
         });
+        
+        // Check if there's a reward for completing this level
+        if (storage.getAllRewards && storage.grantReward) {
+          const allRewards = await storage.getAllRewards();
+          const levelReward = allRewards.find((r: any) => 
+            r.requiredLevel === level && r.requiredAction === 'complete_level'
+          );
+          
+          if (levelReward) {
+            try {
+              earnedReward = await storage.grantReward(userId, levelReward.id);
+              console.log(`Granted reward ${levelReward.name} to user ${userId} for completing level ${level}`);
+            } catch (error) {
+              console.error("Error granting reward:", error);
+            }
+          }
+        }
       } else {
         // Just update lessons completed
         await storage.updateUserProgress(userId, {
@@ -2065,6 +2119,7 @@ Create substantially more comprehensive responses with extensive vocabulary prac
         xpEarned,
         newLevel,
         leveledUp: newLevel > level,
+        earnedReward,
         userProfile: {
           level: newLevel,
           xp: updatedUser.xp,
@@ -2076,6 +2131,9 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       res.status(500).json({ error: "Failed to save practice session" });
     }
   });
+
+  // Register rewards routes
+  registerRewardsRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;

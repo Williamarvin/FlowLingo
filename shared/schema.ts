@@ -199,6 +199,63 @@ export const userAchievements = pgTable("user_achievements", {
   unlockedAt: timestamp("unlocked_at").defaultNow(),
 });
 
+// Practice-specific level tracking (separate from global level)
+export const practiceLevels = pgTable("practice_levels", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  practiceLevel: integer("practice_level").notNull().default(1),
+  practiceXp: integer("practice_xp").notNull().default(0),
+  lastCompletedLevel: integer("last_completed_level").notNull().default(0),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Rewards System - Stickers & Collectibles
+export const rewards = pgTable("rewards", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  type: text("type").notNull(), // "sticker", "badge", "mascot"
+  name: text("name").notNull(),
+  description: text("description"),
+  imageUrl: text("image_url"), // URL or path to sticker/badge image
+  emoji: text("emoji"), // Emoji representation if applicable
+  levelRequired: integer("level_required").notNull(), // Level when this reward is unlocked
+  xpCost: integer("xp_cost").default(0), // If purchasable with XP
+  rarity: text("rarity").notNull().default("common"), // "common", "rare", "epic", "legendary"
+  category: text("category"), // "animals", "food", "achievements", etc.
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// User's collected rewards
+export const userRewards = pgTable("user_rewards", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  rewardId: varchar("reward_id").notNull(),
+  earnedAt: timestamp("earned_at").defaultNow(),
+  isNew: boolean("is_new").notNull().default(true), // Flag for showing "NEW" badge
+  equipped: boolean("equipped").notNull().default(false), // If currently equipped as mascot
+});
+
+// User's mascot customization
+export const userMascots = pgTable("user_mascots", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().unique(),
+  currentMascotId: varchar("current_mascot_id"), // References rewards table
+  currentMascotEmoji: text("current_mascot_emoji").default("🐬"), // Default dolphin
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// XP Transaction log for tracking XP gains
+export const xpTransactions = pgTable("xp_transactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  amount: integer("amount").notNull(),
+  source: text("source").notNull(), // "practice", "flashcards", "text_generation", "conversation", etc.
+  sourceId: varchar("source_id"), // ID of the specific activity
+  description: text("description"),
+  appliedToGlobal: boolean("applied_to_global").notNull().default(true),
+  appliedToPractice: boolean("applied_to_practice").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -263,6 +320,31 @@ export const insertFlashcardSchema = createInsertSchema(flashcards).omit({
 export const insertPracticeProgressSchema = createInsertSchema(practiceProgress).omit({
   id: true,
   lastUpdated: true,
+});
+
+export const insertPracticeLevelSchema = createInsertSchema(practiceLevels).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export const insertRewardSchema = createInsertSchema(rewards).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertUserRewardSchema = createInsertSchema(userRewards).omit({
+  id: true,
+  earnedAt: true,
+});
+
+export const insertUserMascotSchema = createInsertSchema(userMascots).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export const insertXpTransactionSchema = createInsertSchema(xpTransactions).omit({
+  id: true,
+  createdAt: true,
 });
 
 // Type exports

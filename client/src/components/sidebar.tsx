@@ -22,6 +22,11 @@ export default function Sidebar({ currentPage }: SidebarProps) {
     refetchInterval: 10000, // Refetch every 10 seconds to update hearts
   });
   
+  // Get user's reward profile for mascot
+  const { data: rewardProfile } = useQuery<any>({
+    queryKey: ["/api/rewards/profile"],
+  });
+  
   // Logout mutation
   const logoutMutation = useMutation({
     mutationFn: async () => {
@@ -74,6 +79,7 @@ export default function Sidebar({ currentPage }: SidebarProps) {
 
   const menuItems = [
     { path: "/", icon: "🏠", label: "Home", color: "text-orange-500" },
+    { path: "/rewards", icon: "🏆", label: "Rewards", color: "text-yellow-500" },
     { path: "/assessment", icon: "📊", label: "Assessment", color: "text-indigo-500" },
     { path: "/practice", icon: "🎯", label: "Practice", color: "text-green-500" },
     { path: "/ai-conversation", icon: "💬", label: "Conversation", color: "text-green-500" },
@@ -88,7 +94,9 @@ export default function Sidebar({ currentPage }: SidebarProps) {
       {/* Logo/Brand - Modern */}
       <div className="p-5 bg-white/10 backdrop-blur-md border-b border-white/20">
         <div className="flex items-center gap-3">
-          <img src="/flowlingo-mascot-icon.svg" alt="FlowLingo" className="w-10 h-10 rounded-lg" />
+          <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center text-2xl">
+            {rewardProfile?.currentMascot || "🐬"}
+          </div>
           <h1 className="text-2xl font-bold text-white tracking-tight">FlowLingo</h1>
         </div>
       </div>
