@@ -86,17 +86,19 @@ export default function AiConversation() {
         let finalTranscript = '';
         let interimTranscript = '';
         
-        for (let i = event.resultIndex; i < event.results.length; i++) {
+        // Accumulate all results from the beginning
+        for (let i = 0; i < event.results.length; i++) {
           const transcript = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
             finalTranscript += transcript;
-          } else {
-            interimTranscript += transcript;
+          } else if (i === event.results.length - 1) {
+            // Only take the last interim result
+            interimTranscript = transcript;
           }
         }
         
-        // Update transcript display with current speech
-        const currentTranscript = finalTranscript || interimTranscript;
+        // Update transcript display with accumulated final + current interim
+        const currentTranscript = finalTranscript + interimTranscript;
         setTranscript(currentTranscript);
         currentTranscriptRef.current = currentTranscript;
         
@@ -106,9 +108,9 @@ export default function AiConversation() {
           silenceTimerRef.current = null;
         }
         
-        // If we have final speech content, start the 2-second silence timer
-        if (finalTranscript.trim() && !conversationMutation.isPending) {
-          console.log('Setting 2-second silence timer for:', finalTranscript);
+        // If we have any speech content (final or interim), start the 2-second silence timer
+        if (currentTranscript.trim() && !conversationMutation.isPending) {
+          console.log('Setting 2-second silence timer for:', currentTranscript);
           silenceTimerRef.current = setTimeout(() => {
             const latestTranscript = currentTranscriptRef.current;
             console.log('2 seconds of silence detected, sending message:', latestTranscript);
