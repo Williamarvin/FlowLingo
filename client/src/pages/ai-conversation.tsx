@@ -521,10 +521,10 @@ export default function AiConversation() {
           {/* Main Call Interface */}
           <Card className="bg-white shadow-xl rounded-3xl overflow-hidden">
             {/* Call Status Bar */}
-            <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-4 text-white">
+            <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-4 text-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`w-3 h-3 rounded-full ${isInCall ? 'bg-green-400 animate-pulse' : 'bg-gray-400'}`} />
+                  <div className={`w-3 h-3 rounded-full ${isInCall ? 'bg-green-300 animate-pulse' : 'bg-gray-400'}`} />
                   <span className="font-semibold">
                     {isInCall ? 'In Conversation' : 'Ready to Start'}
                   </span>
@@ -564,7 +564,7 @@ export default function AiConversation() {
                 <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`flex items-start gap-3 max-w-[70%] ${message.role === 'user' ? 'flex-row-reverse' : ''}`}>
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      message.role === 'user' ? 'bg-blue-500' : 'bg-purple-500'
+                      message.role === 'user' ? 'bg-green-500' : 'bg-emerald-500'
                     }`}>
                       {message.role === 'user' ? 
                         <User className="w-5 h-5 text-white" /> : 
@@ -598,10 +598,10 @@ export default function AiConversation() {
                             size="sm"
                             variant="ghost"
                             onClick={() => speakMessage(message.content)}
-                            className="p-2 hover:bg-purple-100"
+                            className="p-2 hover:bg-green-100"
                             title="Listen to pronunciation"
                           >
-                            <Volume2 className="w-4 h-4 text-purple-600" />
+                            <Volume2 className="w-4 h-4 text-green-600" />
                           </Button>
                         )}
                       </div>
@@ -613,10 +613,10 @@ export default function AiConversation() {
               {/* Current Transcript */}
               {transcript && isListening && (
                 <div className="flex justify-end">
-                  <div className="bg-blue-50 border-2 border-blue-300 rounded-2xl px-4 py-3 max-w-[70%]">
+                  <div className="bg-green-50 border-2 border-green-300 rounded-2xl px-4 py-3 max-w-[70%]">
                     <div className="flex items-center gap-2">
-                      <Mic className="w-4 h-4 text-blue-500 animate-pulse" />
-                      <span className="text-blue-700">{transcript}</span>
+                      <Mic className="w-4 h-4 text-green-500 animate-pulse" />
+                      <span className="text-green-700">{transcript}</span>
                       <Button
                         size="sm"
                         onClick={() => {
@@ -625,7 +625,7 @@ export default function AiConversation() {
                             handleUserSpeech(transcript);
                           }
                         }}
-                        className="ml-2 bg-blue-500 hover:bg-blue-600 text-white"
+                        className="ml-2 bg-green-500 hover:bg-green-600 text-white"
                         disabled={!transcript.trim() || conversationMutation.isPending}
                       >
                         <Send className="w-3 h-3 mr-1" />

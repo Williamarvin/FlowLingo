@@ -5,6 +5,15 @@
 MandarinMaster is a comprehensive Chinese language learning platform that provides interactive tools for studying Mandarin. The application features a complete progress tracking system with user levels, XP points, streak tracking, and adaptive difficulty. Key features include text generation with click-to-translate, AI-powered conversations that adapt to user level, voice translator with instant Mandarin-to-English translation, universal media reader (PDF, video, audio, images), vocabulary management with spaced repetition, initial assessment testing, and enhanced progressive practice sessions with mandatory retry system and adaptive difficulty adjustment. Built as a full-stack web application with a React frontend and Express backend using PostgreSQL for complete data persistence.
 
 ### Recent Updates (December 2025)
+- **Complete Green Theme Transformation**: Redesigned entire UI with modern green color scheme
+  - Replaced purple/violet theme with vibrant green gradients (green → emerald → teal)
+  - Applied glass morphism effects across all components
+  - Updated sidebar with green stats displays and navigation
+  - Transformed all pages with green backgrounds and accent colors
+  - Modernized buttons with green gradient styles
+  - Consistent green theme across Practice, AI Conversation, Voice Translator, and Flashcards pages
+
+### Previous Updates (December 2025)
 - **Voice Translator Feature**: Added real-time Mandarin speech-to-text translation
   - Press microphone button to speak in Mandarin Chinese
   - Automatic translation after 2 seconds of silence

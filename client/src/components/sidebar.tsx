@@ -67,7 +67,7 @@ export default function Sidebar({ currentPage }: SidebarProps) {
   ];
 
   return (
-    <div className="w-64 flex flex-col h-screen fixed left-0 top-0 z-40 sidebar-gradient shadow-2xl">
+    <div className="w-64 flex flex-col h-screen fixed left-0 top-0 z-40 bg-gradient-to-br from-green-600 to-emerald-700 shadow-2xl">
       {/* Logo/Brand - Modern */}
       <div className="p-5 bg-white/10 backdrop-blur-md border-b border-white/20">
         <h1 className="text-2xl font-bold text-white tracking-tight">MandarinMaster</h1>
@@ -78,12 +78,12 @@ export default function Sidebar({ currentPage }: SidebarProps) {
         {/* Compact Level & XP */}
         <div className="mb-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-bold text-white">Level {currentLevel}</span>
-            <span className="text-xs text-white/80">{currentLevelXp}/{xpPerLevel} XP</span>
+            <span className="text-sm font-bold text-green-100">Level {currentLevel}</span>
+            <span className="text-xs text-green-200/80">{currentLevelXp}/{xpPerLevel} XP</span>
           </div>
-          <div className="w-full bg-white/20 rounded-full h-2 overflow-hidden">
+          <div className="w-full bg-green-900/30 rounded-full h-2 overflow-hidden">
             <div 
-              className="bg-white h-2 rounded-full transition-all duration-500 shadow-sm" 
+              className="bg-gradient-to-r from-green-400 to-emerald-400 h-2 rounded-full transition-all duration-500 shadow-sm" 
               style={{ width: `${(currentLevelXp / xpPerLevel) * 100}%` }}
             />
           </div>
@@ -92,10 +92,10 @@ export default function Sidebar({ currentPage }: SidebarProps) {
         {/* Compact Stats Row */}
         <div className="flex items-center justify-between">
           {/* Streak */}
-          <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-lg">
-            <span className="text-orange-300">🔥</span>
-            <span className="text-sm font-bold text-white">{streak}</span>
-            <span className="text-xs text-white/70">day{streak !== 1 ? 's' : ''}</span>
+          <div className="flex items-center gap-1 bg-green-800/30 px-2 py-1 rounded-lg border border-green-400/20">
+            <span className="text-yellow-300">🔥</span>
+            <span className="text-sm font-bold text-green-100">{streak}</span>
+            <span className="text-xs text-green-200/70">day{streak !== 1 ? 's' : ''}</span>
           </div>
           
           {/* Hearts */}
@@ -109,7 +109,7 @@ export default function Sidebar({ currentPage }: SidebarProps) {
             </div>
             {/* Timer for next heart */}
             {timeToNextHeart && hearts < 5 && (
-              <div className="text-xs text-white font-medium mt-0.5 flex items-center gap-1 bg-white/10 px-2 py-0.5 rounded">
+              <div className="text-xs text-green-200 font-medium mt-0.5 flex items-center gap-1 bg-green-800/30 px-2 py-0.5 rounded border border-green-400/20">
                 <span>+❤️ in</span>
                 <span className="font-mono">{timeToNextHeart}</span>
               </div>
@@ -130,13 +130,13 @@ export default function Sidebar({ currentPage }: SidebarProps) {
                 className={`
                   w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-200
                   ${isActive 
-                    ? 'bg-white/20 backdrop-blur-sm shadow-lg transform scale-[1.02]' 
-                    : 'hover:bg-white/10 hover:backdrop-blur-sm'
+                    ? 'bg-green-400/20 backdrop-blur-sm shadow-lg transform scale-[1.02] border border-green-400/30' 
+                    : 'hover:bg-green-600/20 hover:backdrop-blur-sm border border-transparent'
                   }
                 `}
               >
                 <span className="text-xl filter drop-shadow-sm">{item.icon}</span>
-                <span className={`text-sm ${isActive ? 'font-bold text-white' : 'font-medium text-white/90'}`}>
+                <span className={`text-sm ${isActive ? 'font-bold text-green-100' : 'font-medium text-green-200/90'}`}>
                   {item.label}
                 </span>
               </button>
@@ -146,10 +146,10 @@ export default function Sidebar({ currentPage }: SidebarProps) {
       </nav>
       
       {/* Quick Actions - Modern Glass Footer */}
-      <div className="p-4 bg-white/10 backdrop-blur-md border-t border-white/20">
+      <div className="p-4 bg-green-800/20 backdrop-blur-md border-t border-green-400/20">
         <button 
           onClick={() => navigate("/practice")}
-          className="w-full bg-white/20 backdrop-blur-sm text-white font-semibold py-3 px-4 rounded-xl hover:bg-white/30 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
+          className="w-full bg-gradient-to-r from-green-400 to-emerald-400 text-green-900 font-bold py-3 px-4 rounded-xl hover:from-green-300 hover:to-emerald-300 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
         >
           Start Practice 🚀
         </button>

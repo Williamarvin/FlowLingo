@@ -191,7 +191,7 @@ export default function VoiceTranslator() {
                   className={`w-32 h-32 rounded-full transition-all ${
                     isListening 
                       ? "bg-red-500 hover:bg-red-600 animate-pulse" 
-                      : "bg-blue-500 hover:bg-blue-600"
+                      : "bg-green-500 hover:bg-green-600"
                   }`}
                 >
                   {isListening ? (
@@ -217,8 +217,8 @@ export default function VoiceTranslator() {
 
                 {/* Loading State */}
                 {translateMutation.isPending && (
-                  <div className="flex items-center gap-2 text-blue-600">
-                    <div className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                  <div className="flex items-center gap-2 text-green-600">
+                    <div className="animate-spin w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full"></div>
                     <span>Translating...</span>
                   </div>
                 )}
@@ -247,7 +247,7 @@ export default function VoiceTranslator() {
                         {/* Chinese */}
                         <div className="text-center">
                           <p className="text-xs text-gray-500 mb-1">Chinese</p>
-                          <p className="text-2xl font-bold text-blue-600">
+                          <p className="text-2xl font-bold text-green-600">
                             {translation.chinese}
                           </p>
                         </div>
@@ -255,7 +255,7 @@ export default function VoiceTranslator() {
                         {/* Pinyin */}
                         <div className="text-center">
                           <p className="text-xs text-gray-500 mb-1">Pinyin</p>
-                          <p className="text-lg text-purple-600">
+                          <p className="text-lg text-emerald-600">
                             {translation.pinyin}
                           </p>
                         </div>
@@ -289,10 +289,10 @@ export default function VoiceTranslator() {
           </div>
 
           {/* Instructions */}
-          <Card className="mt-6 bg-blue-50 border-blue-200">
+          <Card className="mt-6 bg-green-50 border-green-200">
             <CardContent className="pt-6">
-              <h3 className="font-semibold text-blue-900 mb-2">How to use:</h3>
-              <ul className="space-y-1 text-sm text-blue-800">
+              <h3 className="font-semibold text-green-900 mb-2">How to use:</h3>
+              <ul className="space-y-1 text-sm text-green-800">
                 <li>• Click the microphone button to start recording</li>
                 <li>• Speak clearly in Mandarin Chinese</li>
                 <li>• Translation happens automatically after 2 seconds of silence</li>

@@ -344,12 +344,12 @@ export default function ProgressivePractice() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 flex">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex">
         <Sidebar currentPage="/practice" />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="text-6xl mb-4">📚</div>
-            <div className="text-2xl font-bold text-gray-700">Loading practice session...</div>
+            <div className="text-2xl font-bold text-green-700">Loading practice session...</div>
           </div>
         </div>
       </div>
@@ -359,7 +359,7 @@ export default function ProgressivePractice() {
   // Out of hearts screen
   if (showOutOfHeartsScreen) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-red-50 to-pink-50 flex">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex">
         <Sidebar currentPage="/practice" />
         <div className="flex-1 flex items-center justify-center">
           <div className="bg-white rounded-3xl shadow-xl p-8 text-center max-w-lg">
@@ -370,8 +370,8 @@ export default function ProgressivePractice() {
             </p>
             
             {timeUntilNextHeart && (
-              <div className="bg-blue-50 rounded-2xl p-4 mb-6">
-                <div className="flex items-center justify-center gap-2 text-blue-700">
+              <div className="bg-green-50 rounded-2xl p-4 mb-6">
+                <div className="flex items-center justify-center gap-2 text-green-700">
                   <Clock className="w-5 h-5" />
                   <span className="font-semibold">Next heart in: {formatTime(timeUntilNextHeart)}</span>
                 </div>
@@ -382,7 +382,7 @@ export default function ProgressivePractice() {
             <div className="space-y-3">
               <Button
                 onClick={() => navigate("/")}
-                className="w-full bg-gradient-to-r from-red-400 to-pink-400 hover:from-red-500 hover:to-pink-500 text-white font-bold py-4 text-lg rounded-2xl shadow-lg"
+                className="w-full bg-gradient-to-r from-green-400 to-emerald-400 hover:from-green-500 hover:to-emerald-500 text-white font-bold py-4 text-lg rounded-2xl shadow-lg"
               >
                 Return Home
               </Button>
@@ -395,13 +395,13 @@ export default function ProgressivePractice() {
 
   if (!currentQ) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 flex">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex">
         <Sidebar currentPage="/practice" />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="text-6xl mb-4">🎉</div>
-            <div className="text-2xl font-bold text-gray-700 mb-4">No questions available</div>
-            <Button onClick={() => navigate("/")} className="bg-blue-500 hover:bg-blue-600 text-white">
+            <div className="text-2xl font-bold text-green-700 mb-4">No questions available</div>
+            <Button onClick={() => navigate("/")} className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white">
               Go Home
             </Button>
           </div>
@@ -417,7 +417,7 @@ export default function ProgressivePractice() {
     const passed = accuracy >= 80; // Pass if 80% or higher
 
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 flex">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex">
         <Sidebar currentPage="/practice" />
         <div className="flex-1 flex items-center justify-center">
           <div className="bg-white rounded-3xl shadow-xl p-8 text-center max-w-lg">
@@ -433,9 +433,9 @@ export default function ProgressivePractice() {
             )}
             
             <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="bg-blue-50 rounded-2xl p-4">
+              <div className="bg-green-50 rounded-2xl p-4">
                 <div className="text-sm text-gray-600 mb-1">Correct</div>
-                <div className="text-3xl font-bold text-blue-700">{correctAnswers}</div>
+                <div className="text-3xl font-bold text-green-700">{correctAnswers}</div>
               </div>
               <div className="bg-red-50 rounded-2xl p-4">
                 <div className="text-sm text-gray-600 mb-1">Wrong</div>
@@ -451,17 +451,17 @@ export default function ProgressivePractice() {
                 </div>
               </div>
               
-              <div className="bg-purple-100 rounded-2xl p-4">
+              <div className="bg-emerald-100 rounded-2xl p-4">
                 <div className="text-xl font-bold text-gray-700">XP Earned</div>
-                <div className="text-3xl font-bold text-purple-700">+{xp} XP</div>
+                <div className="text-3xl font-bold text-emerald-700">+{xp} XP</div>
               </div>
             </div>
             
             <Button
               onClick={handleCompletedLesson}
               className={`w-full ${passed 
-                ? 'bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600' 
-                : 'bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600'
+                ? 'bg-gradient-to-r from-green-400 to-emerald-400 hover:from-green-500 hover:to-emerald-500' 
+                : 'bg-gradient-to-r from-green-400 to-emerald-400 hover:from-green-500 hover:to-emerald-500'
               } text-white font-bold py-4 text-lg rounded-2xl shadow-lg transform transition hover:scale-105`}
             >
               {passed ? `Continue to Level ${currentLevel + 1}` : 'Return Home'}
@@ -473,7 +473,7 @@ export default function ProgressivePractice() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
       <Sidebar currentPage="/practice" />
       
       {/* Main Content Area */}
