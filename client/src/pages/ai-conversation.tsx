@@ -3,10 +3,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import Sidebar from "@/components/sidebar";
-import { Mic, MicOff, Phone, PhoneOff, Volume2, Loader2, User, Bot, Settings, Speaker } from "lucide-react";
+import { Mic, MicOff, Phone, PhoneOff, Volume2, Loader2, User, Bot, Settings, Speaker, Send, Keyboard } from "lucide-react";
 import { audioManager } from "@/lib/audioManager";
 
 interface Message {
@@ -27,6 +28,8 @@ export default function AiConversation() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [transcript, setTranscript] = useState("");
+  const [textInput, setTextInput] = useState("");
+  const [useTextInput, setUseTextInput] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -614,6 +617,20 @@ export default function AiConversation() {
                     <div className="flex items-center gap-2">
                       <Mic className="w-4 h-4 text-blue-500 animate-pulse" />
                       <span className="text-blue-700">{transcript}</span>
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          if (transcript.trim()) {
+                            console.log('Manual send triggered:', transcript);
+                            handleUserSpeech(transcript);
+                          }
+                        }}
+                        className="ml-2 bg-blue-500 hover:bg-blue-600 text-white"
+                        disabled={!transcript.trim() || conversationMutation.isPending}
+                      >
+                        <Send className="w-3 h-3 mr-1" />
+                        Send
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -624,6 +641,56 @@ export default function AiConversation() {
 
             {/* Control Panel */}
             <div className="bg-white border-t p-6">
+              {/* Text Input Mode for fallback */}
+              {isInCall && (
+                <div className="mb-4">
+                  <div className="flex gap-2 mb-2">
+                    <Button
+                      size="sm"
+                      variant={useTextInput ? "default" : "outline"}
+                      onClick={() => setUseTextInput(!useTextInput)}
+                    >
+                      <Keyboard className="w-4 h-4 mr-1" />
+                      {useTextInput ? "Using Text Input" : "Use Text Input"}
+                    </Button>
+                    {useTextInput && (
+                      <span className="text-sm text-gray-500 self-center">
+                        Type your message below (Speech recognition not working? Use this instead)
+                      </span>
+                    )}
+                  </div>
+                  {useTextInput && (
+                    <div className="flex gap-2">
+                      <Input
+                        value={textInput}
+                        onChange={(e) => setTextInput(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter' && textInput.trim() && !conversationMutation.isPending) {
+                            handleUserSpeech(textInput);
+                            setTextInput("");
+                          }
+                        }}
+                        placeholder="Type your message in Chinese or English..."
+                        className="flex-1"
+                        disabled={conversationMutation.isPending}
+                      />
+                      <Button
+                        onClick={() => {
+                          if (textInput.trim()) {
+                            handleUserSpeech(textInput);
+                            setTextInput("");
+                          }
+                        }}
+                        disabled={!textInput.trim() || conversationMutation.isPending}
+                      >
+                        <Send className="w-4 h-4 mr-1" />
+                        Send
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+              
               <div className="flex justify-center gap-4">
                 {!isInCall ? (
                   <Button
@@ -636,25 +703,27 @@ export default function AiConversation() {
                   </Button>
                 ) : (
                   <>
-                    <Button
-                      onClick={() => setIsListening(!isListening)}
-                      size="lg"
-                      variant={isListening ? "default" : "outline"}
-                      className="px-6 py-6 rounded-2xl"
-                      disabled={isSpeaking || conversationMutation.isPending}
-                    >
-                      {isListening ? (
-                        <>
-                          <Mic className="w-6 h-6 mr-2 animate-pulse" />
-                          Listening...
-                        </>
-                      ) : (
-                        <>
-                          <MicOff className="w-6 h-6 mr-2" />
-                          Muted
-                        </>
-                      )}
-                    </Button>
+                    {!useTextInput && (
+                      <Button
+                        onClick={() => setIsListening(!isListening)}
+                        size="lg"
+                        variant={isListening ? "default" : "outline"}
+                        className="px-6 py-6 rounded-2xl"
+                        disabled={isSpeaking || conversationMutation.isPending}
+                      >
+                        {isListening ? (
+                          <>
+                            <Mic className="w-6 h-6 mr-2 animate-pulse" />
+                            Listening...
+                          </>
+                        ) : (
+                          <>
+                            <MicOff className="w-6 h-6 mr-2" />
+                            Muted
+                          </>
+                        )}
+                      </Button>
+                    )}
                     
                     <Button
                       onClick={endConversation}
