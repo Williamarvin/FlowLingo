@@ -1459,11 +1459,14 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       const userId = "demo-user"; // Replace with actual user ID from session
       const currentProfile = await storage.getUser(userId);
       
+      // Only update level if placement level is higher than current level
+      const finalLevel = Math.max(currentProfile?.level || 1, placementLevel);
+      
       await storage.updateUserProgress(userId, {
-        level: placementLevel,
+        level: finalLevel,
         assessmentCompleted: true,
-        xp: placementLevel * 100, // Give starting XP based on level
-        xpToNextLevel: (placementLevel + 1) * 100
+        xp: finalLevel * 100, // Give starting XP based on level
+        xpToNextLevel: (finalLevel + 1) * 100
       });
 
       // Generate recommendations based on score
@@ -1496,7 +1499,9 @@ Create substantially more comprehensive responses with extensive vocabulary prac
 
       const result = {
         score,
-        level: placementLevel,
+        level: finalLevel, // Use the final level (which could be higher than placement)
+        placementLevel, // Include the placement level from assessment
+        levelMaintained: finalLevel > placementLevel, // True if we kept their higher level
         percentage,
         recommendations
       };

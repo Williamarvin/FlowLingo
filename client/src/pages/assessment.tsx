@@ -24,6 +24,8 @@ interface AssessmentQuestion {
 interface AssessmentResult {
   score: number;
   level: number;
+  placementLevel?: number;
+  levelMaintained?: boolean;
   percentage: number;
   recommendations: string[];
 }
@@ -159,13 +161,32 @@ export default function Assessment() {
                   </div>
                   <div className="bg-white p-4 rounded-lg border">
                     <div className="text-3xl font-bold text-purple-600">Level {assessmentResult.level}</div>
-                    <div className="text-sm text-gray-600">Placement Level</div>
+                    <div className="text-sm text-gray-600">
+                      {assessmentResult.levelMaintained 
+                        ? "Current Level (Maintained)" 
+                        : "Your Level"}
+                    </div>
                   </div>
                   <div className="bg-white p-4 rounded-lg border">
                     <div className="text-3xl font-bold text-green-600">{assessmentResult.percentage}%</div>
                     <div className="text-sm text-gray-600">Accuracy</div>
                   </div>
                 </div>
+
+                {assessmentResult.levelMaintained && (
+                  <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                    <div className="flex items-start">
+                      <Trophy className="w-5 h-5 text-blue-600 mr-2 mt-0.5" />
+                      <div>
+                        <p className="text-blue-800 font-semibold">Level Maintained!</p>
+                        <p className="text-blue-700 text-sm mt-1">
+                          Your assessment score would place you at Level {assessmentResult.placementLevel}, 
+                          but you're already at Level {assessmentResult.level}. Great job maintaining your progress!
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="bg-white p-6 rounded-lg border text-left">
                   <h3 className="font-semibold text-lg mb-3">Level Description</h3>
