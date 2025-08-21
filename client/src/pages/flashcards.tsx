@@ -498,21 +498,32 @@ export default function Flashcards() {
                           <span className="px-3 py-1 bg-red-100 rounded-full text-red-700">Wrong: {currentCard.timesWrong}</span>
                         </div>
 
-                        {/* Action Buttons */}
-                        <div className="flex justify-center gap-4">
+                        {/* Next Card Button */}
+                        <div className="flex justify-center">
                           <button
-                            onClick={() => handleAnswer(false)}
-                            className="px-8 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 gap-2 inline-flex items-center"
+                            onClick={() => {
+                              if (currentIndex < totalCards - 1) {
+                                setCurrentIndex(prev => prev + 1);
+                                setShowAnswer(false);
+                              } else {
+                                // Reset to beginning
+                                setCurrentIndex(0);
+                                setShowAnswer(false);
+                              }
+                            }}
+                            className="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 gap-2 inline-flex items-center"
                           >
-                            <X className="w-5 h-5" />
-                            Wrong
-                          </button>
-                          <button
-                            onClick={() => handleAnswer(true)}
-                            className="px-8 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 gap-2 inline-flex items-center"
-                          >
-                            <Check className="w-5 h-5" />
-                            Correct
+                            {currentIndex < totalCards - 1 ? (
+                              <>
+                                Next Card
+                                <ChevronRight className="w-5 h-5" />
+                              </>
+                            ) : (
+                              <>
+                                <RotateCcw className="w-4 h-4" />
+                                Start Over
+                              </>
+                            )}
                           </button>
                         </div>
                       </div>
