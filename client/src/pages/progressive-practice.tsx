@@ -98,7 +98,7 @@ export default function ProgressivePractice() {
   useEffect(() => {
     if (userProfile) {
       setCurrentLevel(userProfile.level || 1);
-      setHearts(userProfile.hearts || 5);
+      setHearts(userProfile.hearts !== undefined ? userProfile.hearts : 5);
       
       // Calculate time until next heart
       if (userProfile.hearts < userProfile.maxHearts && userProfile.lastHeartLostAt) {
@@ -237,8 +237,9 @@ export default function ProgressivePractice() {
         title: "Level Up! 🎉",
         description: `Congratulations! You've advanced to Level ${result.newLevel}!`,
       });
-      // Navigate to the practice page which will now show the new level
+      // Navigate to the practice page to start the new level
       setTimeout(() => {
+        navigate("/practice");
         window.location.reload(); // Reload to get the new level from profile
       }, 1500);
     } else {
