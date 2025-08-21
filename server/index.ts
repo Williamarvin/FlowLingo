@@ -4,15 +4,15 @@ import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
-// CORS configuration to allow Vercel frontend
+// CORS configuration to allow Vercel frontend and other origins
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  // Allow requests from Vercel domains and localhost
-  if (origin && (origin.includes('vercel.app') || origin.includes('localhost') || origin.includes('127.0.0.1'))) {
+  // Allow all origins for now to ensure Vercel can connect
+  if (origin) {
     res.header('Access-Control-Allow-Origin', origin);
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cookie');
   }
   
   // Handle preflight requests

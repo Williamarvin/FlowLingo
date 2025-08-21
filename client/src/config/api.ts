@@ -7,6 +7,12 @@ export const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 // Helper function to build full API URLs
 export function getApiUrl(endpoint: string): string {
+  // If we're on Vercel but no API URL is set, use the default Replit URL
+  if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app') && !API_BASE_URL) {
+    // Default to your Replit backend if environment variable not set
+    return `https://workspace-williamarvin.replit.app${endpoint}`;
+  }
+  
   // If API_BASE_URL is set (production), use it
   // Otherwise, use relative URLs (development)
   if (API_BASE_URL) {
