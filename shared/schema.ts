@@ -239,7 +239,7 @@ export const userMascots = pgTable("user_mascots", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull().unique(),
   currentMascotId: varchar("current_mascot_id"), // References rewards table
-  currentMascotEmoji: text("current_mascot_emoji").default("🐬"), // Default dolphin
+  currentMascotEmoji: text("current_mascot_emoji").default("🐬"), // Default Flow mascot
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 

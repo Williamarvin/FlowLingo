@@ -133,8 +133,8 @@ export default function Home() {
               {/* Mascot Image */}
               <div className="lg:w-1/3 flex justify-center">
                 <img 
-                  src="/flowlingo-dolphin-mascot.svg" 
-                  alt="FlowLingo Mascot" 
+                  src="/flowlingo-flow-mascot.svg" 
+                  alt="Flow - FlowLingo Mascot" 
                   className="w-48 h-48 object-contain"
                 />
               </div>
