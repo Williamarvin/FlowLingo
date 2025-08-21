@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
-import Sidebar from "@/components/sidebar";
+import ModernNav from "@/components/modern-nav";
 
 export default function Vocabulary() {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -117,8 +117,8 @@ export default function Vocabulary() {
 
   return (
     <div className="min-h-screen">
-      <Sidebar currentPage="/vocabulary" />
-      <div className="ml-64 p-8">
+      <ModernNav />
+      <div className="max-w-screen-xl mx-auto p-8">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-text-primary mb-4">Smart Vocabulary Builder</h2>

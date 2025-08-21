@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import Sidebar from "@/components/sidebar";
+import ModernNav from "@/components/modern-nav";
 import { Mic, MicOff, Phone, PhoneOff, Volume2, Loader2, User, Bot, Settings, Speaker, Send, Keyboard } from "lucide-react";
 import { audioManager } from "@/lib/audioManager";
 
@@ -467,11 +467,11 @@ export default function AiConversation() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-emerald-50">
-      <Sidebar currentPage="/ai-conversation" />
+    <div className="min-h-screen bg-gray-50">
+      <ModernNav />
       
-      <div className="ml-64 p-8">
-        <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-full">
           {/* Header */}
           <div className="mb-6">
             <h1 className="text-4xl font-bold text-gray-800 mb-2">AI Conversation Practice</h1>

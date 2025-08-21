@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { MediaDocument } from "@shared/schema";
-import Sidebar from "@/components/sidebar";
+import ModernNav from "@/components/modern-nav";
 import HighlightableText from "@/components/highlightable-text";
 import { audioManager } from "@/lib/audioManager";
 
@@ -399,10 +399,10 @@ export default function MediaReader() {
   }
 
   return (
-    <div className="min-h-screen">
-      <Sidebar currentPage="/media-reader" />
-      <div className="ml-64 p-8">
-        <div className="container mx-auto max-w-7xl">
+    <div className="min-h-screen bg-gray-50">
+      <ModernNav />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-full">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-foreground mb-2">Media Reader</h1>
             <p className="text-muted-foreground">

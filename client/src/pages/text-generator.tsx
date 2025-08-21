@@ -4,7 +4,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import HighlightableText from "@/components/highlightable-text";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Sidebar from "@/components/sidebar";
+import ModernNav from "@/components/modern-nav";
 import { audioManager } from "@/lib/audioManager";
 
 export default function TextGenerator() {
@@ -57,10 +57,10 @@ export default function TextGenerator() {
   };
 
   return (
-    <div className="min-h-screen">
-      <Sidebar currentPage="/text-generator" />
-      <div className="ml-64 p-8">
-        <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      <ModernNav />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-full">
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-text-primary mb-4">Interactive Text Practice</h2>
             <p className="text-text-secondary">Generate Chinese text and highlight any word or phrase for instant English and Pinyin translations.</p>

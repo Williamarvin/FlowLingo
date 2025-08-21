@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
-import Sidebar from "@/components/sidebar";
+import ModernNav from "@/components/modern-nav";
 import { useLocation } from "wouter";
 import { toast } from "@/hooks/use-toast";
 import { Heart, Clock, Trophy, X } from "lucide-react";
@@ -345,7 +345,7 @@ export default function ProgressivePractice() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex">
-        <Sidebar currentPage="/practice" />
+        <ModernNav />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="text-6xl mb-4">📚</div>
@@ -360,7 +360,7 @@ export default function ProgressivePractice() {
   if (showOutOfHeartsScreen) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex">
-        <Sidebar currentPage="/practice" />
+        <ModernNav />
         <div className="flex-1 flex items-center justify-center">
           <div className="bg-white rounded-3xl shadow-xl p-8 text-center max-w-lg">
             <div className="text-6xl mb-6">💔</div>
@@ -396,7 +396,7 @@ export default function ProgressivePractice() {
   if (!currentQ) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex">
-        <Sidebar currentPage="/practice" />
+        <ModernNav />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="text-6xl mb-4">🎉</div>
@@ -418,7 +418,7 @@ export default function ProgressivePractice() {
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex">
-        <Sidebar currentPage="/practice" />
+        <ModernNav />
         <div className="flex-1 flex items-center justify-center">
           <div className="bg-white rounded-3xl shadow-xl p-8 text-center max-w-lg">
             <div className="text-6xl mb-6">{passed ? '🏆' : '📊'}</div>
@@ -473,11 +473,11 @@ export default function ProgressivePractice() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
-      <Sidebar currentPage="/practice" />
+    <div className="min-h-screen bg-gray-50">
+      <ModernNav />
       
       {/* Main Content Area */}
-      <div className="ml-64 p-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="max-w-2xl mx-auto">
           {/* Top Header with Hearts and Progress */}
           <div className="bg-white rounded-2xl shadow-md p-4 mb-6 flex items-center justify-between">

@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, XCircle, Trophy, ArrowRight, Home } from "lucide-react";
 import { useLocation } from "wouter";
-import Sidebar from "@/components/sidebar";
+import ModernNav from "@/components/modern-nav";
 
 interface AssessmentQuestion {
   id: string;
@@ -127,8 +127,8 @@ export default function Assessment() {
   if (isLoading) {
     return (
       <div className="min-h-screen">
-        <Sidebar currentPage="/assessment" />
-        <div className="ml-64 p-8">
+        <ModernNav />
+        <div className="max-w-screen-xl mx-auto p-8">
           <div className="max-w-4xl mx-auto">
             <div className="text-center py-20">
               <div className="animate-spin w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full mx-auto mb-4"></div>
@@ -143,8 +143,8 @@ export default function Assessment() {
   if (showResult && assessmentResult) {
     return (
       <div className="min-h-screen">
-        <Sidebar currentPage="/assessment" />
-        <div className="ml-64 p-8">
+        <ModernNav />
+        <div className="max-w-screen-xl mx-auto p-8">
           <div className="max-w-4xl mx-auto">
             <Card className="border-green-200 bg-green-50">
               <CardHeader className="text-center">
@@ -222,10 +222,10 @@ export default function Assessment() {
   }
 
   return (
-    <div className="min-h-screen">
-      <Sidebar currentPage="/assessment" />
-      <div className="ml-64 p-8">
-        <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      <ModernNav />
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-full">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Chinese Proficiency Assessment</h1>
             <p className="text-gray-600">

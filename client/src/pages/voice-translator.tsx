@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mic, MicOff, Volume2, Languages } from "lucide-react";
-import Sidebar from "@/components/sidebar";
+import ModernNav from "@/components/modern-nav";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -162,10 +162,10 @@ export default function VoiceTranslator() {
   };
 
   return (
-    <div className="min-h-screen">
-      <Sidebar currentPage="/voice-translator" />
-      <div className="ml-64 p-8">
-        <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      <ModernNav />
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-full">
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Voice Translator</h1>

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import Sidebar from "@/components/sidebar";
+import ModernNav from "@/components/modern-nav";
 import { 
   ChevronRight, 
   RotateCcw, 
@@ -219,8 +219,8 @@ export default function Flashcards() {
   if (isLoading) {
     return (
       <div className="min-h-screen">
-        <Sidebar currentPage="/flashcards" />
-        <div className="ml-64 p-8">
+        <ModernNav />
+        <div className="max-w-screen-xl mx-auto p-8">
           <div className="text-center py-20">
             <div className="animate-spin w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full mx-auto mb-4"></div>
             <p className="text-gray-600">Loading flashcards...</p>
@@ -231,10 +231,10 @@ export default function Flashcards() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
-      <Sidebar currentPage="/flashcards" />
-      <div className="ml-64 p-8">
-        <div className="max-w-4xl mx-auto animate-fade-in">
+    <div className="min-h-screen bg-gray-50">
+      <ModernNav />
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-full animate-fade-in">
           {/* Header */}
           <div className="mb-8 flex justify-between items-start">
             <div>
