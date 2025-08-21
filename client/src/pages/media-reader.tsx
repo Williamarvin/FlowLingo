@@ -180,7 +180,7 @@ export default function MediaReader() {
   const handleSpeak = async (text: string) => {
     try {
       // Use audioManager with normal speed for document reading
-      await audioManager.playTTS(text, 0.8);
+      await audioManager.playTTS(text, 1.0);
     } catch (error) {
       console.error('TTS error:', error);
     }

@@ -131,8 +131,8 @@ export default function HighlightableText({ text, onSaveWord }: HighlightableTex
       const segment = segments[index];
 
       try {
-        // Use audioManager with slower speed for learning (0.8x)
-        await audioManager.playTTS(segment, 0.8);
+        // Use audioManager with normal speed for better pronunciation
+        await audioManager.playTTS(segment, 1.0);
         
         // Add a small pause between segments
         await new Promise(resolve => setTimeout(resolve, 300));
