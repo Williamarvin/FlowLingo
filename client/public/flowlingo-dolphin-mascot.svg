@@ -4,21 +4,21 @@
   <!-- Gradient definitions -->
   <defs>
     <linearGradient id="oceanBg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#e0f2fe;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#bae6fd;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#dcfce7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#bbf7d0;stop-opacity:1" />
     </linearGradient>
     <linearGradient id="dolphinBody" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#0ea5e9;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#0284c7;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#0369a1;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#22c55e;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#16a34a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#15803d;stop-opacity:1" />
     </linearGradient>
     <linearGradient id="dolphinBelly" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" style="stop-color:#f0f9ff;stop-opacity:1" />
       <stop offset="100%" style="stop-color:#e0f2fe;stop-opacity:1" />
     </linearGradient>
     <linearGradient id="waveGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#22d3ee;stop-opacity:0.3" />
-      <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:0.5" />
+      <stop offset="0%" style="stop-color:#86efac;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#22c55e;stop-opacity:0.5" />
     </linearGradient>
     <filter id="softShadow">
       <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
@@ -53,16 +53,16 @@
     <ellipse cx="-35" cy="-3" rx="15" ry="8" fill="url(#dolphinBody)" transform="rotate(-20 -35 -3)"/>
     
     <!-- Dorsal fin -->
-    <path d="M -5 -20 Q 0 -35, 5 -20 L 3 -15 L -3 -15 Z" fill="#0284c7" filter="url(#softShadow)"/>
+    <path d="M -5 -20 Q 0 -35, 5 -20 L 3 -15 L -3 -15 Z" fill="#16a34a" filter="url(#softShadow)"/>
     
     <!-- Pectoral fins -->
-    <ellipse cx="-15" cy="5" rx="20" ry="6" fill="#0284c7" transform="rotate(-35 -15 5)" filter="url(#softShadow)"/>
-    <ellipse cx="15" cy="5" rx="20" ry="6" fill="#0284c7" transform="rotate(35 15 5)" filter="url(#softShadow)"/>
+    <ellipse cx="-15" cy="5" rx="20" ry="6" fill="#16a34a" transform="rotate(-35 -15 5)" filter="url(#softShadow)"/>
+    <ellipse cx="15" cy="5" rx="20" ry="6" fill="#16a34a" transform="rotate(35 15 5)" filter="url(#softShadow)"/>
     
     <!-- Tail flukes -->
     <g transform="translate(35, 3) rotate(-10 0 0)">
-      <path d="M 0 0 Q 10 -8, 20 -10 L 18 -5 Q 10 -3, 0 0" fill="#0284c7"/>
-      <path d="M 0 0 Q 10 8, 20 10 L 18 5 Q 10 3, 0 0" fill="#0284c7"/>
+      <path d="M 0 0 Q 10 -8, 20 -10 L 18 -5 Q 10 -3, 0 0" fill="#16a34a"/>
+      <path d="M 0 0 Q 10 8, 20 10 L 18 5 Q 10 3, 0 0" fill="#16a34a"/>
     </g>
     
     <!-- Eye -->
@@ -72,10 +72,10 @@
     <circle cx="-25" cy="-7" r="0.8" fill="white" opacity="0.7"/>
     
     <!-- Blowhole -->
-    <ellipse cx="-5" cy="-18" rx="2" ry="3" fill="#0369a1"/>
+    <ellipse cx="-5" cy="-18" rx="2" ry="3" fill="#15803d"/>
     
     <!-- Smile -->
-    <path d="M -42 -2 Q -35 2, -28 -2" stroke="#0369a1" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M -42 -2 Q -35 2, -28 -2" stroke="#15803d" stroke-width="1.5" fill="none" stroke-linecap="round"/>
     
     <!-- Water spray from blowhole -->
     <g transform="translate(-5, -25)">
