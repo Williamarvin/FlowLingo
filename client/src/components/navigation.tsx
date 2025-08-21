@@ -30,12 +30,10 @@ export default function Navigation() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <Link href="/" className="flex items-center space-x-3 group">
-            <div className="w-12 h-12 bg-gradient-to-br from-brand-primary to-brand-primary-light rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-all duration-200">
-              <span className="text-2xl">📚</span>
-            </div>
+            <img src="/flowlingo-icon.svg" alt="FlowLingo" className="w-12 h-12 shadow-lg group-hover:scale-105 transition-all duration-200 rounded-xl" />
             <div>
-              <span className="text-2xl font-bold text-text-primary">MandarinMaster</span>
-              <div className="text-xs text-text-secondary -mt-1 font-medium">Learn Chinese with AI</div>
+              <span className="text-2xl font-bold text-text-primary">FlowLingo</span>
+              <div className="text-xs text-text-secondary -mt-1 font-medium">Learn Languages with AI</div>
             </div>
           </Link>
           

@@ -70,7 +70,10 @@ export default function Sidebar({ currentPage }: SidebarProps) {
     <div className="w-64 flex flex-col h-screen fixed left-0 top-0 z-40 bg-gradient-to-br from-green-600 to-emerald-700 shadow-2xl">
       {/* Logo/Brand - Modern */}
       <div className="p-5 bg-white/10 backdrop-blur-md border-b border-white/20">
-        <h1 className="text-2xl font-bold text-white tracking-tight">MandarinMaster</h1>
+        <div className="flex items-center gap-3">
+          <img src="/flowlingo-icon.svg" alt="FlowLingo" className="w-10 h-10" />
+          <h1 className="text-2xl font-bold text-white tracking-tight">FlowLingo</h1>
+        </div>
       </div>
       
       {/* User Stats Section - Modern Glass Effect */}

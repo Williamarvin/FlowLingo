@@ -1,4 +1,4 @@
-# MandarinMaster Deployment Guide
+# FlowLingo Deployment Guide
 
 ## Pre-Deployment Checklist ✅
 
@@ -63,7 +63,7 @@ PRIVATE_OBJECT_DIR=/replit-objstore-034af1a5-fc4b-45f5-b69d-4b8311a590e4/.privat
 
 ## 📱 Mobile App Deployment
 
-Since MandarinMaster is a web application, we'll use Progressive Web App (PWA) technology and wrappers for mobile deployment.
+Since FlowLingo is a web application, we'll use Progressive Web App (PWA) technology and wrappers for mobile deployment.
 
 ### Converting to PWA
 
@@ -71,8 +71,8 @@ Since MandarinMaster is a web application, we'll use Progressive Web App (PWA) t
 Create `public/manifest.json`:
 ```json
 {
-  "name": "MandarinMaster",
-  "short_name": "MandarinMaster",
+  "name": "FlowLingo",
+  "short_name": "FlowLingo",
   "description": "Comprehensive Chinese Language Learning Platform",
   "start_url": "/",
   "display": "standalone",
@@ -141,7 +141,7 @@ Add to `index.html`:
 #### Step 1: Install Capacitor
 ```bash
 npm install @capacitor/core @capacitor/cli @capacitor/ios
-npx cap init MandarinMaster com.yourcompany.mandarinmaster --web-dir=dist
+npx cap init FlowLingo com.yourcompany.flowlingo --web-dir=dist
 ```
 
 #### Step 2: Build and Add iOS Platform
@@ -162,7 +162,7 @@ npx cap sync ios
 #### Step 4: App Store Submission
 1. Create app in App Store Connect
 2. Fill in app information:
-   - App name: MandarinMaster
+   - App name: FlowLingo
    - Category: Education
    - Description: Your app description
    - Keywords: chinese, mandarin, language learning, etc.
@@ -214,7 +214,7 @@ cd android
 #### Step 4: Play Store Submission
 1. Create app in Google Play Console
 2. Fill in store listing:
-   - Title: MandarinMaster
+   - Title: FlowLingo
    - Short description (80 chars max)
    - Full description (4000 chars max)
    - Category: Education
