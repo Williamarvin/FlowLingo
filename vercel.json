@@ -1,22 +1,6 @@
 {
-  "version": 2,
-  "buildCommand": "npm install && npm run build",
+  "buildCommand": "chmod +x vercel-build.sh && ./vercel-build.sh",
   "outputDirectory": "dist",
-  "installCommand": "npm install --legacy-peer-deps",
-  "framework": "vite",
-  "functions": {
-    "dist/index.js": {
-      "maxDuration": 30
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/dist/index.js"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/"
-    }
-  ]
+  "installCommand": "npm install --force",
+  "framework": "vite"
 }
