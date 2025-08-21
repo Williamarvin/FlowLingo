@@ -1601,7 +1601,7 @@ Create substantially more comprehensive responses with extensive vocabulary prac
   // Save practice session and handle level progression
   app.post("/api/practice/save-session", async (req, res) => {
     try {
-      const { level, questionsAnswered, correctAnswers, wrongAnswers, accuracy, xpEarned } = req.body;
+      const { level, questionsAnswered, correctAnswers, wrongAnswers, accuracy, xpEarned, timeSpent = 0 } = req.body;
       const userId = DEMO_USER_ID; // Using demo user for now
       
       // Award XP to user
@@ -1634,10 +1634,11 @@ Create substantially more comprehensive responses with extensive vocabulary prac
           userId,
           sessionType: 'practice', // Add the required session_type field
           level,
+          timeSpent: timeSpent, // Use the actual time spent from the frontend
+          accuracy,
           questionsAnswered,
           correctAnswers,
           wrongAnswers,
-          accuracy,
           xpEarned,
           completedAt: new Date()
         });

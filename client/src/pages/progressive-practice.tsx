@@ -33,6 +33,7 @@ export default function ProgressivePractice() {
   const [wrongAnswers, setWrongAnswers] = useState(0);
   const [hearts, setHearts] = useState(5);
   const [timeUntilNextHeart, setTimeUntilNextHeart] = useState<number | null>(null);
+  const [sessionStartTime] = useState(Date.now());
 
   // Function to speak Chinese text using browser TTS
   const speakChinese = (text: string) => {
@@ -217,6 +218,7 @@ export default function ProgressivePractice() {
     const totalAttempts = correctAnswers + wrongAnswers;
     const accuracy = totalAttempts > 0 ? (correctAnswers / totalAttempts) * 100 : 0;
     const xp = Math.round(accuracy * 10);
+    const timeSpent = Math.floor((Date.now() - sessionStartTime) / 1000); // Time in seconds
     
     // Save practice session and get the result
     const result = await savePracticeMutation.mutateAsync({
@@ -226,6 +228,7 @@ export default function ProgressivePractice() {
       wrongAnswers: wrongAnswers,
       accuracy: accuracy,
       xpEarned: xp,
+      timeSpent: timeSpent,
     });
 
     // If user leveled up, navigate to the next level's practice page
