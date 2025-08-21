@@ -570,6 +570,10 @@ Output: Only Chinese text, no explanations.`;
   });
 
   // Text-to-Speech endpoint using OpenAI
+  // Server-side TTS cache (in-memory)
+  const ttsCache = new Map<string, Buffer>();
+  const TTS_CACHE_MAX_SIZE = 100; // Limit cache size
+
   app.post("/api/tts", async (req, res) => {
     try {
       const { text, speed = 0.8 } = req.body; // Default speed 0.8, can be overridden
@@ -578,6 +582,22 @@ Output: Only Chinese text, no explanations.`;
         return res.status(400).json({ error: "Text is required" });
       }
 
+      // Create cache key based on text and speed
+      const cacheKey = `${text}_${speed}`;
+      
+      // Check cache first
+      const cachedBuffer = ttsCache.get(cacheKey);
+      if (cachedBuffer) {
+        // Return cached audio
+        res.set({
+          'Content-Type': 'audio/mpeg',
+          'Content-Length': cachedBuffer.length.toString(),
+          'X-TTS-Cache': 'hit' // Debug header to show cache hit
+        });
+        return res.send(cachedBuffer);
+      }
+
+      // Not in cache, generate new audio
       // Use OpenAI's TTS API
       const mp3 = await openai.audio.speech.create({
         model: "tts-1",
@@ -589,10 +609,19 @@ Output: Only Chinese text, no explanations.`;
       // Convert the response to a buffer
       const buffer = Buffer.from(await mp3.arrayBuffer());
       
+      // Add to cache (with size limit)
+      if (ttsCache.size >= TTS_CACHE_MAX_SIZE) {
+        // Remove oldest entry (first item in Map)
+        const firstKey = ttsCache.keys().next().value;
+        ttsCache.delete(firstKey);
+      }
+      ttsCache.set(cacheKey, buffer);
+      
       // Send the audio buffer as response
       res.set({
         'Content-Type': 'audio/mpeg',
-        'Content-Length': buffer.length.toString()
+        'Content-Length': buffer.length.toString(),
+        'X-TTS-Cache': 'miss' // Debug header to show cache miss
       });
       res.send(buffer);
     } catch (error) {

@@ -58,19 +58,19 @@ export default function TranslationPopup({ isOpen, onClose, translation, onSaveW
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center" onClick={onClose}>
-      <div className="bg-white rounded-2xl p-8 max-w-lg mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-text-primary">Translation</h3>
-          <button onClick={onClose} className="text-text-secondary hover:text-text-primary">
+      <div className="bg-white rounded-2xl p-10 max-w-2xl mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-2xl font-semibold text-text-primary">Translation</h3>
+          <button onClick={onClose} className="text-text-secondary hover:text-text-primary text-xl">
             <i className="fas fa-times"></i>
           </button>
         </div>
         
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="text-center">
-            <div className="text-5xl font-bold text-text-primary mb-4">{translation.character}</div>
-            <div className="text-xl text-brand-blue mb-2">{translation.pinyin}</div>
-            <div className="text-lg text-text-secondary">{translation.english}</div>
+            <div className="text-7xl font-bold text-text-primary mb-6">{translation.character}</div>
+            <div className="text-3xl text-brand-blue mb-4">{translation.pinyin}</div>
+            <div className="text-2xl text-text-secondary">{translation.english}</div>
           </div>
           
           <div className="flex space-x-3">

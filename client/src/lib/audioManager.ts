@@ -2,6 +2,8 @@
 class AudioManager {
   private currentAudio: HTMLAudioElement | null = null;
   private currentUtterance: SpeechSynthesisUtterance | null = null;
+  private audioCache: Map<string, Blob> = new Map();
+  private pendingRequests: Map<string, Promise<Blob>> = new Map();
 
   // Stop any currently playing audio or speech
   stopAll() {
@@ -19,25 +21,78 @@ class AudioManager {
     this.currentUtterance = null;
   }
 
+  // Generate cache key for TTS requests
+  private getCacheKey(text: string, speed: number): string {
+    return `${text}_${speed}`;
+  }
+
+  // Preload common phrases for faster response
+  async preloadCommonPhrases() {
+    const commonPhrases = [
+      '你好', '谢谢', '再见', '对不起', '没关系',
+      '是', '不是', '好的', '我不明白', '请再说一遍'
+    ];
+    
+    // Preload in background without waiting
+    commonPhrases.forEach(phrase => {
+      this.fetchAndCacheTTS(phrase, 0.8).catch(console.error);
+    });
+  }
+
+  // Fetch and cache TTS audio
+  private async fetchAndCacheTTS(text: string, speed: number): Promise<Blob> {
+    const cacheKey = this.getCacheKey(text, speed);
+    
+    // Check if we already have a pending request for this
+    const pending = this.pendingRequests.get(cacheKey);
+    if (pending) {
+      return pending;
+    }
+
+    // Create the fetch promise
+    const fetchPromise = fetch('/api/tts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text, speed }),
+    }).then(async response => {
+      if (!response.ok) {
+        throw new Error('Failed to generate speech');
+      }
+      const blob = await response.blob();
+      // Cache the result
+      this.audioCache.set(cacheKey, blob);
+      // Remove from pending
+      this.pendingRequests.delete(cacheKey);
+      return blob;
+    }).catch(error => {
+      // Remove from pending on error
+      this.pendingRequests.delete(cacheKey);
+      throw error;
+    });
+
+    // Store as pending request
+    this.pendingRequests.set(cacheKey, fetchPromise);
+    return fetchPromise;
+  }
+
   // Play audio with OpenAI TTS
   async playTTS(text: string, speed: number = 0.8): Promise<void> {
     // Stop any currently playing audio first
     this.stopAll();
 
     try {
-      const response = await fetch('/api/tts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text, speed }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate speech');
+      const cacheKey = this.getCacheKey(text, speed);
+      
+      // Check cache first
+      let audioBlob = this.audioCache.get(cacheKey);
+      
+      if (!audioBlob) {
+        // Not in cache, fetch it
+        audioBlob = await this.fetchAndCacheTTS(text, speed);
       }
 
-      const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
       
       const audio = new Audio(audioUrl);
