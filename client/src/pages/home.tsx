@@ -61,56 +61,62 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
       <Sidebar currentPage="/" />
       <div className="ml-64 p-8">
-        <div className="max-w-7xl mx-auto">
-          {/* User Progress Header */}
+        <div className="max-w-7xl mx-auto animate-fade-in">
+          {/* User Progress Header - Modern Glass Design */}
           {userProfile && (
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl shadow-xl p-6 mb-8 border border-blue-200">
+        <div className="modern-card p-8 mb-8 bg-gradient-to-br from-purple-500/10 to-pink-500/10">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              <h2 className="text-2xl font-bold mb-2 text-gray-900">{greeting}!</h2>
-              <div className="flex items-center space-x-6">
+              <h2 className="text-3xl font-bold mb-4 gradient-text">{greeting}!</h2>
+              <div className="flex items-center space-x-8">
                 <div className="flex items-center">
-                  <span className="text-3xl mr-2">🔥</span>
+                  <div className="p-3 bg-orange-100 rounded-xl mr-3">
+                    <span className="text-2xl">🔥</span>
+                  </div>
                   <div>
-                    <div className="text-2xl font-bold text-gray-900">{userProfile.streakDays || 0}</div>
-                    <div className="text-xs text-gray-700">day streak</div>
+                    <div className="text-2xl font-bold text-gray-800">{userProfile.streakDays || 0}</div>
+                    <div className="text-xs text-gray-600">day streak</div>
                   </div>
                 </div>
                 <div className="flex items-center">
-                  <span className="text-3xl mr-2">⭐</span>
+                  <div className="p-3 bg-purple-100 rounded-xl mr-3">
+                    <span className="text-2xl">⭐</span>
+                  </div>
                   <div>
-                    <div className="text-2xl font-bold text-gray-900">Level {userProfile.level || 1}</div>
-                    <div className="text-xs text-gray-700">{userProfile.xp || 0} XP</div>
+                    <div className="text-2xl font-bold text-gray-800">Level {userProfile.level || 1}</div>
+                    <div className="text-xs text-gray-600">{userProfile.xp || 0} XP</div>
                   </div>
                 </div>
                 <div className="flex items-center">
-                  <span className="text-3xl mr-2">📚</span>
+                  <div className="p-3 bg-blue-100 rounded-xl mr-3">
+                    <span className="text-2xl">📚</span>
+                  </div>
                   <div>
-                    <div className="text-2xl font-bold text-gray-900">{userProfile.wordsLearned || 0}</div>
-                    <div className="text-xs text-gray-700">words learned</div>
+                    <div className="text-2xl font-bold text-gray-800">{userProfile.wordsLearned || 0}</div>
+                    <div className="text-xs text-gray-600">words learned</div>
                   </div>
                 </div>
               </div>
             </div>
             
             <div className="flex flex-col items-end">
-              <div className="mb-2 text-sm text-gray-800 font-medium">XP Progress</div>
-              <div className="w-48 bg-gray-200 rounded-full h-3 mb-1">
+              <div className="mb-2 text-sm text-gray-600 font-medium">XP Progress</div>
+              <div className="w-48 bg-white/50 rounded-full h-4 mb-1 overflow-hidden shadow-inner">
                 <div 
-                  className="bg-gradient-to-r from-brand-primary to-brand-secondary h-3 rounded-full transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500 shadow-sm"
                   style={{ width: `${Math.min(((userProfile.xp || 0) / (userProfile.xpToNextLevel || 100)) * 100, 100)}%` }}
                 />
               </div>
-              <div className="text-xs text-gray-700 mb-3">
+              <div className="text-xs text-gray-600 mb-4">
                 {userProfile.xp || 0} / {userProfile.xpToNextLevel || 100} XP to Level {(userProfile.level || 1) + 1}
               </div>
               
-              {/* Continue Button */}
+              {/* Continue Button - Modern Style */}
               <Link href="/practice">
-                <button className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold px-6 py-2 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center space-x-2">
+                <button className="modern-button-primary px-8 py-3 font-bold flex items-center space-x-2">
                   <span>Continue</span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -121,10 +127,10 @@ export default function Home() {
           </div>
           
           {!userProfile.assessmentCompleted && (
-            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-xl">
-              <p className="text-sm mb-2 text-gray-800">🎯 Take the assessment test to determine your starting level!</p>
+            <div className="mt-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200/50 rounded-xl shadow-sm">
+              <p className="text-sm mb-2 text-gray-700 font-medium">🎯 Take the assessment test to determine your starting level!</p>
               <Link href="/assessment">
-                <button className="bg-brand-primary hover:bg-brand-primary-dark text-white font-bold text-sm px-4 py-2 rounded-lg transition-colors">
+                <button className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold text-sm px-6 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
                   Start Assessment
                 </button>
               </Link>
@@ -133,64 +139,64 @@ export default function Home() {
         </div>
           )}
 
-          {/* Hero Section - Duolingo Inspired */}
-          <div className="text-center mb-20">
+          {/* Hero Section - Modern Design */}
+          <div className="text-center mb-20 py-10">
             <div className="mb-12 relative">
-          {/* Main mascot area */}
+          {/* Main mascot area with modern glass effect */}
           <div className="relative w-80 h-64 mx-auto mb-8">
-            <div className="absolute inset-0 bg-gradient-to-br from-brand-primary to-brand-primary-light rounded-full opacity-10 floating-element"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-2xl animate-pulse"></div>
             <div className="relative z-10 flex items-center justify-center h-full">
-              <div className="text-8xl floating-element">📚</div>
+              <div className="text-8xl animate-float">📚</div>
             </div>
-            {/* Floating elements around mascot */}
-            <div className="absolute -top-4 -right-4 w-12 h-12 bg-brand-secondary rounded-full flex items-center justify-center floating-element text-2xl">
+            {/* Floating elements with glass effect */}
+            <div className="absolute -top-4 -right-4 w-12 h-12 glass-effect rounded-full flex items-center justify-center animate-float-delayed text-2xl">
               📖
             </div>
-            <div className="absolute -bottom-2 -left-6 w-10 h-10 bg-brand-accent rounded-full flex items-center justify-center floating-element text-lg">
+            <div className="absolute -bottom-2 -left-6 w-10 h-10 glass-effect rounded-full flex items-center justify-center animate-float text-lg">
               ✨
             </div>
           </div>
             </div>
             
-            <h1 className="text-5xl md:text-6xl font-bold text-text-primary mb-6 leading-tight">
-          The fun, effective way to learn <span className="text-brand-primary">Mandarin!</span>
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+          <span className="gradient-text">The fun, effective way to learn Mandarin!</span>
             </h1>
-            <p className="text-xl text-text-secondary mb-12 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
           Master Chinese with AI-powered conversations, interactive text translation, and smart vocabulary practice.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
           <Link href={userProfile?.assessmentCompleted ? "/practice" : "/assessment"}>
-            <button className="btn-primary px-12 py-5 text-xl font-bold">
+            <button className="modern-button-primary px-12 py-5 text-xl font-bold">
               {userProfile?.assessmentCompleted ? "CONTINUE LEARNING" : "GET STARTED"}
             </button>
           </Link>
-          <button className="btn-outline px-8 py-4 text-lg">
+          <button className="modern-button-secondary px-8 py-4 text-lg">
             I ALREADY HAVE AN ACCOUNT
           </button>
             </div>
             
-            {/* Streak counter */}
-            <div className="inline-flex items-center streak-counter">
-          <span className="mr-2">🔥</span>
-          <span>Keep your 5-day streak going!</span>
+            {/* Streak counter - Modern Style */}
+            <div className="inline-flex items-center px-6 py-3 bg-orange-100 rounded-full shadow-md">
+          <span className="mr-2 text-2xl">🔥</span>
+          <span className="text-orange-700 font-medium">Keep your 5-day streak going!</span>
             </div>
           </div>
 
-          {/* Feature Cards - Duolingo Style */}
+          {/* Feature Cards - Modern Glass Style */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
         {features.map((feature, index) => (
           <Link key={feature.href} href={feature.href}>
-            <div className="card-duo cursor-pointer group relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-brand-secondary to-brand-secondary-light rounded-bl-3xl flex items-center justify-center">
+            <div className="modern-card p-6 cursor-pointer group relative overflow-hidden hover:scale-[1.02] transition-all duration-300">
+              <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-bl-3xl flex items-center justify-center">
                 <span className="text-2xl">{['🎯', '💬', '📄', '📚'][index]}</span>
               </div>
-              <div className={`w-20 h-20 ${feature.bgColor} rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                <i className={`${feature.icon} ${feature.iconColor} text-4xl font-bold`}></i>
+              <div className={`w-20 h-20 ${feature.bgColor} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg`}>
+                <i className={`${feature.icon} ${feature.iconColor} text-3xl`}></i>
               </div>
-              <h3 className="text-xl font-bold text-text-primary mb-3">{feature.title}</h3>
-              <p className="text-text-secondary leading-relaxed text-sm">{feature.description}</p>
-              <div className="mt-4 flex items-center text-brand-primary font-medium text-sm">
+              <h3 className="text-xl font-bold text-gray-800 mb-3">{feature.title}</h3>
+              <p className="text-gray-600 leading-relaxed text-sm">{feature.description}</p>
+              <div className="mt-4 flex items-center text-purple-600 font-medium text-sm">
                 <span>Start learning</span>
                 <i className="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
               </div>

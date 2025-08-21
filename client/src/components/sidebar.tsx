@@ -67,23 +67,23 @@ export default function Sidebar({ currentPage }: SidebarProps) {
   ];
 
   return (
-    <div className="w-64 bg-white shadow-lg flex flex-col h-screen fixed left-0 top-0 z-40">
-      {/* Logo/Brand - Compact */}
-      <div className="p-4 border-b bg-gradient-to-r from-green-500 to-green-600">
-        <h1 className="text-xl font-bold text-white">MandarinMaster</h1>
+    <div className="w-64 flex flex-col h-screen fixed left-0 top-0 z-40 sidebar-gradient shadow-2xl">
+      {/* Logo/Brand - Modern */}
+      <div className="p-5 bg-white/10 backdrop-blur-md border-b border-white/20">
+        <h1 className="text-2xl font-bold text-white tracking-tight">MandarinMaster</h1>
       </div>
       
-      {/* User Stats Section - Moved to top for visibility */}
-      <div className="px-4 py-3 bg-gray-50 border-b">
+      {/* User Stats Section - Modern Glass Effect */}
+      <div className="px-4 py-4 bg-white/10 backdrop-blur-md border-b border-white/20">
         {/* Compact Level & XP */}
         <div className="mb-3">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-sm font-bold text-purple-600">Level {currentLevel}</span>
-            <span className="text-xs text-gray-500">{currentLevelXp}/{xpPerLevel} XP</span>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-bold text-white">Level {currentLevel}</span>
+            <span className="text-xs text-white/80">{currentLevelXp}/{xpPerLevel} XP</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-1.5">
+          <div className="w-full bg-white/20 rounded-full h-2 overflow-hidden">
             <div 
-              className="bg-gradient-to-r from-purple-400 to-purple-600 h-1.5 rounded-full transition-all duration-500" 
+              className="bg-white h-2 rounded-full transition-all duration-500 shadow-sm" 
               style={{ width: `${(currentLevelXp / xpPerLevel) * 100}%` }}
             />
           </div>
@@ -92,10 +92,10 @@ export default function Sidebar({ currentPage }: SidebarProps) {
         {/* Compact Stats Row */}
         <div className="flex items-center justify-between">
           {/* Streak */}
-          <div className="flex items-center gap-1">
-            <span className="text-orange-500">🔥</span>
-            <span className="text-sm font-bold text-gray-700">{streak}</span>
-            <span className="text-xs text-gray-500">day{streak !== 1 ? 's' : ''}</span>
+          <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-lg">
+            <span className="text-orange-300">🔥</span>
+            <span className="text-sm font-bold text-white">{streak}</span>
+            <span className="text-xs text-white/70">day{streak !== 1 ? 's' : ''}</span>
           </div>
           
           {/* Hearts */}
@@ -109,7 +109,7 @@ export default function Sidebar({ currentPage }: SidebarProps) {
             </div>
             {/* Timer for next heart */}
             {timeToNextHeart && hearts < 5 && (
-              <div className="text-xs text-red-600 font-medium mt-0.5 flex items-center gap-1">
+              <div className="text-xs text-white font-medium mt-0.5 flex items-center gap-1 bg-white/10 px-2 py-0.5 rounded">
                 <span>+❤️ in</span>
                 <span className="font-mono">{timeToNextHeart}</span>
               </div>
@@ -118,9 +118,9 @@ export default function Sidebar({ currentPage }: SidebarProps) {
         </div>
       </div>
       
-      {/* Navigation Menu - Compact spacing */}
-      <nav className="flex-1 py-3 overflow-y-auto">
-        <div className="space-y-1 px-2">
+      {/* Navigation Menu - Modern Glass Effect */}
+      <nav className="flex-1 py-4 overflow-y-auto">
+        <div className="space-y-1 px-3">
           {menuItems.map((item) => {
             const isActive = currentPage === item.path;
             return (
@@ -128,15 +128,15 @@ export default function Sidebar({ currentPage }: SidebarProps) {
                 key={item.path}
                 onClick={() => navigate(item.path)}
                 className={`
-                  w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left transition-all duration-200
+                  w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-200
                   ${isActive 
-                    ? 'bg-blue-100 border-l-4 border-blue-500 shadow-sm' 
-                    : 'hover:bg-gray-100 border-l-4 border-transparent'
+                    ? 'bg-white/20 backdrop-blur-sm shadow-lg transform scale-[1.02]' 
+                    : 'hover:bg-white/10 hover:backdrop-blur-sm'
                   }
                 `}
               >
-                <span className={`${item.color} text-lg`}>{item.icon}</span>
-                <span className={`text-sm ${isActive ? 'font-bold text-blue-700' : 'font-medium text-gray-700'}`}>
+                <span className="text-xl filter drop-shadow-sm">{item.icon}</span>
+                <span className={`text-sm ${isActive ? 'font-bold text-white' : 'font-medium text-white/90'}`}>
                   {item.label}
                 </span>
               </button>
@@ -145,11 +145,11 @@ export default function Sidebar({ currentPage }: SidebarProps) {
         </div>
       </nav>
       
-      {/* Quick Actions - Optional compact footer */}
-      <div className="p-3 border-t bg-gray-50">
+      {/* Quick Actions - Modern Glass Footer */}
+      <div className="p-4 bg-white/10 backdrop-blur-md border-t border-white/20">
         <button 
           onClick={() => navigate("/practice")}
-          className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-sm"
+          className="w-full bg-white/20 backdrop-blur-sm text-white font-semibold py-3 px-4 rounded-xl hover:bg-white/30 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
         >
           Start Practice 🚀
         </button>

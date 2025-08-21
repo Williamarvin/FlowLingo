@@ -231,21 +231,21 @@ export default function Flashcards() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
       <Sidebar currentPage="/flashcards" />
       <div className="ml-64 p-8">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto animate-fade-in">
           {/* Header */}
           <div className="mb-8 flex justify-between items-start">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Flashcards</h1>
+              <h1 className="text-4xl font-bold gradient-text mb-2">Flashcards</h1>
               <p className="text-gray-600">
                 Review words from assessments, practice mistakes, and new vocabulary
               </p>
             </div>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="gap-2">
+                <Button className="modern-button-primary gap-2">
                   <Plus className="w-4 h-4" />
                   Add New Word
                 </Button>
@@ -325,71 +325,71 @@ export default function Flashcards() {
             </Dialog>
           </div>
 
-          {/* Stats Bar */}
+          {/* Stats Bar - Modern Glass Cards */}
           <div className="grid grid-cols-4 gap-4 mb-6">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Total Cards</p>
-                    <p className="text-2xl font-bold">{flashcards.length}</p>
-                  </div>
-                  <BookOpen className="w-8 h-8 text-blue-500" />
+            <div className="modern-card p-4 hover:scale-[1.02] transition-all duration-300">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Total Cards</p>
+                  <p className="text-2xl font-bold gradient-text">{flashcards.length}</p>
                 </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">From Assessment</p>
-                    <p className="text-2xl font-bold">
-                      {flashcards.filter(f => f.source === "assessment").length}
-                    </p>
-                  </div>
-                  <AlertCircle className="w-8 h-8 text-red-500" />
+                <div className="p-3 bg-purple-100 rounded-xl">
+                  <BookOpen className="w-6 h-6 text-purple-600" />
                 </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">From Practice</p>
-                    <p className="text-2xl font-bold">
-                      {flashcards.filter(f => f.source === "practice").length}
-                    </p>
-                  </div>
-                  <Target className="w-8 h-8 text-blue-500" />
+              </div>
+            </div>
+            <div className="modern-card p-4 hover:scale-[1.02] transition-all duration-300">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">From Assessment</p>
+                  <p className="text-2xl font-bold text-red-600">
+                    {flashcards.filter(f => f.source === "assessment").length}
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Session Score</p>
-                    <p className="text-2xl font-bold">
-                      {sessionCorrect}/{sessionCorrect + sessionWrong}
-                    </p>
-                  </div>
-                  <Trophy className="w-8 h-8 text-yellow-500" />
+                <div className="p-3 bg-red-100 rounded-xl">
+                  <AlertCircle className="w-6 h-6 text-red-600" />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+            <div className="modern-card p-4 hover:scale-[1.02] transition-all duration-300">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">From Practice</p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    {flashcards.filter(f => f.source === "practice").length}
+                  </p>
+                </div>
+                <div className="p-3 bg-blue-100 rounded-xl">
+                  <Target className="w-6 h-6 text-blue-600" />
+                </div>
+              </div>
+            </div>
+            <div className="modern-card p-4 hover:scale-[1.02] transition-all duration-300">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Session Score</p>
+                  <p className="text-2xl font-bold text-yellow-600">
+                    {sessionCorrect}/{sessionCorrect + sessionWrong}
+                  </p>
+                </div>
+                <div className="p-3 bg-yellow-100 rounded-xl">
+                  <Trophy className="w-6 h-6 text-yellow-600" />
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Filter Tabs */}
+          {/* Filter Tabs - Modern Style */}
           <Tabs defaultValue="all" className="mb-6" onValueChange={(v) => {
             setActiveTab(v as any);
             setCurrentIndex(0);
             setShowAnswer(false);
           }}>
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="all">All Cards</TabsTrigger>
-              <TabsTrigger value="assessment">Assessment Mistakes</TabsTrigger>
-              <TabsTrigger value="practice">Practice Mistakes</TabsTrigger>
-              <TabsTrigger value="new">New Words</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-4 bg-purple-100/50 p-1 rounded-xl">
+              <TabsTrigger value="all" className="data-[state=active]:bg-white data-[state=active]:shadow-md rounded-lg transition-all">All Cards</TabsTrigger>
+              <TabsTrigger value="assessment" className="data-[state=active]:bg-white data-[state=active]:shadow-md rounded-lg transition-all">Assessment Mistakes</TabsTrigger>
+              <TabsTrigger value="practice" className="data-[state=active]:bg-white data-[state=active]:shadow-md rounded-lg transition-all">Practice Mistakes</TabsTrigger>
+              <TabsTrigger value="new" className="data-[state=active]:bg-white data-[state=active]:shadow-md rounded-lg transition-all">New Words</TabsTrigger>
             </TabsList>
           </Tabs>
 
@@ -436,97 +436,89 @@ export default function Flashcards() {
                 <Progress value={progress} className="h-2" />
               </div>
 
-              {/* Flashcard */}
-              <Card className="mb-6">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <CardTitle>Review Card</CardTitle>
-                    <div className="flex gap-2">
-                      <Badge className={getSourceColor(currentCard.source)}>
-                        <span className="flex items-center gap-1">
-                          {getSourceIcon(currentCard.source)}
-                          {currentCard.source}
-                        </span>
-                      </Badge>
-                      <Badge variant="outline">Level {currentCard.level}</Badge>
-                    </div>
+              {/* Flashcard - Modern Design */}
+              <div className="modern-card mb-6 p-8 animate-slide-up">
+                <div className="flex justify-between items-start mb-6">
+                  <h3 className="text-lg font-semibold text-gray-700">Review Card</h3>
+                  <div className="flex gap-2">
+                    <Badge className={`${getSourceColor(currentCard.source)} shadow-sm`}>
+                      <span className="flex items-center gap-1">
+                        {getSourceIcon(currentCard.source)}
+                        {currentCard.source}
+                      </span>
+                    </Badge>
+                    <Badge className="bg-purple-100 text-purple-700 shadow-sm">Level {currentCard.level}</Badge>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-8">
-                    {/* Chinese Character */}
-                    <div className="mb-8">
-                      <h2 className="text-5xl font-bold text-blue-600 mb-4">
-                        {currentCard.chinese}
-                      </h2>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => playAudio(currentCard.chinese)}
-                        className="gap-2"
-                      >
-                        <Volume2 className="w-4 h-4" />
-                        Play Sound
-                      </Button>
-                    </div>
+                </div>
+                
+                <div className="text-center py-8">
+                  {/* Chinese Character */}
+                  <div className="mb-8">
+                    <h2 className="text-6xl font-bold gradient-text mb-6">
+                      {currentCard.chinese}
+                    </h2>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => playAudio(currentCard.chinese)}
+                      className="gap-2 hover:bg-purple-100 rounded-xl"
+                    >
+                      <Volume2 className="w-4 h-4" />
+                      Play Sound
+                    </Button>
+                  </div>
 
                     {/* Answer Section */}
                     {!showAnswer ? (
-                      <Button
-                        size="lg"
+                      <button
                         onClick={() => setShowAnswer(true)}
-                        className="gap-2"
+                        className="modern-button-primary px-8 py-4 text-lg font-semibold gap-2 inline-flex items-center"
                       >
                         Show Answer
                         <ChevronRight className="w-5 h-5" />
-                      </Button>
+                      </button>
                     ) : (
-                      <div className="space-y-6">
+                      <div className="space-y-6 animate-fade-in">
                         {/* Pinyin */}
-                        <div>
+                        <div className="p-4 bg-purple-50 rounded-xl">
                           <p className="text-sm text-gray-500 mb-1">Pinyin</p>
-                          <p className="text-2xl text-purple-600">{currentCard.pinyin}</p>
+                          <p className="text-2xl font-medium text-purple-700">{currentCard.pinyin}</p>
                         </div>
 
                         {/* English */}
-                        <div>
+                        <div className="p-4 bg-blue-50 rounded-xl">
                           <p className="text-sm text-gray-500 mb-1">English</p>
-                          <p className="text-xl text-gray-800">{currentCard.english}</p>
+                          <p className="text-xl font-medium text-blue-700">{currentCard.english}</p>
                         </div>
 
                         {/* Stats */}
                         <div className="flex justify-center gap-4 text-sm text-gray-500">
-                          <span>Reviewed: {currentCard.timesReviewed} times</span>
-                          <span>Correct: {currentCard.timesCorrect}</span>
-                          <span>Wrong: {currentCard.timesWrong}</span>
+                          <span className="px-3 py-1 bg-gray-100 rounded-full">Reviewed: {currentCard.timesReviewed}x</span>
+                          <span className="px-3 py-1 bg-green-100 rounded-full text-green-700">Correct: {currentCard.timesCorrect}</span>
+                          <span className="px-3 py-1 bg-red-100 rounded-full text-red-700">Wrong: {currentCard.timesWrong}</span>
                         </div>
 
                         {/* Action Buttons */}
                         <div className="flex justify-center gap-4">
-                          <Button
-                            size="lg"
-                            variant="destructive"
+                          <button
                             onClick={() => handleAnswer(false)}
-                            className="gap-2"
+                            className="px-8 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 gap-2 inline-flex items-center"
                           >
                             <X className="w-5 h-5" />
                             Wrong
-                          </Button>
-                          <Button
-                            size="lg"
-                            variant="default"
-                            className="bg-green-600 hover:bg-green-700 gap-2"
+                          </button>
+                          <button
                             onClick={() => handleAnswer(true)}
+                            className="px-8 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 gap-2 inline-flex items-center"
                           >
                             <Check className="w-5 h-5" />
                             Correct
-                          </Button>
+                          </button>
                         </div>
                       </div>
                     )}
                   </div>
-                </CardContent>
-              </Card>
+              </div>
 
               {/* Controls */}
               <div className="flex justify-between">
