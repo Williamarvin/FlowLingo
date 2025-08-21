@@ -18,8 +18,27 @@ import {
   Target,
   AlertCircle,
   Trophy,
-  Filter
+  Filter,
+  Plus,
+  Save
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Flashcard {
   id: string;
@@ -41,6 +60,13 @@ export default function Flashcards() {
   const [sessionCorrect, setSessionCorrect] = useState(0);
   const [sessionWrong, setSessionWrong] = useState(0);
   const [activeTab, setActiveTab] = useState<"all" | "assessment" | "practice" | "new">("all");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [newWord, setNewWord] = useState({
+    chinese: "",
+    pinyin: "",
+    english: "",
+    level: "1"
+  });
 
   // Fetch flashcards
   const { data: flashcards = [], isLoading, refetch } = useQuery<Flashcard[]>({
@@ -65,7 +91,7 @@ export default function Flashcards() {
 
   // Add new flashcard mutation
   const addFlashcardMutation = useMutation({
-    mutationFn: async (flashcard: Partial<Flashcard>) => {
+    mutationFn: async (flashcard: any) => {
       const response = await apiRequest("POST", "/api/flashcards", flashcard);
       return response.json();
     },
@@ -74,6 +100,23 @@ export default function Flashcards() {
       toast({
         title: "Flashcard Added",
         description: "New flashcard has been added to your deck",
+      });
+      setIsAddDialogOpen(false);
+      setNewWord({ chinese: "", pinyin: "", english: "", level: "1" });
+    },
+  });
+
+  // Seed initial vocabulary mutation
+  const seedVocabularyMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/flashcards/seed", {});
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/flashcards"] });
+      toast({
+        title: "Vocabulary Added!",
+        description: "Essential Chinese words have been added to your deck",
       });
     },
   });
@@ -193,11 +236,93 @@ export default function Flashcards() {
       <div className="ml-64 p-8">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Flashcards</h1>
-            <p className="text-gray-600">
-              Review words from assessments, practice mistakes, and new vocabulary
-            </p>
+          <div className="mb-8 flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Flashcards</h1>
+              <p className="text-gray-600">
+                Review words from assessments, practice mistakes, and new vocabulary
+              </p>
+            </div>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="gap-2">
+                  <Plus className="w-4 h-4" />
+                  Add New Word
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add New Flashcard</DialogTitle>
+                  <DialogDescription>
+                    Add a new Chinese word to your flashcard deck
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 mt-4">
+                  <div>
+                    <Label htmlFor="chinese">Chinese Character(s)</Label>
+                    <Input
+                      id="chinese"
+                      value={newWord.chinese}
+                      onChange={(e) => setNewWord({...newWord, chinese: e.target.value})}
+                      placeholder="你好"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="pinyin">Pinyin</Label>
+                    <Input
+                      id="pinyin"
+                      value={newWord.pinyin}
+                      onChange={(e) => setNewWord({...newWord, pinyin: e.target.value})}
+                      placeholder="nǐ hǎo"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="english">English Translation</Label>
+                    <Input
+                      id="english"
+                      value={newWord.english}
+                      onChange={(e) => setNewWord({...newWord, english: e.target.value})}
+                      placeholder="hello"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="level">Difficulty Level</Label>
+                    <Select
+                      value={newWord.level}
+                      onValueChange={(value) => setNewWord({...newWord, level: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[1,2,3,4,5,6,7,8,9,10].map(lvl => (
+                          <SelectItem key={lvl} value={lvl.toString()}>
+                            Level {lvl}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button 
+                    onClick={() => {
+                      if (newWord.chinese && newWord.pinyin && newWord.english) {
+                        addFlashcardMutation.mutate({
+                          chinese: newWord.chinese,
+                          pinyin: newWord.pinyin,
+                          english: newWord.english,
+                          source: "new",
+                          level: parseInt(newWord.level),
+                        });
+                      }
+                    }}
+                    className="w-full gap-2"
+                  >
+                    <Save className="w-4 h-4" />
+                    Save Flashcard
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
 
           {/* Stats Bar */}
@@ -274,12 +399,30 @@ export default function Flashcards() {
               <CardContent className="py-20 text-center">
                 <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-gray-700 mb-2">No Flashcards Yet</h3>
-                <p className="text-gray-500">
+                <p className="text-gray-500 mb-6">
                   {activeTab === "assessment" && "Complete an assessment to add words you missed"}
                   {activeTab === "practice" && "Practice sessions will add words you get wrong"}
                   {activeTab === "new" && "New vocabulary words will appear here"}
-                  {activeTab === "all" && "Start practicing or take an assessment to build your deck"}
+                  {activeTab === "all" && "Get started by adding some vocabulary or taking a practice session"}
                 </p>
+                <div className="flex gap-4 justify-center">
+                  <Button
+                    onClick={() => seedVocabularyMutation.mutate()}
+                    disabled={seedVocabularyMutation.isPending}
+                    className="gap-2"
+                  >
+                    <BookOpen className="w-4 h-4" />
+                    {seedVocabularyMutation.isPending ? "Adding..." : "Add Starter Vocabulary"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsAddDialogOpen(true)}
+                    className="gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Custom Word
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ) : (

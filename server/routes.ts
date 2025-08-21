@@ -691,6 +691,78 @@ Output: Only Chinese text, no explanations.`;
     }
   });
 
+  // Seed initial vocabulary
+  app.post("/api/flashcards/seed", async (req, res) => {
+    try {
+      
+      // Essential Chinese vocabulary for beginners
+      const starterVocabulary = [
+        // Level 1 - Basic Greetings and Common Words
+        { chinese: "你好", pinyin: "nǐ hǎo", english: "hello", level: 1 },
+        { chinese: "谢谢", pinyin: "xiè xiè", english: "thank you", level: 1 },
+        { chinese: "再见", pinyin: "zài jiàn", english: "goodbye", level: 1 },
+        { chinese: "是", pinyin: "shì", english: "yes/to be", level: 1 },
+        { chinese: "不", pinyin: "bù", english: "no/not", level: 1 },
+        { chinese: "我", pinyin: "wǒ", english: "I/me", level: 1 },
+        { chinese: "你", pinyin: "nǐ", english: "you", level: 1 },
+        { chinese: "他", pinyin: "tā", english: "he/him", level: 1 },
+        { chinese: "她", pinyin: "tā", english: "she/her", level: 1 },
+        { chinese: "好", pinyin: "hǎo", english: "good", level: 1 },
+        
+        // Level 2 - Family and Numbers
+        { chinese: "爸爸", pinyin: "bà ba", english: "father", level: 2 },
+        { chinese: "妈妈", pinyin: "mā ma", english: "mother", level: 2 },
+        { chinese: "朋友", pinyin: "péng yǒu", english: "friend", level: 2 },
+        { chinese: "老师", pinyin: "lǎo shī", english: "teacher", level: 2 },
+        { chinese: "学生", pinyin: "xué shēng", english: "student", level: 2 },
+        { chinese: "一", pinyin: "yī", english: "one", level: 2 },
+        { chinese: "二", pinyin: "èr", english: "two", level: 2 },
+        { chinese: "三", pinyin: "sān", english: "three", level: 2 },
+        { chinese: "十", pinyin: "shí", english: "ten", level: 2 },
+        { chinese: "人", pinyin: "rén", english: "person/people", level: 2 },
+        
+        // Level 3 - Common Verbs and Places
+        { chinese: "吃", pinyin: "chī", english: "to eat", level: 3 },
+        { chinese: "喝", pinyin: "hē", english: "to drink", level: 3 },
+        { chinese: "去", pinyin: "qù", english: "to go", level: 3 },
+        { chinese: "来", pinyin: "lái", english: "to come", level: 3 },
+        { chinese: "学习", pinyin: "xué xí", english: "to study", level: 3 },
+        { chinese: "工作", pinyin: "gōng zuò", english: "to work", level: 3 },
+        { chinese: "家", pinyin: "jiā", english: "home/family", level: 3 },
+        { chinese: "学校", pinyin: "xué xiào", english: "school", level: 3 },
+        { chinese: "中国", pinyin: "zhōng guó", english: "China", level: 3 },
+        { chinese: "美国", pinyin: "měi guó", english: "America", level: 3 },
+      ];
+      
+      const created = [];
+      for (const word of starterVocabulary) {
+        try {
+          const flashcard = await storage.createFlashcard({
+            userId: DEMO_USER_ID,
+            chinese: word.chinese,
+            pinyin: word.pinyin,
+            english: word.english,
+            source: "new",
+            level: word.level,
+          });
+          created.push(flashcard);
+        } catch (error) {
+          // Skip if already exists
+          console.log(`Flashcard already exists: ${word.chinese}`);
+        }
+      }
+      
+      res.json({ 
+        success: true, 
+        message: `Added ${created.length} flashcards to your deck`,
+        count: created.length 
+      });
+    } catch (error) {
+      console.error("Error seeding flashcards:", error);
+      res.status(500).json({ error: "Failed to seed flashcards" });
+    }
+  });
+
   // Voice Translation endpoint
   app.post("/api/translate/voice", async (req, res) => {
     try {
@@ -1577,7 +1649,6 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       }
 
       // Update user profile with new level and mark assessment as completed
-      const userId = "demo-user"; // Replace with actual user ID from session
       const currentProfile = await storage.getUser(userId);
       
       // Only update level if placement level is higher than current level
