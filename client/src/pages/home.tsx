@@ -61,13 +61,13 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
       <Sidebar currentPage="/" />
       <div className="ml-64 p-8">
         <div className="max-w-7xl mx-auto animate-fade-in">
           {/* User Progress Header - Modern Glass Design */}
           {userProfile && (
-        <div className="modern-card p-8 mb-8 bg-gradient-to-br from-purple-500/10 to-pink-500/10">
+        <div className="modern-card p-8 mb-8 bg-gradient-to-br from-green-500/10 to-emerald-500/10">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
               <h2 className="text-3xl font-bold mb-4 gradient-text">{greeting}!</h2>
@@ -82,7 +82,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="flex items-center">
-                  <div className="p-3 bg-purple-100 rounded-xl mr-3">
+                  <div className="p-3 bg-green-100 rounded-xl mr-3">
                     <span className="text-2xl">⭐</span>
                   </div>
                   <div>
@@ -106,7 +106,7 @@ export default function Home() {
               <div className="mb-2 text-sm text-gray-600 font-medium">XP Progress</div>
               <div className="w-48 bg-white/50 rounded-full h-4 mb-1 overflow-hidden shadow-inner">
                 <div 
-                  className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500 shadow-sm"
+                  className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full transition-all duration-500 shadow-sm"
                   style={{ width: `${Math.min(((userProfile.xp || 0) / (userProfile.xpToNextLevel || 100)) * 100, 100)}%` }}
                 />
               </div>
@@ -144,7 +144,7 @@ export default function Home() {
             <div className="mb-12 relative">
           {/* Main mascot area with modern glass effect */}
           <div className="relative w-80 h-64 mx-auto mb-8">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-2xl animate-pulse"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-full blur-2xl animate-pulse"></div>
             <div className="relative z-10 flex items-center justify-center h-full">
               <div className="text-8xl animate-float">📚</div>
             </div>
@@ -188,7 +188,7 @@ export default function Home() {
         {features.map((feature, index) => (
           <Link key={feature.href} href={feature.href}>
             <div className="modern-card p-6 cursor-pointer group relative overflow-hidden hover:scale-[1.02] transition-all duration-300">
-              <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-bl-3xl flex items-center justify-center">
+              <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-bl-3xl flex items-center justify-center">
                 <span className="text-2xl">{['🎯', '💬', '📄', '📚'][index]}</span>
               </div>
               <div className={`w-20 h-20 ${feature.bgColor} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg`}>
@@ -196,7 +196,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-bold text-gray-800 mb-3">{feature.title}</h3>
               <p className="text-gray-600 leading-relaxed text-sm">{feature.description}</p>
-              <div className="mt-4 flex items-center text-purple-600 font-medium text-sm">
+              <div className="mt-4 flex items-center text-green-600 font-medium text-sm">
                 <span>Start learning</span>
                 <i className="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
               </div>

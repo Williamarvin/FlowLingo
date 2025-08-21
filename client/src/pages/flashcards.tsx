@@ -231,7 +231,7 @@ export default function Flashcards() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
       <Sidebar currentPage="/flashcards" />
       <div className="ml-64 p-8">
         <div className="max-w-4xl mx-auto animate-fade-in">
@@ -385,7 +385,7 @@ export default function Flashcards() {
             setCurrentIndex(0);
             setShowAnswer(false);
           }}>
-            <TabsList className="grid w-full grid-cols-4 bg-purple-100/50 p-1 rounded-xl">
+            <TabsList className="grid w-full grid-cols-4 bg-green-100/50 p-1 rounded-xl">
               <TabsTrigger value="all" className="data-[state=active]:bg-white data-[state=active]:shadow-md rounded-lg transition-all">All Cards</TabsTrigger>
               <TabsTrigger value="assessment" className="data-[state=active]:bg-white data-[state=active]:shadow-md rounded-lg transition-all">Assessment Mistakes</TabsTrigger>
               <TabsTrigger value="practice" className="data-[state=active]:bg-white data-[state=active]:shadow-md rounded-lg transition-all">Practice Mistakes</TabsTrigger>
@@ -447,7 +447,7 @@ export default function Flashcards() {
                         {currentCard.source}
                       </span>
                     </Badge>
-                    <Badge className="bg-purple-100 text-purple-700 shadow-sm">Level {currentCard.level}</Badge>
+                    <Badge className="bg-green-100 text-green-700 shadow-sm">Level {currentCard.level}</Badge>
                   </div>
                 </div>
                 
@@ -461,7 +461,7 @@ export default function Flashcards() {
                       variant="ghost"
                       size="sm"
                       onClick={() => playAudio(currentCard.chinese)}
-                      className="gap-2 hover:bg-purple-100 rounded-xl"
+                      className="gap-2 hover:bg-green-100 rounded-xl"
                     >
                       <Volume2 className="w-4 h-4" />
                       Play Sound
@@ -480,9 +480,9 @@ export default function Flashcards() {
                     ) : (
                       <div className="space-y-6 animate-fade-in">
                         {/* Pinyin */}
-                        <div className="p-4 bg-purple-50 rounded-xl">
+                        <div className="p-4 bg-green-50 rounded-xl">
                           <p className="text-sm text-gray-500 mb-1">Pinyin</p>
-                          <p className="text-2xl font-medium text-purple-700">{currentCard.pinyin}</p>
+                          <p className="text-2xl font-medium text-green-700">{currentCard.pinyin}</p>
                         </div>
 
                         {/* English */}
