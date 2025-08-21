@@ -180,7 +180,14 @@ export default function ProgressivePractice() {
     }
   }, [timeUntilNextHeart]);
 
-  const handleAnswer = (answer: string) => {
+  // Mutation to create flashcard
+  const createFlashcardMutation = useMutation({
+    mutationFn: async (data: any) => {
+      return apiRequest("POST", "/api/flashcards", data);
+    },
+  });
+
+  const handleAnswer = async (answer: string) => {
     if (showFeedback) return;
     
     // Don't allow answering if hearts are 0
@@ -197,6 +204,19 @@ export default function ProgressivePractice() {
     if (!correct) {
       setWrongAnswers(prev => prev + 1);
       setWrongAttempts(prev => prev + 1);
+      
+      // Save wrong answer as flashcard
+      try {
+        await createFlashcardMutation.mutateAsync({
+          chinese: currentQ.chinese,
+          pinyin: currentQ.pinyin,
+          english: currentQ.english,
+          source: "practice",
+          level: currentLevel,
+        });
+      } catch (error) {
+        console.error("Error creating flashcard:", error);
+      }
       
       // Lose a heart for wrong answer
       const newHearts = Math.max(0, hearts - 1);

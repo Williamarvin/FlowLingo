@@ -61,7 +61,7 @@ export default function Sidebar({ currentPage }: SidebarProps) {
     { path: "/practice", icon: "🎯", label: "Practice", color: "text-blue-500" },
     { path: "/ai-conversation", icon: "💬", label: "Conversation", color: "text-green-500" },
     { path: "/voice-translator", icon: "🎙️", label: "Voice Translator", color: "text-cyan-500" },
-    { path: "/vocabulary", icon: "📚", label: "Vocabulary", color: "text-yellow-500" },
+    { path: "/flashcards", icon: "📚", label: "Flashcards", color: "text-yellow-500" },
     { path: "/text-generator", icon: "📝", label: "Text Generator", color: "text-purple-500" },
     { path: "/media-reader", icon: "📱", label: "Media Reader", color: "text-red-500" },
   ];

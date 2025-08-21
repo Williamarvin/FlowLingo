@@ -632,6 +632,65 @@ Output: Only Chinese text, no explanations.`;
     }
   });
 
+  // Flashcards endpoints
+  app.get("/api/flashcards", async (req, res) => {
+    try {
+      const userId = DEMO_USER_ID;
+      const filter = req.query.filter as string || "all";
+      
+      const flashcards = await storage.getFlashcards(userId, filter);
+      res.json(flashcards);
+    } catch (error) {
+      console.error("Error fetching flashcards:", error);
+      res.status(500).json({ error: "Failed to fetch flashcards" });
+    }
+  });
+
+  app.post("/api/flashcards", async (req, res) => {
+    try {
+      const userId = DEMO_USER_ID;
+      const { chinese, pinyin, english, source, level } = req.body;
+      
+      const flashcard = await storage.createFlashcard({
+        userId,
+        chinese,
+        pinyin,
+        english,
+        source: source || "new",
+        level: level || 1,
+      });
+      
+      res.json(flashcard);
+    } catch (error) {
+      console.error("Error creating flashcard:", error);
+      res.status(500).json({ error: "Failed to create flashcard" });
+    }
+  });
+
+  app.post("/api/flashcards/:id/review", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { correct } = req.body;
+      
+      const updated = await storage.updateFlashcardReview(id, correct);
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating flashcard:", error);
+      res.status(500).json({ error: "Failed to update flashcard" });
+    }
+  });
+
+  app.delete("/api/flashcards/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteFlashcard(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting flashcard:", error);
+      res.status(500).json({ error: "Failed to delete flashcard" });
+    }
+  });
+
   // Voice Translation endpoint
   app.post("/api/translate/voice", async (req, res) => {
     try {
@@ -1458,25 +1517,41 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     try {
       const { answers } = req.body;
       
-      // Get assessment questions to check answers
-      const assessmentQuestions = [
-        { id: "q1", correctAnswer: "you", level: 1 },
-        { id: "q2", correctAnswer: "你好", level: 1 },
-        { id: "q3", correctAnswer: "student", level: 2 },
-        { id: "q4", correctAnswer: "谢谢", level: 2 },
-        { id: "q5", correctAnswer: "work", level: 3 },
-        { id: "q6", correctAnswer: "我很忙", level: 4 },
-        { id: "q7", correctAnswer: "economic development", level: 6 },
-        { id: "q8", correctAnswer: "环境保护", level: 7 },
-        { id: "q9", correctAnswer: "to gild the lily", level: 9 },
-        { id: "q10", correctAnswer: "亡羊补牢", level: 10 }
+      // Get assessment questions with full data for flashcard creation
+      const fullAssessmentQuestions = [
+        { id: "q1", chinese: "你", pinyin: "nǐ", english: "you", correctAnswer: "you", level: 1 },
+        { id: "q2", chinese: "你好", pinyin: "nǐ hǎo", english: "hello", correctAnswer: "你好", level: 1 },
+        { id: "q3", chinese: "学生", pinyin: "xué shēng", english: "student", correctAnswer: "student", level: 2 },
+        { id: "q4", chinese: "谢谢", pinyin: "xiè xiè", english: "thank you", correctAnswer: "谢谢", level: 2 },
+        { id: "q5", chinese: "工作", pinyin: "gōng zuò", english: "work", correctAnswer: "work", level: 3 },
+        { id: "q6", chinese: "我很忙", pinyin: "wǒ hěn máng", english: "I am very busy", correctAnswer: "我很忙", level: 4 },
+        { id: "q7", chinese: "经济发展", pinyin: "jīng jì fā zhǎn", english: "economic development", correctAnswer: "economic development", level: 6 },
+        { id: "q8", chinese: "环境保护", pinyin: "huán jìng bǎo hù", english: "environmental protection", correctAnswer: "环境保护", level: 7 },
+        { id: "q9", chinese: "画蛇添足", pinyin: "huà shé tiān zú", english: "to gild the lily", correctAnswer: "to gild the lily", level: 9 },
+        { id: "q10", chinese: "亡羊补牢", pinyin: "wáng yáng bǔ láo", english: "better late than never", correctAnswer: "亡羊补牢", level: 10 }
       ];
 
-      // Calculate score
+      // Calculate score and save wrong answers as flashcards
       let correctAnswers = 0;
-      for (const question of assessmentQuestions) {
+      const userId = "demo-user"; // Replace with actual user ID from session
+      
+      for (const question of fullAssessmentQuestions) {
         if (answers[question.id] === question.correctAnswer) {
           correctAnswers++;
+        } else {
+          // Save wrong answer as flashcard
+          try {
+            await storage.createFlashcard({
+              userId,
+              chinese: question.chinese,
+              pinyin: question.pinyin,
+              english: question.english,
+              source: "assessment",
+              level: question.level,
+            });
+          } catch (error) {
+            console.error("Error creating flashcard for wrong answer:", error);
+          }
         }
       }
 

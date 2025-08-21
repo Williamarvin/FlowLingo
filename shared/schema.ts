@@ -150,6 +150,24 @@ export const practiceProgress = pgTable("practice_progress", {
   lastUpdated: timestamp("last_updated").defaultNow(),
 });
 
+// Flashcards for reviewing wrong answers and new words
+export const flashcards = pgTable("flashcards", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  chinese: text("chinese").notNull(),
+  pinyin: text("pinyin").notNull(),
+  english: text("english").notNull(),
+  source: text("source").notNull(), // "assessment", "practice", "new"
+  level: integer("level").default(1),
+  difficulty: text("difficulty").default("learning"), // "new", "learning", "review", "mastered"
+  nextReview: timestamp("next_review").defaultNow(),
+  timesReviewed: integer("times_reviewed").default(0),
+  timesCorrect: integer("times_correct").default(0),
+  timesWrong: integer("times_wrong").default(0),
+  lastReviewed: timestamp("last_reviewed"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Achievements & Badges
 export const achievements = pgTable("achievements", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -222,6 +240,12 @@ export const insertUserAchievementSchema = createInsertSchema(userAchievements).
   unlockedAt: true,
 });
 
+export const insertFlashcardSchema = createInsertSchema(flashcards).omit({
+  id: true,
+  createdAt: true,
+  lastReviewed: true,
+});
+
 export const insertPracticeProgressSchema = createInsertSchema(practiceProgress).omit({
   id: true,
   lastUpdated: true,
@@ -252,3 +276,5 @@ export type UserAchievement = typeof userAchievements.$inferSelect;
 export type InsertUserAchievement = z.infer<typeof insertUserAchievementSchema>;
 export type PracticeProgress = typeof practiceProgress.$inferSelect;
 export type InsertPracticeProgress = z.infer<typeof insertPracticeProgressSchema>;
+export type Flashcard = typeof flashcards.$inferSelect;
+export type InsertFlashcard = z.infer<typeof insertFlashcardSchema>;

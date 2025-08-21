@@ -55,6 +55,12 @@ export interface IStorageExtended extends IStorage {
   getPracticeProgress(userId: string, level: number): Promise<any | undefined>;
   savePracticeProgress(userId: string, level: number, progress: any): Promise<any>;
   clearPracticeProgress(userId: string, level: number): Promise<boolean>;
+  
+  // Flashcard methods
+  getFlashcards(userId: string, filter: string): Promise<any[]>;
+  createFlashcard(flashcard: any): Promise<any>;
+  updateFlashcardReview(id: string, correct: boolean): Promise<any>;
+  deleteFlashcard(id: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorageExtended {
@@ -457,6 +463,79 @@ export class DatabaseStorage implements IStorageExtended {
         eq(practiceProgress.userId, userId),
         eq(practiceProgress.level, level)
       ));
+    return true;
+  }
+
+  async getFlashcards(userId: string, filter: string): Promise<any[]> {
+    const { db } = await import("./db");
+    const { flashcards } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    let query = db.select().from(flashcards).where(eq(flashcards.userId, userId));
+    
+    if (filter !== "all") {
+      query = query.where(eq(flashcards.source, filter));
+    }
+    
+    return await query;
+  }
+
+  async createFlashcard(flashcard: any): Promise<any> {
+    const { db } = await import("./db");
+    const { flashcards } = await import("@shared/schema");
+    
+    // Check if flashcard already exists for this user and word
+    const { eq, and } = await import("drizzle-orm");
+    const existing = await db.select()
+      .from(flashcards)
+      .where(and(
+        eq(flashcards.userId, flashcard.userId),
+        eq(flashcards.chinese, flashcard.chinese)
+      ));
+    
+    if (existing.length > 0) {
+      return existing[0];
+    }
+    
+    const [created] = await db.insert(flashcards)
+      .values({
+        ...flashcard,
+        timesReviewed: 0,
+        timesCorrect: 0,
+        timesWrong: 0,
+      })
+      .returning();
+    return created;
+  }
+
+  async updateFlashcardReview(id: string, correct: boolean): Promise<any> {
+    const { db } = await import("./db");
+    const { flashcards } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const [card] = await db.select().from(flashcards).where(eq(flashcards.id, id));
+    if (!card) return null;
+    
+    const updates = {
+      timesReviewed: card.timesReviewed + 1,
+      timesCorrect: correct ? card.timesCorrect + 1 : card.timesCorrect,
+      timesWrong: correct ? card.timesWrong : card.timesWrong + 1,
+      lastReviewed: new Date(),
+    };
+    
+    const [updated] = await db.update(flashcards)
+      .set(updates)
+      .where(eq(flashcards.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteFlashcard(id: string): Promise<boolean> {
+    const { db } = await import("./db");
+    const { flashcards } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    await db.delete(flashcards).where(eq(flashcards.id, id));
     return true;
   }
 }
