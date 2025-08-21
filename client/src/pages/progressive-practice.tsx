@@ -67,6 +67,10 @@ export default function ProgressivePractice() {
     mutationFn: async (progress: any) => {
       return await apiRequest("POST", `/api/practice/progress/${currentLevel}`, progress);
     },
+    onSuccess: () => {
+      // Invalidate user profile to sync XP bar
+      queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+    },
   });
 
   const currentQ = questions[currentQuestionIndex] || null;
@@ -302,6 +306,9 @@ export default function ProgressivePractice() {
       timeSpent: timeSpent,
     });
 
+    // Refetch profile to update sidebar XP/level display
+    await refetchProfile();
+    
     // If user leveled up, navigate to the next level's practice page
     if (result && result.leveledUp) {
       toast({
@@ -314,8 +321,8 @@ export default function ProgressivePractice() {
         window.location.reload(); // Reload to get the new level from profile
       }, 1500);
     } else {
-      // Navigate home if they didn't level up
-      navigate("/");
+      // Navigate back to practice page (not home)
+      navigate("/practice");
     }
   };
 
@@ -448,7 +455,7 @@ export default function ProgressivePractice() {
                 : 'bg-gradient-to-r from-green-400 to-emerald-400 hover:from-green-500 hover:to-emerald-500'
               } text-white font-bold py-4 text-lg rounded-2xl shadow-lg transform transition hover:scale-105`}
             >
-              {passed ? `Continue to Level ${currentLevel + 1}` : 'Return Home'}
+              {passed ? `Continue to Level ${currentLevel + 1}` : 'Back to Practice'}
             </Button>
           </div>
         </div>
