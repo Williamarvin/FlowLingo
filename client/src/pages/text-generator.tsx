@@ -38,6 +38,7 @@ export default function TextGenerator() {
   });
 
   const handleGenerate = () => {
+    audioManager.stopAll(); // Stop any playing audio when generating new text
     generateTextMutation.mutate({ topic, difficulty, length });
   };
 
@@ -49,8 +50,8 @@ export default function TextGenerator() {
     if (!generatedText) return;
     
     try {
-      // Use audioManager with 0.8x speed for document reading
-      await audioManager.playTTS(generatedText.content, 0.8);
+      // Use audioManager with normal speed for better pronunciation
+      await audioManager.playTTS(generatedText.content, 1.0);
     } catch (error) {
       console.error('TTS error:', error);
     }

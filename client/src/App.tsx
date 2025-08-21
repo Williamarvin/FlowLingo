@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -37,10 +37,17 @@ function Router() {
 }
 
 function App() {
+  const [location] = useLocation();
+  
   useEffect(() => {
     // Preload common Chinese phrases for faster TTS response
     audioManager.preloadCommonPhrases();
   }, []);
+  
+  useEffect(() => {
+    // Stop all audio when navigating to a different page
+    audioManager.stopAll();
+  }, [location]);
 
   return (
     <QueryClientProvider client={queryClient}>

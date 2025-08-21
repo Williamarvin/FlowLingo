@@ -43,6 +43,12 @@ export default function MediaReader() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Stop audio when selecting a different document
+  const handleDocumentSelect = (document: MediaDocument) => {
+    audioManager.stopAll();
+    setSelectedDocument(document);
+  };
 
   // Fetch media documents
   const { data: documents = [], isLoading } = useQuery<MediaDocument[]>({
@@ -97,6 +103,7 @@ export default function MediaReader() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/media"] });
+      audioManager.stopAll();
       setSelectedDocument(null);
       toast({
         title: "Success",
@@ -619,7 +626,7 @@ export default function MediaReader() {
                         onClick={() => {
                           console.log("Selected document:", doc);
                           console.log("Document content:", doc.content?.substring(0, 100));
-                          setSelectedDocument(doc);
+                          handleDocumentSelect(doc);
                         }}
                       >
                         <div className="flex items-start gap-3">
