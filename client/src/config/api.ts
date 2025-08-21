@@ -10,7 +10,7 @@ export function getApiUrl(endpoint: string): string {
   // If we're on Vercel but no API URL is set, use the default Replit URL
   if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app') && !API_BASE_URL) {
     // Default to your Replit backend if environment variable not set
-    return `https://workspace-williamarvin.replit.app${endpoint}`;
+    return `https://45845d41-ab8d-495c-9b87-e1421f960f3e-00-2rkp2ou8sqwql.kirk.replit.dev${endpoint}`;
   }
   
   // If API_BASE_URL is set (production), use it
