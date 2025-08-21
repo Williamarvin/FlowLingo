@@ -204,6 +204,16 @@ export default function MediaReader() {
               <Button
                 variant="ghost"
                 size="sm"
+                onClick={() => handleSpeak(document.content || "")}
+                title="Read All Chinese Text"
+                className="bg-green-50 hover:bg-green-100 text-green-700"
+              >
+                <Volume2 className="w-4 h-4 mr-1" />
+                Read All
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => {
                   navigator.clipboard.writeText(document.content || "");
                   toast({

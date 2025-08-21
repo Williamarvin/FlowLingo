@@ -5,6 +5,7 @@ import HighlightableText from "@/components/highlightable-text";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Sidebar from "@/components/sidebar";
+import { audioManager } from "@/lib/audioManager";
 
 export default function TextGenerator() {
   const [topic, setTopic] = useState("Daily Conversation");
@@ -44,39 +45,15 @@ export default function TextGenerator() {
     saveWordMutation.mutate(word);
   };
 
-  const handleSpeak = () => {
+  const handleSpeak = async () => {
     if (!generatedText) return;
     
-    if (!('speechSynthesis' in window)) {
-      alert('Speech synthesis is not supported in your browser. Please try using Chrome or Edge.');
-      return;
+    try {
+      // Use audioManager with 0.8x speed for document reading
+      await audioManager.playTTS(generatedText.content, 0.8);
+    } catch (error) {
+      console.error('TTS error:', error);
     }
-
-    // Cancel any ongoing speech
-    speechSynthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(generatedText.content);
-    
-    // Try to find a Chinese voice
-    const voices = speechSynthesis.getVoices();
-    const chineseVoice = voices.find(voice => 
-      voice.lang.includes('zh') || voice.lang.includes('cmn')
-    );
-    
-    if (chineseVoice) {
-      utterance.voice = chineseVoice;
-    }
-    
-    utterance.lang = 'zh-CN';
-    utterance.rate = 0.8;
-    utterance.pitch = 1.0;
-    utterance.volume = 1.0;
-
-    utterance.onerror = (event) => {
-      console.error('Speech synthesis error:', event);
-    };
-
-    speechSynthesis.speak(utterance);
   };
 
   return (
