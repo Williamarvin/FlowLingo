@@ -35,9 +35,18 @@ export default function AiConversation() {
   const currentTranscriptRef = useRef<string>("");
   const lastTranscriptRef = useRef<string>("");
   const lastSpeechTimeRef = useRef<number>(0);
+  const isInCallRef = useRef<boolean>(false);
+  const isPendingRef = useRef<boolean>(false);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Update refs when state changes
+  useEffect(() => {
+    isInCallRef.current = isInCall;
+  }, [isInCall]);
+  
+
 
   // Fetch user profile to get level
   const { data: userProfile } = useQuery<any>({
@@ -74,6 +83,11 @@ export default function AiConversation() {
       setIsListening(true); // Resume listening even on error
     }
   });
+  
+  // Update mutation pending ref
+  useEffect(() => {
+    isPendingRef.current = conversationMutation.isPending;
+  }, [conversationMutation.isPending]);
 
   // Initialize speech recognition ONCE on component mount
   useEffect(() => {
@@ -141,8 +155,8 @@ export default function AiConversation() {
           }
           
           // If we have any speech content, start a new timer
-          if (currentTranscript.trim() && !conversationMutation.isPending && isInCall) {
-            console.log('Setting new 2-second timer');
+          if (currentTranscript.trim() && !isPendingRef.current && isInCallRef.current) {
+            console.log('Setting new 2-second timer for transcript:', currentTranscript);
             
             // Use a closure to capture the current transcript
             const transcriptToSend = currentTranscript;
@@ -157,14 +171,14 @@ export default function AiConversation() {
               console.log('  Original transcript:', transcriptToSend);
               console.log('  Current transcript:', currentTranscriptNow);
               console.log('  Transcripts match:', currentTranscriptNow === transcriptToSend);
-              console.log('  Pending:', conversationMutation.isPending);
-              console.log('  In call:', isInCall);
+              console.log('  Pending (ref):', isPendingRef.current);
+              console.log('  In call (ref):', isInCallRef.current);
               
               if (timeSinceLastSpeech >= 1900 && // Allow small margin for timing
                   currentTranscriptNow === transcriptToSend && // Make sure transcript hasn't changed
                   transcriptToSend.trim() && 
-                  !conversationMutation.isPending && 
-                  isInCall) {
+                  !isPendingRef.current && 
+                  isInCallRef.current) {
                 console.log('✓ All conditions met, sending message:', transcriptToSend);
                 handleUserSpeech(transcriptToSend);
               } else {
@@ -175,8 +189,20 @@ export default function AiConversation() {
                 if (currentTranscriptNow !== transcriptToSend) {
                   console.log('  Reason: Transcript changed during wait');
                 }
+                if (isPendingRef.current) {
+                  console.log('  Reason: Mutation is pending');
+                }
+                if (!isInCallRef.current) {
+                  console.log('  Reason: Not in call');
+                }
               }
             }, 2000);
+          } else {
+            console.log('Not setting timer - conditions not met:', {
+              hasTranscript: !!currentTranscript.trim(),
+              isPending: isPendingRef.current,
+              isInCall: isInCallRef.current
+            });
           }
         }
       };
