@@ -214,14 +214,14 @@ export default function ProgressivePractice() {
   };
 
   const handleCompletedLesson = async () => {
-    const totalQuestions = questions.length;
-    const accuracy = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
+    const totalAttempts = correctAnswers + wrongAnswers;
+    const accuracy = totalAttempts > 0 ? (correctAnswers / totalAttempts) * 100 : 0;
     const xp = Math.round(accuracy * 10);
     
     // Save practice session and get the result
     const result = await savePracticeMutation.mutateAsync({
       level: currentLevel,
-      questionsAnswered: totalQuestions,
+      questionsAnswered: questions.length,
       correctAnswers: correctAnswers,
       wrongAnswers: wrongAnswers,
       accuracy: accuracy,
@@ -320,8 +320,8 @@ export default function ProgressivePractice() {
   }
 
   if (showCompletedScreen) {
-    const totalQuestions = questions.length;
-    const accuracy = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
+    const totalAttempts = correctAnswers + wrongAnswers;
+    const accuracy = totalAttempts > 0 ? (correctAnswers / totalAttempts) * 100 : 0;
     const xp = Math.round(accuracy * 10);
     const passed = accuracy >= 80; // Pass if 80% or higher
 
@@ -374,7 +374,6 @@ export default function ProgressivePractice() {
               } text-white font-bold py-4 text-lg rounded-2xl shadow-lg transform transition hover:scale-105`}
             >
               {passed ? `Continue to Level ${currentLevel + 1}` : 'Return Home'}
-              Continue
             </Button>
           </div>
         </div>
