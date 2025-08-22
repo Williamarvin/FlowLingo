@@ -2,7 +2,7 @@ import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import ModernNav from "@/components/modern-nav";
-import { ArrowRight, Trophy, Flame, BookOpen, MessageCircle, Headphones, FileText, LogIn } from "lucide-react";
+import { ArrowRight, Trophy, Flame, BookOpen, MessageCircle, Headphones, FileText, LogIn, Star } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 
@@ -176,6 +176,144 @@ export default function Home() {
                   </div>
                 );
               })}
+            </div>
+          </div>
+
+          {/* Testimonials Section */}
+          <div className="mb-16">
+            <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">
+              Trusted by thousands of learners
+            </h2>
+            <p className="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
+              See what our students say about their Chinese learning journey with FlowLingo
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Testimonial 1 */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-gray-700 mb-4 italic">
+                  "After using FlowLingo for just 3 months, I can now hold basic conversations with my Chinese colleagues. The AI conversations feature is absolutely game-changing!"
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white font-semibold">
+                    SL
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Sarah Liu</p>
+                    <p className="text-sm text-gray-500">3 months with FlowLingo</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Testimonial 2 */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-gray-700 mb-4 italic">
+                  "I've been using FlowLingo for 6 months and I'm amazed at my progress. I can now read Chinese menus, text with friends, and have day-to-day conversations confidently!"
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-full flex items-center justify-center text-white font-semibold">
+                    MJ
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Michael Johnson</p>
+                    <p className="text-sm text-gray-500">6 months with FlowLingo</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Testimonial 3 */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-gray-700 mb-4 italic">
+                  "One year with FlowLingo has transformed my Chinese skills. I went from knowing zero Chinese to having full business conversations. The spaced repetition and practice sessions really work!"
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-400 rounded-full flex items-center justify-center text-white font-semibold">
+                    EW
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Emily Wang</p>
+                    <p className="text-sm text-gray-500">1 year with FlowLingo</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Testimonial 4 */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-gray-700 mb-4 italic">
+                  "FlowLingo made learning Chinese fun! After 4 months, I can watch Chinese dramas with Chinese subtitles and understand most of the dialogue. The voice translator is my favorite feature!"
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-red-400 rounded-full flex items-center justify-center text-white font-semibold">
+                    DR
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">David Rodriguez</p>
+                    <p className="text-sm text-gray-500">4 months with FlowLingo</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Testimonial 5 */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-gray-700 mb-4 italic">
+                  "I started FlowLingo 2 months ago with zero Chinese knowledge. Now I can order food in Chinese restaurants and have simple conversations. The structured lessons are perfect!"
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-indigo-400 to-purple-400 rounded-full flex items-center justify-center text-white font-semibold">
+                    AK
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Anna Kim</p>
+                    <p className="text-sm text-gray-500">2 months with FlowLingo</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Testimonial 6 */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-gray-700 mb-4 italic">
+                  "After 8 months on FlowLingo, I passed HSK 4! The assessment features helped me identify weak areas and the AI conversations gave me real practice. Can't recommend it enough!"
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-cyan-400 rounded-full flex items-center justify-center text-white font-semibold">
+                    TN
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Thomas Nguyen</p>
+                    <p className="text-sm text-gray-500">8 months with FlowLingo</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
