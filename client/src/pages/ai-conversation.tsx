@@ -373,8 +373,8 @@ function AiConversationContent() {
     setIsSpeaking(true);
     
     try {
-      // Use audioManager with normal conversation speed
-      await audioManager.playTTS(text, 0.9);
+      // Use audioManager with slower speed for clearer pronunciation
+      await audioManager.playTTS(text, 0.65);
       setIsSpeaking(false);
       
       // Resume listening after speaking

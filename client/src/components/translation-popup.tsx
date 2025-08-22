@@ -41,7 +41,7 @@ export default function TranslationPopup({ isOpen, onClose, translation, onSaveW
     
     try {
       // Use audioManager with normal speed (1.0) for better pronunciation
-      await audioManager.playTTS(translation.character, 1.0);
+      await audioManager.playTTS(translation.character, 0.65);
       setIsPlaying(false);
     } catch (error) {
       console.error('TTS error:', error);

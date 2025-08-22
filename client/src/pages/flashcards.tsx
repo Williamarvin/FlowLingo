@@ -188,7 +188,7 @@ function FlashcardsContent() {
     try {
       const response = await apiRequest("POST", "/api/tts", { 
         text,
-        speed: 0.8 
+        speed: 0.65 
       });
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);

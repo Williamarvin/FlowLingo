@@ -146,7 +146,7 @@ function VoiceTranslatorContent() {
     try {
       const response = await apiRequest("POST", "/api/tts", { 
         text,
-        speed: 0.9 
+        speed: 0.65 
       });
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);

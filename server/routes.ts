@@ -843,7 +843,7 @@ Output: Only Chinese text, no explanations.`;
 
   app.post("/api/tts", async (req, res) => {
     try {
-      const { text, speed = 0.8 } = req.body; // Default speed 0.8, can be overridden
+      const { text, speed = 0.65 } = req.body; // Default speed 0.65 for clearer pronunciation
       
       if (!text) {
         return res.status(400).json({ error: "Text is required" });

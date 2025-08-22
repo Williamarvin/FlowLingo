@@ -78,7 +78,7 @@ class AudioManager {
   }
 
   // Play audio with OpenAI TTS
-  async playTTS(text: string, speed: number = 0.8): Promise<void> {
+  async playTTS(text: string, speed: number = 0.65): Promise<void> {
     // Stop any currently playing audio first
     this.stopAll();
 
