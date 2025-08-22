@@ -1,0 +1,114 @@
+[Region: asia-southeast1]
+
+==============
+
+Using Nixpacks
+
+==============
+
+
+context: k55z-Day_
+
+╔═══════════════════════ Nixpacks v1.38.0 ══════════════════════╗
+
+║ setup      │ nodejs_18, npm-9_x, openssl                      ║
+
+║───────────────────────────────────────────────────────────────║
+
+║ caddy      │ pkgs: caddy                                      ║
+
+║            │ cmds: caddy fmt --overwrite /assets/Caddyfile    ║
+
+║───────────────────────────────────────────────────────────────║
+
+║ install    │ npm ci                                           ║
+
+║───────────────────────────────────────────────────────────────║
+
+║ build      │ npm run db:push                                  ║
+
+║───────────────────────────────────────────────────────────────║
+
+║ start      │ NODE_ENV=production npx tsx server/production.ts ║
+
+╚═══════════════════════════════════════════════════════════════╝
+
+[internal] load build definition from Dockerfile
+
+[internal] load build definition from Dockerfile  ✔ 0 ms
+
+[internal] load build definition from Dockerfile
+
+[internal] load build definition from Dockerfile  ✔ 63 ms
+
+[internal] load metadata for ghcr.io/railwayapp/nixpacks:ubuntu-1745885067
+
+[internal] load metadata for ghcr.io/railwayapp/nixpacks:ubuntu-1745885067  ✔ 513 ms
+
+[internal] load .dockerignore
+
+[internal] load .dockerignore  ✔ 0 ms
+
+[internal] load .dockerignore
+
+[internal] load .dockerignore  ✔ 13 ms
+
+[stage-0 15/15] COPY . /app
+
+[stage-0 14/15] RUN printf '\nPATH=/app/node_modules/.bin:$PATH' >> /root/.profile
+
+[stage-0 13/15] RUN --mount=type=cache,id=s/65004041-364f-4490-80cd-8e6d3d2359b6-node_modules/cache,target=/app/node_modules/.cache npm run db:push
+
+[stage-0 12/15] COPY . /app/.
+
+[stage-0 11/15] RUN --mount=type=cache,id=s/65004041-364f-4490-80cd-8e6d3d2359b6-/root/npm,target=/root/.npm npm ci
+
+[stage-0 10/15] COPY . /app/.
+
+[internal] load build context  ✔ 0 ms
+
+[internal] load build context
+
+[internal] load build context  ✔ 219 ms
+
+[stage-0  2/10] WORKDIR /app/  ✔ 0 ms – CACHED
+
+[stage-0  3/15] COPY .nixpacks/nixpkgs-ba913eda2df8eb72147259189d55932012df6301.nix .nixpacks/nixpkgs-ba913eda2df8eb72147259189d55932012df6301.nix  ✔ 0 ms – CACHED
+
+[stage-0  4/15] RUN nix-env -if .nixpacks/nixpkgs-ba913eda2df8eb72147259189d55932012df6301.nix && nix-collect-garbage -d  ✔ 0 ms – CACHED
+
+[stage-0  5/15] COPY .nixpacks/nixpkgs-ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7.nix .nixpacks/nixpkgs-ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7.nix  ✔ 0 ms – CACHED
+
+[stage-0  6/15] RUN nix-env -if .nixpacks/nixpkgs-ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7.nix && nix-collect-garbage -d  ✔ 0 ms – CACHED
+
+[stage-0  7/15] COPY .nixpacks/assets /assets/  ✔ 0 ms – CACHED
+
+[stage-0  8/15] COPY . /app/.
+
+[stage-0  8/15] COPY . /app/.  ✔ 188 ms
+
+[stage-0  9/15] RUN  caddy fmt --overwrite /assets/Caddyfile
+
+[stage-0  9/15] RUN  caddy fmt --overwrite /assets/Caddyfile  ✔ 419 ms
+
+[stage-0 10/15] COPY . /app/.
+
+[stage-0 10/15] COPY . /app/.  ✔ 133 ms
+
+[stage-0 11/15] RUN --mount=type=cache,id=s/65004041-364f-4490-80cd-8e6d3d2359b6-/root/npm,target=/root/.npm npm ci
+
+npm warn config production Use `--omit=dev` instead.
+
+npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+
+npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+
+
+added 650 packages, and audited 651 packages in 8s
+
+
+
+85 packages are looking for funding
+  run `npm fund` for details
