@@ -1095,6 +1095,100 @@ export class MemStorage implements IStorage {
     
     return newSticker;
   }
+  
+  // Rewards methods (stub implementations)
+  async getAllRewards(): Promise<any[]> {
+    return [];
+  }
+  
+  async getUserRewards(userId: string): Promise<any[]> {
+    const { db } = await import("./db");
+    const { userRewards } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    return db.select().from(userRewards).where(eq(userRewards.userId, userId));
+  }
+  
+  async getRewardsWithUserStatus(userId: string): Promise<any[]> {
+    return [];
+  }
+  
+  async grantReward(userId: string, rewardId: string): Promise<any> {
+    const { db } = await import("./db");
+    const { userRewards } = await import("@shared/schema");
+    
+    const [reward] = await db.insert(userRewards).values({
+      userId,
+      rewardId,
+      isNew: true,
+      equipped: false
+    }).returning();
+    
+    return reward;
+  }
+  
+  async markRewardsAsSeen(userId: string): Promise<void> {
+    const { db } = await import("./db");
+    const { userRewards } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    await db.update(userRewards)
+      .set({ isNew: false })
+      .where(eq(userRewards.userId, userId));
+  }
+  
+  // Mascot methods
+  async getUserMascot(userId: string): Promise<any | undefined> {
+    const { db } = await import("./db");
+    const { userMascots } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const [mascot] = await db.select().from(userMascots).where(eq(userMascots.userId, userId));
+    return mascot;
+  }
+  
+  async changeMascot(userId: string, rewardId: string): Promise<any> {
+    const { db } = await import("./db");
+    const { userMascots } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    const { ANIMAL_STICKERS } = await import("./stickerSystem");
+    
+    const emoji = ANIMAL_STICKERS.find(s => s.id === rewardId)?.emoji || '🐬';
+    
+    const [mascot] = await db.insert(userMascots)
+      .values({
+        userId,
+        currentMascotId: rewardId,
+        currentMascotEmoji: emoji
+      })
+      .onConflictDoUpdate({
+        target: userMascots.userId,
+        set: {
+          currentMascotId: rewardId,
+          currentMascotEmoji: emoji,
+          updatedAt: new Date()
+        }
+      })
+      .returning();
+    
+    return mascot;
+  }
+  
+  // XP transaction methods
+  async addXpTransaction(userId: string, amount: number, source: string, sourceId?: string, description?: string): Promise<any> {
+    const { db } = await import("./db");
+    const { xpTransactions } = await import("@shared/schema");
+    
+    const [transaction] = await db.insert(xpTransactions).values({
+      userId,
+      amount,
+      source,
+      sourceId,
+      description
+    }).returning();
+    
+    return transaction;
+  }
 }
 
 // Switch to DatabaseStorage for production
