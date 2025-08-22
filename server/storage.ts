@@ -82,6 +82,10 @@ export interface IStorageExtended extends IStorage {
   // XP transaction methods
   addXpTransaction(userId: string, amount: number, source: string, sourceId?: string, description?: string): Promise<any>;
   getUserRewardProfile(userId: string): Promise<any>;
+  
+  // Sticker methods
+  getUserStickers(userId: string): Promise<any[]>;
+  awardSticker(userId: string, stickerId: string): Promise<any>;
 }
 
 export class DatabaseStorage implements IStorageExtended {
@@ -1058,11 +1062,23 @@ export class MemStorage implements IStorage {
     const stickers = await db.select().from(userRewards)
       .where(eq(userRewards.userId, userId));
     
-    return stickers.map(s => ({
+    const stickerArray = stickers.map(s => ({
       stickerId: s.rewardId,
       earnedAt: s.earnedAt,
       isNew: s.isNew
     }));
+    
+    // Everyone gets the dolphin sticker by default
+    const hasDolphin = stickerArray.some(s => s.stickerId === 'dolphin');
+    if (!hasDolphin) {
+      stickerArray.push({
+        stickerId: 'dolphin',
+        earnedAt: new Date(),
+        isNew: false
+      });
+    }
+    
+    return stickerArray;
   }
   
   async awardSticker(userId: string, stickerId: string): Promise<any> {

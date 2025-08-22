@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { storage } from "./storage";
+import { requireAuth } from "./auth";
 import { 
   ANIMAL_STICKERS, 
   rollRandomSticker, 
@@ -9,8 +10,8 @@ import {
 
 export function registerRewardsRoutes(app: Express) {
   // Get user's reward profile (stats and current mascot)
-  app.get("/api/rewards/profile", async (req, res) => {
-    const userId = req.session?.userId || "demo-user";
+  app.get("/api/rewards/profile", requireAuth, async (req: any, res) => {
+    const userId = req.userId;
     
     try {
       const profile = await storage.getUserRewardProfile(userId);
@@ -22,8 +23,8 @@ export function registerRewardsRoutes(app: Express) {
   });
   
   // Get all rewards with user's earned status
-  app.get("/api/rewards", async (req, res) => {
-    const userId = req.session?.userId || "demo-user";
+  app.get("/api/rewards", requireAuth, async (req: any, res) => {
+    const userId = req.userId;
     
     try {
       const rewards = await storage.getRewardsWithUserStatus(userId);
@@ -35,8 +36,8 @@ export function registerRewardsRoutes(app: Express) {
   });
   
   // Change user's mascot
-  app.post("/api/rewards/change-mascot", async (req, res) => {
-    const userId = req.session?.userId || "demo-user";
+  app.post("/api/rewards/change-mascot", requireAuth, async (req: any, res) => {
+    const userId = req.userId;
     const { rewardId } = req.body;
     
     if (!rewardId) {
@@ -53,8 +54,8 @@ export function registerRewardsRoutes(app: Express) {
   });
   
   // Mark rewards as seen (remove NEW badge)
-  app.post("/api/rewards/mark-seen", async (req, res) => {
-    const userId = req.session?.userId || "demo-user";
+  app.post("/api/rewards/mark-seen", requireAuth, async (req: any, res) => {
+    const userId = req.userId;
     
     try {
       await storage.markRewardsAsSeen(userId);
@@ -66,8 +67,8 @@ export function registerRewardsRoutes(app: Express) {
   });
   
   // Grant reward to user (internal use for when level is completed)
-  app.post("/api/rewards/grant", async (req, res) => {
-    const userId = req.session?.userId || "demo-user";
+  app.post("/api/rewards/grant", requireAuth, async (req: any, res) => {
+    const userId = req.userId;
     const { rewardId } = req.body;
     
     if (!rewardId) {
@@ -84,8 +85,8 @@ export function registerRewardsRoutes(app: Express) {
   });
   
   // Add XP to user from various activities
-  app.post("/api/xp/add", async (req, res) => {
-    const userId = req.session?.userId || "demo-user";
+  app.post("/api/xp/add", requireAuth, async (req: any, res) => {
+    const userId = req.userId;
     const { amount, source, sourceId, description } = req.body;
     
     if (!amount || !source) {
@@ -102,9 +103,9 @@ export function registerRewardsRoutes(app: Express) {
   });
 
   // Get all available animal stickers with probabilities
-  app.get("/api/stickers/catalog", async (req, res) => {
+  app.get("/api/stickers/catalog", requireAuth, async (req: any, res) => {
     try {
-      const userId = req.session?.userId || "demo-user";
+      const userId = req.userId;
       const userStickers = await storage.getUserStickers(userId);
       
       const catalog = ANIMAL_STICKERS.map(sticker => ({
@@ -121,8 +122,8 @@ export function registerRewardsRoutes(app: Express) {
   });
 
   // Open a loot box and get random stickers
-  app.post("/api/stickers/open-lootbox", async (req, res) => {
-    const userId = req.session?.userId || "demo-user";
+  app.post("/api/stickers/open-lootbox", requireAuth, async (req: any, res) => {
+    const userId = req.userId;
     const { event = 'manual_open' } = req.body;
     
     try {
