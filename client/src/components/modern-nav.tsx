@@ -77,22 +77,22 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
             </Link>
 
             {/* Center Navigation - Desktop */}
-            <div className="hidden md:flex items-center bg-white border border-gray-300 rounded-full shadow-sm hover:shadow-md transition-shadow">
+            <div className="hidden md:flex items-center bg-white border border-gray-300 rounded-full shadow-sm hover:shadow-md transition-shadow px-1">
               {navTabs.map((tab, index) => (
                 <Link key={tab.path} href={tab.path}>
                   <button
                     className={`
-                      px-4 py-2 text-sm font-medium transition-colors
+                      px-6 py-3 text-sm font-medium transition-colors flex items-center gap-1
                       ${index === 0 ? 'rounded-l-full' : ''}
                       ${index === navTabs.length - 1 ? 'rounded-r-full' : ''}
                       ${location === tab.path 
-                        ? 'text-gray-900 bg-gray-50' 
+                        ? 'text-gray-900 bg-gray-100' 
                         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                       }
                     `}
                   >
-                    <span className="mr-1">{tab.icon}</span>
-                    {tab.label}
+                    <span>{tab.icon}</span>
+                    <span>{tab.label}</span>
                   </button>
                 </Link>
               ))}

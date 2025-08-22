@@ -72,7 +72,7 @@ function FlashcardsContent() {
   });
 
   // Get user profile for level progress
-  const { data: userProfile } = useQuery({
+  const { data: userProfile } = useQuery<any>({
     queryKey: ["/api/user/profile"],
     refetchInterval: 10000,
   });
