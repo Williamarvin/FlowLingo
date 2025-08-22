@@ -1,5 +1,5 @@
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,9 @@ function ProgressivePracticeContent() {
   const [showOutOfHeartsScreen, setShowOutOfHeartsScreen] = useState(false);
   const [wrongAttempts, setWrongAttempts] = useState(0);
   const [showDifficultyOption, setShowDifficultyOption] = useState(false);
+  
+  // Ref for continue button to scroll to
+  const continueButtonRef = useRef<HTMLButtonElement>(null);
   
   // Get level from URL params if provided, otherwise use user's current level
   const urlParams = new URLSearchParams(location.split('?')[1] || '');
@@ -196,6 +199,14 @@ function ProgressivePracticeContent() {
     const correct = answer === currentQ.correctAnswer;
     setIsCorrect(correct);
     setShowFeedback(true);
+    
+    // Scroll to continue button after a short delay
+    setTimeout(() => {
+      continueButtonRef.current?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+    }, 100);
 
     if (!correct) {
       setWrongAnswers(prev => prev + 1);
@@ -808,6 +819,7 @@ function ProgressivePracticeContent() {
             {/* Continue Button */}
             {showFeedback && (
               <Button
+                ref={continueButtonRef}
                 onClick={handleContinue}
                 className={`
                   w-full py-4 text-lg font-bold rounded-2xl shadow-lg transform transition hover:scale-105
