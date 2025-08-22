@@ -73,9 +73,30 @@ function RewardsContent() {
     }
   };
 
-  const filteredStickers = selectedRarity === 'all' 
-    ? stickers 
-    : stickers.filter(s => s.rarity === selectedRarity);
+  // Define rarity order (most rare to least rare)
+  const rarityOrder = ['legendary', 'epic', 'rare', 'uncommon', 'common'];
+  
+  // Sort and filter stickers
+  const sortedAndFilteredStickers = (() => {
+    // Filter by rarity if needed
+    const filtered = selectedRarity === 'all' 
+      ? stickers 
+      : stickers.filter(s => s.rarity === selectedRarity);
+    
+    // Sort by: 1) collected first, 2) rarity (most rare first)
+    return filtered.sort((a, b) => {
+      // First sort by collected status (collected first)
+      if (a.collected !== b.collected) {
+        return a.collected ? -1 : 1;
+      }
+      // Then sort by rarity (most rare first)
+      const aRarityIndex = rarityOrder.indexOf(a.rarity);
+      const bRarityIndex = rarityOrder.indexOf(b.rarity);
+      return aRarityIndex - bRarityIndex;
+    });
+  })();
+  
+  const filteredStickers = sortedAndFilteredStickers;
 
   const collectedCount = stickers.filter(s => s.collected).length;
   const totalCount = stickers.length;
@@ -226,14 +247,8 @@ function RewardsContent() {
         {/* Sticker Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {filteredStickers.map((sticker) => (
-            <motion.div
+            <div
               key={sticker.id}
-              whileHover={{ scale: 1.05 }}
-              animate={jumpingId === sticker.id ? {
-                y: [-5, -25, -5],
-                rotate: [0, -10, 10, 0]
-              } : {}}
-              transition={{ duration: 0.6 }}
               onClick={() => sticker.collected && handleStickerClick(sticker.id)}
               className={cn(
                 "relative cursor-pointer",
@@ -241,9 +256,9 @@ function RewardsContent() {
               )}
             >
               <Card className={cn(
-                "border-2 overflow-hidden",
+                "border-2 overflow-hidden transform transition-all duration-200 hover:scale-105",
                 rarityBorders[sticker.rarity],
-                sticker.collected && "hover:shadow-lg transition-shadow"
+                sticker.collected && "hover:shadow-lg"
               )}>
                 <div className={cn(
                   "h-2 bg-gradient-to-r",
@@ -253,7 +268,16 @@ function RewardsContent() {
                 <CardContent className="p-4 text-center">
                   {sticker.collected ? (
                     <>
-                      <div className="text-5xl mb-2">{sticker.emoji}</div>
+                      <motion.div 
+                        className="text-5xl mb-2 inline-block"
+                        animate={jumpingId === sticker.id ? {
+                          y: [-5, -25, -5],
+                          rotate: [0, -10, 10, 0]
+                        } : {}}
+                        transition={{ duration: 0.6 }}
+                      >
+                        {sticker.emoji}
+                      </motion.div>
                       {sticker.count > 1 && (
                         <div className="absolute top-2 right-2 bg-gray-800 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
                           {sticker.count}
@@ -293,7 +317,7 @@ function RewardsContent() {
                   </p>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           ))}
         </div>
 
