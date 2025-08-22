@@ -511,8 +511,8 @@ function ProgressivePracticeContent() {
             <div className="w-24"></div> {/* Spacer for centering */}
           </div>
           
-          {/* Sticker Rewards Progress Bar - Full Version */}
-          {userProfile && currentQuestionIndex === 0 && !showFeedback && (
+          {/* Sticker Rewards Progress Bar - Always Visible */}
+          {userProfile && userProfile.level && (
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-sm border border-purple-200 p-4 mb-4">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-white rounded-lg shadow-sm">
