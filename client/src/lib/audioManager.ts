@@ -35,7 +35,7 @@ class AudioManager {
     
     // Preload in background without waiting
     commonPhrases.forEach(phrase => {
-      this.fetchAndCacheTTS(phrase, 0.8).catch(console.error);
+      this.fetchAndCacheTTS(phrase, 0.9).catch(console.error);
     });
   }
 
@@ -78,7 +78,7 @@ class AudioManager {
   }
 
   // Play audio with OpenAI TTS
-  async playTTS(text: string, speed: number = 0.5): Promise<void> {
+  async playTTS(text: string, speed: number = 0.9): Promise<void> {
     // Stop any currently playing audio first
     this.stopAll();
 
@@ -128,18 +128,23 @@ class AudioManager {
   }
 
   // Fallback to browser TTS
-  playBrowserTTS(text: string, rate: number = 0.8) {
+  playBrowserTTS(text: string, rate: number = 0.95) {
     // Stop any currently playing audio first
     this.stopAll();
 
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'zh-CN';
-      utterance.rate = rate;
+      utterance.rate = rate; // More natural speed (0.95 instead of 0.8)
+      utterance.pitch = 1.1; // Slightly higher pitch for more natural sound
+      utterance.volume = 0.9; // Slightly softer for comfort
       
-      // Try to use a Chinese voice
+      // Try to use a Chinese voice - prefer female voices as they tend to sound more natural
       const voices = window.speechSynthesis.getVoices();
       const chineseVoice = voices.find(voice => 
+        (voice.lang.includes('zh') || voice.lang.includes('cmn')) && 
+        (voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('ting'))
+      ) || voices.find(voice => 
         voice.lang.includes('zh') || voice.lang.includes('cmn')
       );
       
