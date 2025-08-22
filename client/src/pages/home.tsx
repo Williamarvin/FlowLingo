@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import ModernNav from "@/components/modern-nav";
 import { ArrowRight, Trophy, Flame, BookOpen, MessageCircle, Headphones, FileText, LogIn, Star } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,6 +11,7 @@ export default function Home() {
   const [greeting, setGreeting] = useState("");
   const [, setLocation] = useLocation();
   const { isAuthenticated, isLoading } = useAuth();
+  const [isJumping, setIsJumping] = useState(false);
   
   // Get user profile data (only if authenticated)
   const { data: userProfile } = useQuery<any>({
@@ -396,14 +398,25 @@ export default function Home() {
               
               {/* Mascot Visual */}
               <div className="lg:w-1/3 flex justify-center">
-                <div className="relative">
+                <motion.div 
+                  className="relative cursor-pointer"
+                  onClick={() => {
+                    setIsJumping(true);
+                    setTimeout(() => setIsJumping(false), 600);
+                  }}
+                  animate={isJumping ? {
+                    y: [0, -40, 0],
+                    rotate: [0, -15, 15, 0]
+                  } : {}}
+                  transition={{ duration: 0.6 }}
+                >
                   <div className="w-48 h-48 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full flex items-center justify-center shadow-xl">
                     <span className="text-8xl animate-bounce">🐬</span>
                   </div>
                   <div className="absolute -bottom-2 -right-2 bg-white rounded-full px-3 py-1 shadow-md border border-gray-200">
                     <span className="text-sm font-semibold text-gray-700">Flow</span>
                   </div>
-                </div>
+                </motion.div>
               </div>
             </div>
           </div>

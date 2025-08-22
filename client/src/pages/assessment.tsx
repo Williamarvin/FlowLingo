@@ -10,6 +10,7 @@ import { useLocation } from "wouter";
 import ModernNav from "@/components/modern-nav";
 import { audioManager } from "@/lib/audioManager";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { LootBox } from "@/components/loot-box";
 
 interface AssessmentQuestion {
   id: string;
@@ -40,6 +41,8 @@ function AssessmentContent() {
   const [showResult, setShowResult] = useState(false);
   const [assessmentResult, setAssessmentResult] = useState<AssessmentResult | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showLootBox, setShowLootBox] = useState(false);
+  const [earnedStickers, setEarnedStickers] = useState<any[]>([]);
 
   // Function to speak Chinese text using OpenAI TTS
   const speakChinese = async (text: string) => {
@@ -61,10 +64,25 @@ function AssessmentContent() {
       const response = await apiRequest("POST", "/api/assessment/submit", { answers });
       return response.json();
     },
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       setAssessmentResult(result);
       setShowResult(true);
       queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+      
+      // Award a loot box for completing the assessment
+      try {
+        const lootBoxResponse = await apiRequest("POST", "/api/stickers/open-lootbox", {
+          event: 'assessment_complete'
+        });
+        const lootBoxData = await lootBoxResponse.json();
+        if (lootBoxData.success && lootBoxData.stickers) {
+          setEarnedStickers(lootBoxData.stickers);
+          setShowLootBox(true);
+        }
+      } catch (error) {
+        console.error("Failed to award loot box:", error);
+      }
+      
       toast({
         title: "Assessment Complete!",
         description: `You scored ${result.score}/10 and have been placed at Level ${result.level}`,
@@ -316,6 +334,16 @@ function AssessmentContent() {
           )}
         </div>
       </div>
+      
+      {/* Loot Box Modal */}
+      <LootBox
+        isOpen={showLootBox}
+        onClose={() => setShowLootBox(false)}
+        stickers={earnedStickers}
+        onStickerReceived={(stickers) => {
+          console.log("Stickers received:", stickers);
+        }}
+      />
     </div>
   );
 }

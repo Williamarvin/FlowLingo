@@ -1048,6 +1048,37 @@ export class MemStorage implements IStorage {
       lessonsCompleted: user?.lessonsCompleted || 0
     };
   }
+  
+  // Sticker methods
+  async getUserStickers(userId: string): Promise<any[]> {
+    const { db } = await import("./db");
+    const { userRewards } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const stickers = await db.select().from(userRewards)
+      .where(eq(userRewards.userId, userId));
+    
+    return stickers.map(s => ({
+      stickerId: s.rewardId,
+      earnedAt: s.earnedAt,
+      isNew: s.isNew
+    }));
+  }
+  
+  async awardSticker(userId: string, stickerId: string): Promise<any> {
+    const { db } = await import("./db");
+    const { userRewards } = await import("@shared/schema");
+    
+    // Award the sticker (can have duplicates)
+    const [newSticker] = await db.insert(userRewards).values({
+      userId,
+      rewardId: stickerId,
+      isNew: true,
+      equipped: false
+    }).returning();
+    
+    return newSticker;
+  }
 }
 
 // Switch to DatabaseStorage for production
