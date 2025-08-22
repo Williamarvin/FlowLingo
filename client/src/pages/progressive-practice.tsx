@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import ModernNav from "@/components/modern-nav";
 import { useLocation } from "wouter";
 import { toast } from "@/hooks/use-toast";
-import { Heart, Clock, Trophy, X, ArrowLeft } from "lucide-react";
+import { Heart, Clock, Trophy, X, ArrowLeft, Gift, Sparkles } from "lucide-react";
 import { audioManager } from "@/lib/audioManager";
 import { levelStructure, getLevelInfo } from "../../../shared/levelStructure";
 
@@ -500,6 +500,45 @@ function ProgressivePracticeContent() {
             
             <div className="w-24"></div> {/* Spacer for centering */}
           </div>
+          
+          {/* Sticker Rewards Notification */}
+          {userProfile && currentQuestionIndex === 0 && !showFeedback && (
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-sm border border-purple-200 p-4 mb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white rounded-lg shadow-sm">
+                  <Gift className="w-5 h-5 text-purple-500" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h4 className="text-sm font-semibold text-gray-900">
+                      Level Up = Sticker Rewards!
+                    </h4>
+                    <Sparkles className="w-3 h-3 text-yellow-500" />
+                  </div>
+                  <p className="text-xs text-gray-600">
+                    {(() => {
+                      const level = userProfile.level;
+                      const nextStickerLevel = Math.ceil((level + 1) / 3) * 3;
+                      const hskTransitions = [11, 21, 31, 41, 51];
+                      const nextHskTransition = hskTransitions.find(l => l > level);
+                      
+                      if (level === 10 || level === 20 || level === 30 || level === 40 || level === 50) {
+                        return `Level up to ${level + 1} for an epic/legendary sticker! (HSK transition bonus)`;
+                      } else if (level % 10 === 9) {
+                        return `Level up to ${level + 1} for 2 bonus stickers!`;
+                      } else if (level === 24 || level === 49 || level === 74 || level === 99) {
+                        return `Level up to ${level + 1} for 3 rare+ stickers! (Major milestone)`;
+                      } else if ((level + 1) % 3 === 0) {
+                        return `Level up to ${level + 1} for a new sticker!`;
+                      } else {
+                        return `Next sticker at level ${nextStickerLevel}`;
+                      }
+                    })()}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
           
           {/* Top Header with Hearts and Progress */}
           <div className="bg-white rounded-2xl shadow-md p-4 mb-6 flex items-center justify-between">

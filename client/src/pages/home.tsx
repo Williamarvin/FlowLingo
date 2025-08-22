@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import ModernNav from "@/components/modern-nav";
-import { ArrowRight, Trophy, Flame, BookOpen, MessageCircle, Headphones, FileText, LogIn, Star } from "lucide-react";
+import { ArrowRight, Trophy, Flame, BookOpen, MessageCircle, Headphones, FileText, LogIn, Star, Gift, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 
@@ -438,6 +438,68 @@ export default function Home() {
                   className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-500"
                   style={{ width: `${(userProfile.xp % 100)}%` }}
                 />
+              </div>
+            </div>
+          )}
+          
+          {/* Sticker Rewards Notification */}
+          {userProfile && (
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-sm border border-purple-200 p-6 mb-8">
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-white rounded-xl shadow-sm">
+                  <Gift className="w-6 h-6 text-purple-500" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                    Earn Animal Stickers as You Learn!
+                    <Sparkles className="w-4 h-4 text-yellow-500" />
+                  </h3>
+                  <div className="text-sm text-gray-600 space-y-2 mb-3">
+                    <p>
+                      You're currently <span className="font-semibold text-purple-600">Level {userProfile.level}</span>. 
+                      {(() => {
+                        const level = userProfile.level;
+                        const nextStickerLevel = Math.ceil((level + 1) / 3) * 3;
+                        const hskTransitions = [11, 21, 31, 41, 51];
+                        const nextHskTransition = hskTransitions.find(l => l > level);
+                        const majorMilestones = [25, 50, 75, 100];
+                        const nextMilestone = majorMilestones.find(l => l > level);
+                        
+                        let nextReward = nextStickerLevel;
+                        let rewardType = "a sticker";
+                        
+                        // Check which reward comes first
+                        if (nextHskTransition && (!nextReward || nextHskTransition < nextReward)) {
+                          nextReward = nextHskTransition;
+                          rewardType = "a guaranteed epic or legendary sticker (HSK level up!)";
+                        }
+                        if (level % 10 === 9) {
+                          nextReward = level + 1;
+                          rewardType = "2 stickers with better odds";
+                        }
+                        if (nextMilestone && nextMilestone - level <= 3) {
+                          nextReward = nextMilestone;
+                          rewardType = "3 guaranteed rare+ stickers (major milestone!)";
+                        }
+                        
+                        return (
+                          <> Next reward at <span className="font-semibold text-purple-600">Level {nextReward}</span> - {rewardType}</>
+                        );
+                      })()}
+                    </p>
+                    <div className="flex flex-wrap gap-3 text-xs">
+                      <span className="bg-white px-2 py-1 rounded-full">Every 3 levels: 1 sticker</span>
+                      <span className="bg-white px-2 py-1 rounded-full">Every 10 levels: 2 bonus stickers</span>
+                      <span className="bg-purple-100 px-2 py-1 rounded-full">HSK transitions: Epic/Legendary guaranteed!</span>
+                    </div>
+                  </div>
+                  <Link href="/rewards">
+                    <Button variant="outline" size="sm" className="border-purple-300 text-purple-700 hover:bg-purple-50">
+                      View Your Collection
+                      <ArrowRight className="w-3 h-3 ml-1" />
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </div>
           )}
