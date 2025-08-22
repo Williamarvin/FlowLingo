@@ -681,7 +681,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Text generation endpoint - optimized for speed
-  app.post("/api/generate-text", async (req, res) => {
+  app.post("/api/generate-text", requireAuth, async (req: any, res) => {
     try {
       const { topic, difficulty, length } = req.body;
       
@@ -721,7 +721,7 @@ Output: Only Chinese text, no explanations.`;
       const segments = segmentChineseTextOptimized(content);
 
       const generatedText = await storage.createGeneratedText({
-        userId: DEMO_USER_ID,
+        userId: req.userId,
         topic,
         difficulty,
         content,
@@ -735,7 +735,7 @@ Output: Only Chinese text, no explanations.`;
       if (storage.addXpTransaction) {
         try {
           await storage.addXpTransaction(
-            DEMO_USER_ID,
+            req.userId,
             5,
             'text_generation',
             generatedText.id,
@@ -900,9 +900,9 @@ Output: Only Chinese text, no explanations.`;
   });
 
   // Flashcards endpoints
-  app.get("/api/flashcards", async (req, res) => {
+  app.get("/api/flashcards", requireAuth, async (req: any, res) => {
     try {
-      const userId = DEMO_USER_ID;
+      const userId = req.userId;
       const filter = req.query.filter as string || "all";
       
       const flashcards = await storage.getFlashcards(userId, filter);
@@ -913,9 +913,9 @@ Output: Only Chinese text, no explanations.`;
     }
   });
 
-  app.post("/api/flashcards", async (req, res) => {
+  app.post("/api/flashcards", requireAuth, async (req: any, res) => {
     try {
-      const userId = DEMO_USER_ID;
+      const userId = req.userId;
       const { chinese, pinyin, english, source, level } = req.body;
       
       const flashcard = await storage.createFlashcard({
@@ -1077,7 +1077,7 @@ Output: Only Chinese text, no explanations.`;
   });
 
   // Voice Conversation endpoint for natural dialogue
-  app.post("/api/conversation/voice", async (req, res) => {
+  app.post("/api/conversation/voice", requireAuth, async (req: any, res) => {
     try {
       const { message, topic, difficulty, level, conversationHistory = [] } = req.body;
       
@@ -1145,7 +1145,7 @@ After your Chinese response, provide a JSON block with this format:
       
       // Save conversation to storage
       await storage.createConversation({
-        userId: DEMO_USER_ID,
+        userId: req.userId,
         topic,
         difficulty,
         messages: [
@@ -1167,19 +1167,19 @@ After your Chinese response, provide a JSON block with this format:
   });
 
   // AI conversation endpoint
-  app.post("/api/conversation", async (req, res) => {
+  app.post("/api/conversation", requireAuth, async (req: any, res) => {
     try {
       const { message, conversationId, topic, difficulty } = req.body;
       
       let conversation;
       if (conversationId) {
-        const conversations = await storage.getConversations(DEMO_USER_ID);
+        const conversations = await storage.getConversations(req.userId);
         conversation = conversations.find(c => c.id === conversationId);
       }
       
       if (!conversation) {
         conversation = await storage.createConversation({
-          userId: DEMO_USER_ID,
+          userId: req.userId,
           topic: topic || "Free Conversation",
           difficulty: difficulty || "beginner",
           messages: []
@@ -1189,7 +1189,7 @@ After your Chinese response, provide a JSON block with this format:
       const messages = Array.isArray(conversation.messages) ? conversation.messages : [];
       
       // Get user level to adjust difficulty
-      const user = await storage.getUser(DEMO_USER_ID);
+      const user = await storage.getUser(req.userId);
       const userLevel = user?.level || 1;
       
       // Adjust difficulty based on user level
@@ -1248,9 +1248,9 @@ Create substantially more comprehensive responses with extensive vocabulary prac
   });
 
   // Vocabulary endpoints
-  app.get("/api/vocabulary", async (req, res) => {
+  app.get("/api/vocabulary", requireAuth, async (req: any, res) => {
     try {
-      const words = await storage.getVocabularyWords(DEMO_USER_ID);
+      const words = await storage.getVocabularyWords(req.userId);
       res.json(words);
     } catch (error) {
       console.error("Get vocabulary error:", error);
@@ -1258,9 +1258,9 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     }
   });
 
-  app.get("/api/vocabulary/due", async (req, res) => {
+  app.get("/api/vocabulary/due", requireAuth, async (req: any, res) => {
     try {
-      const words = await storage.getVocabularyWordsDue(DEMO_USER_ID);
+      const words = await storage.getVocabularyWordsDue(req.userId);
       res.json(words);
     } catch (error) {
       console.error("Get due vocabulary error:", error);
@@ -1268,11 +1268,11 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     }
   });
 
-  app.post("/api/vocabulary", async (req, res) => {
+  app.post("/api/vocabulary", requireAuth, async (req: any, res) => {
     try {
       const wordData = insertVocabularyWordSchema.parse({
         ...req.body,
-        userId: DEMO_USER_ID
+        userId: req.userId
       });
       const word = await storage.createVocabularyWord(wordData);
       res.json(word);
@@ -1684,19 +1684,14 @@ Create substantially more comprehensive responses with extensive vocabulary prac
   });
 
   // User profile endpoints
-  app.get("/api/user/profile", async (req, res) => {
+  app.get("/api/user/profile", requireAuth, async (req: any, res) => {
     try {
-      const userId = DEMO_USER_ID;
+      const userId = req.userId; // Get actual authenticated user ID
       let user = await storage.getUser(userId);
       
       if (!user) {
-        // Create default user with the specific ID if doesn't exist
-        user = await storage.createUser({
-          id: userId,
-          username: "demo",
-          password: "demo"
-        });
-        console.log("Created new demo user with ID:", userId);
+        // This shouldn't happen since user was created during signup
+        return res.status(404).json({ error: "User not found" });
       }
       
       // Update streak if needed
@@ -1736,9 +1731,9 @@ Create substantially more comprehensive responses with extensive vocabulary prac
   });
   
   // Temporary endpoint to reset assessment status for testing
-  app.post("/api/user/reset-assessment", async (req, res) => {
+  app.post("/api/user/reset-assessment", requireAuth, async (req: any, res) => {
     try {
-      const userId = DEMO_USER_ID;
+      const userId = req.userId;
       const user = await storage.updateUserProgress(userId, { 
         assessmentCompleted: false,
         initialLevel: null,
@@ -1873,7 +1868,7 @@ Create substantially more comprehensive responses with extensive vocabulary prac
   });
 
   // Submit assessment and calculate level placement
-  app.post("/api/assessment/submit", async (req, res) => {
+  app.post("/api/assessment/submit", requireAuth, async (req: any, res) => {
     try {
       const { answers } = req.body;
       
@@ -1893,7 +1888,7 @@ Create substantially more comprehensive responses with extensive vocabulary prac
 
       // Calculate score and save wrong answers as flashcards
       let correctAnswers = 0;
-      const userId = "demo-user"; // Replace with actual user ID from session
+      const userId = req.userId; // Get authenticated user ID from session
       
       for (const question of fullAssessmentQuestions) {
         if (answers[question.id] === question.correctAnswer) {
@@ -1993,9 +1988,10 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     }
   });
 
-  app.post("/api/assessment/complete", async (req, res) => {
+  app.post("/api/assessment/complete", requireAuth, async (req: any, res) => {
     try {
-      const { userId, score, totalQuestions, correctAnswers, recommendedLevel, strengths, weaknesses } = req.body;
+      const { score, totalQuestions, correctAnswers, recommendedLevel, strengths, weaknesses } = req.body;
+      const userId = req.userId;
       
       console.log("Assessment complete request:", { userId, recommendedLevel });
       
@@ -2048,10 +2044,10 @@ Create substantially more comprehensive responses with extensive vocabulary prac
   });
 
   // Get practice progress for a specific level
-  app.get("/api/practice/progress/:level", async (req, res) => {
+  app.get("/api/practice/progress/:level", requireAuth, async (req: any, res) => {
     try {
       const level = parseInt(req.params.level);
-      const userId = DEMO_USER_ID;
+      const userId = req.userId;
       
       const progress = await storage.getPracticeProgress(userId, level);
       
@@ -2068,10 +2064,10 @@ Create substantially more comprehensive responses with extensive vocabulary prac
   });
 
   // Save practice progress after each question
-  app.post("/api/practice/progress/:level", async (req, res) => {
+  app.post("/api/practice/progress/:level", requireAuth, async (req: any, res) => {
     try {
       const level = parseInt(req.params.level);
-      const userId = DEMO_USER_ID;
+      const userId = req.userId;
       const progress = req.body;
       
       const savedProgress = await storage.savePracticeProgress(userId, level, progress);
@@ -2084,10 +2080,10 @@ Create substantially more comprehensive responses with extensive vocabulary prac
   });
 
   // Hearts management endpoint
-  app.post("/api/user/hearts", async (req, res) => {
+  app.post("/api/user/hearts", requireAuth, async (req: any, res) => {
     try {
       const { heartsChange } = req.body;
-      const userId = DEMO_USER_ID;
+      const userId = req.userId;
       
       const user = await storage.getUser(userId);
       if (!user) {
@@ -2112,9 +2108,10 @@ Create substantially more comprehensive responses with extensive vocabulary prac
   });
 
   // Level up endpoint for auto-advancement
-  app.post("/api/user/level-up", async (req, res) => {
+  app.post("/api/user/level-up", requireAuth, async (req: any, res) => {
     try {
-      const { userId, newLevel, reason } = req.body;
+      const { newLevel, reason } = req.body;
+      const userId = req.userId;
       
       // Update user level
       await storage.updateUserProgress(userId, {
@@ -2128,9 +2125,10 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     }
   });
 
-  app.post("/api/practice/answer", async (req, res) => {
+  app.post("/api/practice/answer", requireAuth, async (req: any, res) => {
     try {
-      const { userId, questionType, level, correct, xpEarned } = req.body;
+      const { questionType, level, correct, xpEarned } = req.body;
+      const userId = req.userId;
       
       // Add XP to user
       await storage.addXpToUser(userId, xpEarned);
@@ -2151,10 +2149,10 @@ Create substantially more comprehensive responses with extensive vocabulary prac
   });
 
   // Save practice session and handle level progression
-  app.post("/api/practice/save-session", async (req, res) => {
+  app.post("/api/practice/save-session", requireAuth, async (req: any, res) => {
     try {
       const { level, questionsAnswered, correctAnswers, wrongAnswers, accuracy, xpEarned, timeSpent = 0 } = req.body;
-      const userId = DEMO_USER_ID; // Using demo user for now
+      const userId = req.userId; // Get authenticated user ID
       
       // Award XP to user
       const updatedUser = await storage.addXpToUser(userId, xpEarned);
