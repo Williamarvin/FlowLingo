@@ -454,56 +454,92 @@ export default function Home() {
                     Earn Animal Stickers as You Learn!
                     <Sparkles className="w-4 h-4 text-yellow-500" />
                   </h3>
-                  <div className="text-sm text-gray-600 space-y-2 mb-3">
-                    <p>
-                      You're currently <span className="font-semibold text-purple-600">Level {userProfile.level}</span>. 
-                      {(() => {
-                        const level = userProfile.level;
-                        const nextStickerLevel = Math.ceil((level + 1) / 3) * 3;
-                        const hskTransitions = [11, 21, 31, 41, 51];
-                        const nextHskTransition = hskTransitions.find(l => l > level);
-                        const majorMilestones = [25, 50, 75, 100];
-                        const nextMilestone = majorMilestones.find(l => l > level);
-                        
-                        let nextReward = nextStickerLevel;
-                        let rewardType = "a sticker";
-                        
-                        // Check which reward comes first
-                        if (nextHskTransition && (!nextReward || nextHskTransition < nextReward)) {
-                          nextReward = nextHskTransition;
-                          rewardType = "a guaranteed epic or legendary sticker (HSK level up!)";
-                        }
-                        if (level % 10 === 9) {
-                          nextReward = level + 1;
-                          rewardType = "2 stickers with better odds";
-                        }
-                        if (nextMilestone && nextMilestone - level <= 3) {
-                          nextReward = nextMilestone;
-                          rewardType = "3 guaranteed rare+ stickers (major milestone!)";
-                        }
-                        
-                        const levelsToGo = nextReward - level;
-                        
-                        return (
-                          <>
-                            <div className="bg-white/60 rounded-lg p-2 inline-block">
-                              <span className="text-2xl font-bold text-purple-700">{levelsToGo}</span>
-                              <span className="text-base font-medium text-purple-600 ml-2">
-                                level{levelsToGo > 1 ? 's' : ''} to go
-                              </span>
+                  <div className="space-y-3 mb-3">
+                    {(() => {
+                      const level = userProfile.level;
+                      const nextStickerLevel = Math.ceil((level + 1) / 3) * 3;
+                      const hskTransitions = [11, 21, 31, 41, 51];
+                      const nextHskTransition = hskTransitions.find(l => l > level);
+                      const majorMilestones = [25, 50, 75, 100];
+                      const nextMilestone = majorMilestones.find(l => l > level);
+                      
+                      let nextReward = nextStickerLevel;
+                      let rewardType = "a sticker";
+                      let rewardIcon = "🎁";
+                      
+                      // Check which reward comes first
+                      if (nextHskTransition && (!nextReward || nextHskTransition < nextReward)) {
+                        nextReward = nextHskTransition;
+                        rewardType = "Epic/Legendary sticker (HSK level up!)";
+                        rewardIcon = "⭐";
+                      }
+                      if (level % 10 === 9) {
+                        nextReward = level + 1;
+                        rewardType = "2 stickers with better odds";
+                        rewardIcon = "🎁🎁";
+                      }
+                      if (nextMilestone && nextMilestone - level <= 3) {
+                        nextReward = nextMilestone;
+                        rewardType = "3 rare+ stickers (milestone!)";
+                        rewardIcon = "🏆";
+                      }
+                      
+                      const levelsToGo = nextReward - level;
+                      const startLevel = nextReward - 3; // Show progress for last 3 levels
+                      const progressPercent = ((level - startLevel) / 3) * 100;
+                      
+                      return (
+                        <>
+                          <div className="bg-white/80 rounded-lg p-3">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium text-gray-700">Level {level}</span>
+                                <span className="text-xs text-gray-500">→</span>
+                                <span className="text-sm font-medium text-purple-600">Level {nextReward}</span>
+                                <span className="text-lg">{rewardIcon}</span>
+                              </div>
+                              <div className="text-right">
+                                <span className="text-2xl font-bold text-purple-700">{levelsToGo}</span>
+                                <span className="text-xs font-medium text-purple-600 ml-1">
+                                  level{levelsToGo > 1 ? 's' : ''} to go
+                                </span>
+                              </div>
                             </div>
-                            <div>
-                              Next reward at <span className="font-semibold text-purple-600">Level {nextReward}</span> - {rewardType}
+                            
+                            {/* Progress Bar */}
+                            <div className="relative h-8 bg-gray-200 rounded-full overflow-hidden">
+                              <div 
+                                className="absolute h-full bg-gradient-to-r from-purple-400 to-purple-600 rounded-full transition-all duration-500 ease-out"
+                                style={{ width: `${Math.max(5, progressPercent)}%` }}
+                              >
+                                <div className="h-full flex items-center justify-end pr-2">
+                                  {progressPercent > 20 && (
+                                    <span className="text-xs text-white font-medium">
+                                      {Math.round(progressPercent)}%
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              {/* Level markers */}
+                              <div className="absolute inset-0 flex items-center justify-between px-2">
+                                <span className="text-xs font-medium text-gray-600">{startLevel}</span>
+                                <span className="text-xs font-medium text-gray-600">{nextReward}</span>
+                              </div>
                             </div>
-                          </>
-                        );
-                      })()}
-                    </p>
-                    <div className="flex flex-wrap gap-3 text-xs">
-                      <span className="bg-white px-2 py-1 rounded-full">Every 3 levels: 1 sticker</span>
-                      <span className="bg-white px-2 py-1 rounded-full">Every 10 levels: 2 bonus stickers</span>
-                      <span className="bg-purple-100 px-2 py-1 rounded-full">HSK transitions: Epic/Legendary guaranteed!</span>
-                    </div>
+                            
+                            <p className="text-xs text-gray-600 mt-2 text-center">
+                              Next: {rewardType}
+                            </p>
+                          </div>
+                          
+                          <div className="flex flex-wrap gap-2 text-xs">
+                            <span className="bg-white px-2 py-1 rounded-full">Every 3 levels: 1 sticker</span>
+                            <span className="bg-white px-2 py-1 rounded-full">Every 10 levels: 2 bonus stickers</span>
+                            <span className="bg-purple-100 px-2 py-1 rounded-full">HSK: Epic/Legendary!</span>
+                          </div>
+                        </>
+                      );
+                    })()}
                   </div>
                   <Link href="/rewards">
                     <Button variant="outline" size="sm" className="border-purple-300 text-purple-700 hover:bg-purple-50">

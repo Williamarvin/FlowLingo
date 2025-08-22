@@ -21,7 +21,9 @@ import {
   Trophy,
   Filter,
   Plus,
-  Save
+  Save,
+  Gift,
+  Sparkles
 } from "lucide-react";
 import {
   Dialog,
@@ -67,6 +69,12 @@ function FlashcardsContent() {
     pinyin: "",
     english: "",
     level: "1"
+  });
+
+  // Get user profile for level progress
+  const { data: userProfile } = useQuery({
+    queryKey: ["/api/user/profile"],
+    refetchInterval: 10000,
   });
 
   // Fetch flashcards
@@ -237,7 +245,7 @@ function FlashcardsContent() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="max-w-full animate-fade-in">
           {/* Header */}
-          <div className="mb-8 flex justify-between items-start">
+          <div className="mb-6 flex justify-between items-start">
             <div>
               <h1 className="text-4xl font-bold gradient-text mb-2">Flashcards</h1>
               <p className="text-gray-600">
@@ -325,6 +333,100 @@ function FlashcardsContent() {
               </DialogContent>
             </Dialog>
           </div>
+
+          {/* Sticker Progress Bar */}
+          {userProfile && (
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-sm border border-purple-200 p-4 mb-6">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-white rounded-lg shadow-sm">
+                  <Gift className="w-5 h-5 text-purple-500" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-sm font-semibold text-gray-900">
+                      Sticker Progress
+                    </h4>
+                    <Sparkles className="w-3 h-3 text-yellow-500" />
+                  </div>
+                </div>
+              </div>
+              
+              {(() => {
+                const level = userProfile.level || 1;
+                const nextStickerLevel = Math.ceil((level + 1) / 3) * 3;
+                const hskTransitions = [11, 21, 31, 41, 51];
+                const nextHskTransition = hskTransitions.find(l => l > level);
+                const majorMilestones = [25, 50, 75, 100];
+                const nextMilestone = majorMilestones.find(l => l > level);
+                
+                let nextReward = nextStickerLevel;
+                let rewardType = "New sticker";
+                let rewardIcon = "🎁";
+                
+                // Check special rewards
+                if (level === 10 || level === 20 || level === 30 || level === 40 || level === 50) {
+                  nextReward = level + 1;
+                  rewardType = "Epic/Legendary sticker!";
+                  rewardIcon = "⭐";
+                } else if (level % 10 === 9) {
+                  nextReward = level + 1;
+                  rewardType = "2 bonus stickers!";
+                  rewardIcon = "🎁🎁";
+                } else if (level === 24 || level === 49 || level === 74 || level === 99) {
+                  nextReward = level + 1;
+                  rewardType = "3 rare+ stickers!";
+                  rewardIcon = "🏆";
+                } else if ((level + 1) % 3 === 0) {
+                  nextReward = level + 1;
+                  rewardType = "New sticker!";
+                }
+                
+                const levelsToGo = nextReward - level;
+                const startLevel = nextReward - 3;
+                const progressPercent = ((level - startLevel) / 3) * 100;
+                
+                return (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-gray-700">Level {level}</span>
+                        <span className="text-xs text-gray-500">→</span>
+                        <span className="text-sm font-medium text-purple-600">Level {nextReward}</span>
+                        <span className="text-lg">{rewardIcon}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-2xl font-bold text-purple-700">{levelsToGo}</span>
+                        <span className="text-xs font-medium text-purple-600 ml-1">
+                          level{levelsToGo > 1 ? 's' : ''} to go
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {/* Progress Bar */}
+                    <div className="relative h-8 bg-white/60 rounded-full overflow-hidden">
+                      <div 
+                        className="absolute h-full bg-gradient-to-r from-purple-400 to-purple-600 rounded-full transition-all duration-500"
+                        style={{ width: `${Math.max(5, progressPercent)}%` }}
+                      >
+                        <div className="h-full flex items-center justify-end pr-2">
+                          {progressPercent > 20 && (
+                            <span className="text-xs text-white font-medium">
+                              {Math.round(progressPercent)}%
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-xs font-medium text-gray-700">
+                          {rewardType}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
 
           {/* Stats Bar - Modern Glass Cards */}
           <div className="grid grid-cols-3 gap-4 mb-6">

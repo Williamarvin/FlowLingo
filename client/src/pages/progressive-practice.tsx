@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { Heart, Clock, Trophy, X, ArrowLeft, Gift, Sparkles } from "lucide-react";
 import { audioManager } from "@/lib/audioManager";
 import { levelStructure, getLevelInfo } from "../../../shared/levelStructure";
+import { motion } from "framer-motion";
 
 interface Question {
   id: string;
@@ -510,66 +511,87 @@ function ProgressivePracticeContent() {
             <div className="w-24"></div> {/* Spacer for centering */}
           </div>
           
-          {/* Sticker Rewards Notification */}
+          {/* Sticker Rewards Progress Bar */}
           {userProfile && currentQuestionIndex === 0 && !showFeedback && (
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-sm border border-purple-200 p-4 mb-4">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-white rounded-lg shadow-sm">
                   <Gift className="w-5 h-5 text-purple-500" />
                 </div>
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2">
                     <h4 className="text-sm font-semibold text-gray-900">
                       Sticker Progress
                     </h4>
                     <Sparkles className="w-3 h-3 text-yellow-500" />
                   </div>
-                  <div className="text-xs text-gray-600">
-                    {(() => {
-                      const level = userProfile.level;
-                      const nextStickerLevel = Math.ceil((level + 1) / 3) * 3;
-                      const hskTransitions = [11, 21, 31, 41, 51];
-                      const nextHskTransition = hskTransitions.find(l => l > level);
-                      const majorMilestones = [25, 50, 75, 100];
-                      const nextMilestone = majorMilestones.find(l => l > level);
-                      
-                      let nextReward = nextStickerLevel;
-                      let rewardType = "1 sticker";
-                      
-                      // Check special rewards
-                      if (level === 10 || level === 20 || level === 30 || level === 40 || level === 50) {
-                        nextReward = level + 1;
-                        rewardType = "Epic/Legendary sticker!";
-                      } else if (level % 10 === 9) {
-                        nextReward = level + 1;
-                        rewardType = "2 bonus stickers!";
-                      } else if (level === 24 || level === 49 || level === 74 || level === 99) {
-                        nextReward = level + 1;
-                        rewardType = "3 rare+ stickers!";
-                      } else if ((level + 1) % 3 === 0) {
-                        nextReward = level + 1;
-                        rewardType = "New sticker!";
-                      }
-                      
-                      const levelsToGo = nextReward - level;
-                      
-                      return (
-                        <div className="flex items-center gap-2">
-                          <div className="bg-white/80 rounded px-2 py-1">
-                            <span className="text-lg font-bold text-purple-700">{levelsToGo}</span>
-                            <span className="text-xs font-medium text-purple-600 ml-1">
-                              level{levelsToGo > 1 ? 's' : ''} to go
-                            </span>
-                          </div>
-                          <span className="text-xs">
-                            → {rewardType}
-                          </span>
-                        </div>
-                      );
-                    })()}
-                  </div>
                 </div>
               </div>
+              
+              {(() => {
+                const level = userProfile.level;
+                const nextStickerLevel = Math.ceil((level + 1) / 3) * 3;
+                const hskTransitions = [11, 21, 31, 41, 51];
+                const nextHskTransition = hskTransitions.find(l => l > level);
+                const majorMilestones = [25, 50, 75, 100];
+                const nextMilestone = majorMilestones.find(l => l > level);
+                
+                let nextReward = nextStickerLevel;
+                let rewardType = "New sticker";
+                let rewardIcon = "🎁";
+                
+                // Check special rewards
+                if (level === 10 || level === 20 || level === 30 || level === 40 || level === 50) {
+                  nextReward = level + 1;
+                  rewardType = "Epic/Legendary!";
+                  rewardIcon = "⭐";
+                } else if (level % 10 === 9) {
+                  nextReward = level + 1;
+                  rewardType = "2 bonus stickers!";
+                  rewardIcon = "🎁🎁";
+                } else if (level === 24 || level === 49 || level === 74 || level === 99) {
+                  nextReward = level + 1;
+                  rewardType = "3 rare+ stickers!";
+                  rewardIcon = "🏆";
+                } else if ((level + 1) % 3 === 0) {
+                  nextReward = level + 1;
+                  rewardType = "New sticker!";
+                }
+                
+                const levelsToGo = nextReward - level;
+                const startLevel = nextReward - 3;
+                const progressPercent = ((level - startLevel) / 3) * 100;
+                
+                return (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-1">
+                        <span className="font-medium text-gray-700">Lvl {level}</span>
+                        <span className="text-gray-500">→</span>
+                        <span className="font-medium text-purple-600">Lvl {nextReward}</span>
+                        <span>{rewardIcon}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-lg font-bold text-purple-700">{levelsToGo}</span>
+                        <span className="text-xs font-medium text-purple-600 ml-1">to go</span>
+                      </div>
+                    </div>
+                    
+                    {/* Progress Bar */}
+                    <div className="relative h-6 bg-white/60 rounded-full overflow-hidden">
+                      <div 
+                        className="absolute h-full bg-gradient-to-r from-purple-400 to-purple-600 rounded-full transition-all duration-500"
+                        style={{ width: `${Math.max(5, progressPercent)}%` }}
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-xs font-medium text-gray-700">
+                          {rewardType}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           )}
           
