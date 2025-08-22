@@ -351,6 +351,15 @@ function ProgressivePracticeContent() {
     const timeSpent = Math.floor((Date.now() - sessionStartTime) / 1000); // Time in seconds
     const passed = accuracy >= 80; // Pass if 80% or higher
     
+    console.log("Saving practice session...", {
+      level: currentLevel,
+      questionsAnswered: questions.length,
+      correctAnswers,
+      wrongAnswers,
+      accuracy,
+      xp
+    });
+    
     // Save practice session and get the result
     const result: any = await savePracticeMutation.mutateAsync({
       level: currentLevel,
@@ -361,6 +370,8 @@ function ProgressivePracticeContent() {
       xpEarned: xp,
       timeSpent: timeSpent,
     });
+    
+    console.log("Save session result:", result);
 
     // Refetch profile to update sidebar XP/level display
     await refetchProfile();
@@ -371,6 +382,7 @@ function ProgressivePracticeContent() {
       // Show sticker rewards if any
       if (result.newStickers && result.newStickers.length > 0) {
         console.log("New stickers received:", result.newStickers);
+        console.log("Setting showStickerReward to true");
         setShowStickerReward(true);
         setStickerRewards(result.newStickers);
         
