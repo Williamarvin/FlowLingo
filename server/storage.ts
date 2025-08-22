@@ -1190,8 +1190,114 @@ export class MemStorage implements IStorage {
       .returning();
     return user;
   }
-  
 
+  // Add all missing methods required by IStorageExtended
+  async getAllRewards(): Promise<any[]> {
+    const stickerCatalog = await import("./stickerSystem");
+    return stickerCatalog.ANIMAL_STICKERS;
+  }
+  
+  async getUserRewards(userId: string): Promise<any[]> {
+    const { db } = await import("./db");
+    const { userRewards } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    return await db.select().from(userRewards).where(eq(userRewards.userId, userId));
+  }
+  
+  async getRewardsWithUserStatus(userId: string): Promise<any[]> {
+    const allRewards = await this.getAllRewards();
+    const userRewardsList = await this.getUserRewards(userId);
+    const userRewardIds = userRewardsList.map(r => r.rewardId);
+    
+    return allRewards.map(reward => ({
+      ...reward,
+      earned: userRewardIds.includes(reward.id),
+      isNew: userRewardsList.find(ur => ur.rewardId === reward.id)?.isNew || false
+    }));
+  }
+  
+  async grantReward(userId: string, rewardId: string): Promise<any> {
+    const { db } = await import("./db");
+    const { userRewards } = await import("@shared/schema");
+    
+    const [reward] = await db.insert(userRewards).values({
+      userId,
+      rewardId,
+      isNew: true,
+      equipped: false
+    }).returning();
+    
+    return reward;
+  }
+  
+  async markRewardsAsSeen(userId: string): Promise<void> {
+    const { db } = await import("./db");
+    const { userRewards } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    await db.update(userRewards)
+      .set({ isNew: false })
+      .where(eq(userRewards.userId, userId));
+  }
+  
+  async getUserMascot(userId: string): Promise<any | undefined> {
+    const { db } = await import("./db");
+    const { users } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const [user] = await db.select().from(users).where(eq(users.id, userId));
+    return user?.selectedMascot;
+  }
+  
+  async changeMascot(userId: string, rewardId: string): Promise<any> {
+    const stickerCatalog = await import("./stickerSystem");
+    const sticker = stickerCatalog.ANIMAL_STICKERS.find(s => s.id === rewardId);
+    
+    if (!sticker) {
+      throw new Error("Invalid sticker ID");
+    }
+    
+    return await this.updateUserMascot(userId, sticker.emoji);
+  }
+  
+  async getPracticeLevel(userId: string): Promise<any | undefined> {
+    const { db } = await import("./db");
+    const { practiceLevels } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const [level] = await db.select().from(practiceLevels).where(eq(practiceLevels.userId, userId));
+    return level;
+  }
+  
+  async updatePracticeLevel(userId: string, xp: number, levelCompleted?: number): Promise<any> {
+    const { db } = await import("./db");
+    const { practiceLevels } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const currentLevel = await this.getPracticeLevel(userId);
+    
+    if (!currentLevel) {
+      const [newLevel] = await db.insert(practiceLevels).values({
+        userId,
+        practiceLevel: levelCompleted || 1,
+        practiceXp: xp
+      }).returning();
+      return newLevel;
+    }
+    
+    const updates: any = { practiceXp: xp };
+    if (levelCompleted) {
+      updates.practiceLevel = levelCompleted;
+    }
+    
+    const [updated] = await db.update(practiceLevels)
+      .set(updates)
+      .where(eq(practiceLevels.userId, userId))
+      .returning();
+    
+    return updated;
+  }
   
 }
 
