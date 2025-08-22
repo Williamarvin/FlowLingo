@@ -523,14 +523,14 @@ export default function Home() {
                       
                       if (data.success) {
                         toast({
-                          title: "Level Up!",
-                          description: `You're now level ${data.newLevel}! Complete any practice to see the loot box.`,
+                          title: "Ready to Level Up!",
+                          description: `Complete ANY practice question (even just 1) to trigger the legendary loot box animation!`,
                         });
                         queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
                         
                         setTimeout(() => {
                           setLocation("/practice");
-                        }, 1000);
+                        }, 1500);
                       }
                     } catch (error) {
                       toast({

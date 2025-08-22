@@ -2540,31 +2540,36 @@ Create substantially more comprehensive responses with extensive vocabulary prac
         return res.status(404).json({ error: "User not found" });
       }
       
-      // Level up the user
-      const newLevel = currentUser.level + 1;
+      // Calculate XP needed to be just before next level
+      // Give 99 XP into the current level so next practice triggers level up
+      const currentLevel = currentUser.level;
+      const targetXP = (currentLevel * 100) + 99; // 99 XP into current level
+      
+      // Update XP to be just before level up
       await storage.updateUserProgress(userId, {
-        level: newLevel,
-        xp: newLevel * 100 // Set XP to match the new level
+        xp: targetXP,
+        hearts: 5 // Also ensure hearts are full for testing
       });
       
-      // Grant a legendary sticker for testing (Phoenix or Dragon)
+      // Pre-grant a legendary sticker that will appear in the loot box
       const legendaryStickers = ANIMAL_STICKERS.filter(s => s.rarity === 'legendary');
       const randomLegendary = legendaryStickers[Math.floor(Math.random() * legendaryStickers.length)];
       
       if (randomLegendary) {
         await storage.awardSticker(userId, randomLegendary.id);
-        console.log(`DEBUG: Granted legendary sticker ${randomLegendary.name} to user for testing`);
+        console.log(`DEBUG: Pre-granted legendary sticker ${randomLegendary.name} for loot box animation`);
       }
       
       res.json({
         success: true,
-        newLevel,
+        newLevel: currentLevel + 1,
+        currentXP: 99,
         sticker: randomLegendary,
-        message: "Level up successful! Complete any practice to see the loot box animation."
+        message: "Ready to level up! Complete ANY practice question to trigger the loot box animation."
       });
     } catch (error) {
       console.error("Debug level up error:", error);
-      res.status(500).json({ error: "Failed to level up" });
+      res.status(500).json({ error: "Failed to prepare level up" });
     }
   });
   
