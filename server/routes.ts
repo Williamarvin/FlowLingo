@@ -2608,6 +2608,43 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       res.status(500).json({ error: "Failed to refill hearts" });
     }
   });
+  
+  // DEBUG ENDPOINT - Developer only legendary loot box
+  app.post("/api/debug/legendary-lootbox", requireAuth, requireDeveloper, async (req: any, res) => {
+    try {
+      const userId = req.userId;
+      
+      // Import sticker system functions
+      const { ANIMAL_STICKERS } = await import("./stickerSystem");
+      
+      // Get all legendary stickers
+      const legendaryStickers = ANIMAL_STICKERS.filter(s => s.rarity === 'legendary');
+      
+      // Pick 1-2 random legendary stickers
+      const numStickers = Math.random() > 0.5 ? 2 : 1;
+      const selectedStickers: any[] = [];
+      
+      for (let i = 0; i < numStickers; i++) {
+        const randomLegendary = legendaryStickers[Math.floor(Math.random() * legendaryStickers.length)];
+        if (randomLegendary && !selectedStickers.find(s => s.id === randomLegendary.id)) {
+          selectedStickers.push(randomLegendary);
+          // Award the sticker to the user
+          await storage.awardSticker(userId, randomLegendary.id);
+        }
+      }
+      
+      console.log(`DEBUG: Opened legendary loot box for user ${userId}, awarding ${selectedStickers.map(s => s.name).join(', ')}`);
+      
+      res.json({
+        success: true,
+        stickers: selectedStickers,
+        message: "Legendary loot box opened!"
+      });
+    } catch (error) {
+      console.error("Debug legendary loot box error:", error);
+      res.status(500).json({ error: "Failed to open legendary loot box" });
+    }
+  });
 
   // Register rewards routes
   registerRewardsRoutes(app);

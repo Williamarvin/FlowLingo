@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { LootBox } from "@/components/loot-box";
 
 export default function Home() {
   const [greeting, setGreeting] = useState("");
@@ -18,6 +19,8 @@ export default function Home() {
   // const [isEditingMascotName, setIsEditingMascotName] = useState(false);
   // const [mascotName, setMascotName] = useState("");
   const { toast } = useToast();
+  const [showStickerReward, setShowStickerReward] = useState(false);
+  const [stickerRewards, setStickerRewards] = useState<any[]>([]);
   
   // Get user profile data (only if authenticated)
   const { data: userProfile } = useQuery<any>({
@@ -547,6 +550,44 @@ export default function Home() {
                 </Button>
               </div>
               
+              {/* Open Legendary Loot Box Directly */}
+              <div className="flex items-center justify-between bg-white/50 rounded-lg p-3">
+                <div>
+                  <p className="text-xs font-semibold text-purple-700">Open Legendary Loot Box</p>
+                  <p className="text-xs text-purple-600">See red sparkle animation instantly!</p>
+                </div>
+                <Button
+                  onClick={async () => {
+                    try {
+                      const response = await fetch("/api/debug/legendary-lootbox", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        credentials: "include",
+                      });
+                      
+                      const data = await response.json();
+                      
+                      if (data.success && data.stickers) {
+                        setStickerRewards(data.stickers);
+                        setShowStickerReward(true);
+                      }
+                    } catch (error) {
+                      toast({
+                        title: "Error",
+                        description: "Failed to open loot box",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                  size="sm"
+                  className="bg-red-600 hover:bg-red-700 text-white font-bold animate-pulse"
+                >
+                  ✨ Open Legendary
+                </Button>
+              </div>
+              
               {/* Heart Refill */}
               <div className="flex items-center justify-between bg-white/50 rounded-lg p-3">
                 <div>
@@ -909,6 +950,18 @@ export default function Home() {
           </div>
         </div>
       </main>
+      
+      {/* Loot Box Animation */}
+      <LootBox
+        isOpen={showStickerReward}
+        stickers={stickerRewards}
+        onClose={() => {
+          setShowStickerReward(false);
+          setStickerRewards([]);
+          // Refresh user profile to update sticker collection
+          queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+        }}
+      />
     </div>
   );
 }
