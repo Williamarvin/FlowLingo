@@ -588,6 +588,49 @@ export class DatabaseStorage implements IStorageExtended {
     await db.delete(flashcards).where(eq(flashcards.id, id));
     return true;
   }
+  
+  // Sticker methods
+  async getUserStickers(userId: string): Promise<any[]> {
+    const { db } = await import("./db");
+    const { userRewards } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const stickers = await db.select().from(userRewards)
+      .where(eq(userRewards.userId, userId));
+    
+    const stickerArray = stickers.map(s => ({
+      stickerId: s.rewardId,
+      earnedAt: s.earnedAt,
+      isNew: s.isNew
+    }));
+    
+    // Everyone gets the dolphin sticker by default
+    const hasDolphin = stickerArray.some(s => s.stickerId === 'dolphin');
+    if (!hasDolphin) {
+      stickerArray.push({
+        stickerId: 'dolphin',
+        earnedAt: new Date(),
+        isNew: false
+      });
+    }
+    
+    return stickerArray;
+  }
+  
+  async awardSticker(userId: string, stickerId: string): Promise<any> {
+    const { db } = await import("./db");
+    const { userRewards } = await import("@shared/schema");
+    
+    // Award the sticker (can have duplicates)
+    const [newSticker] = await db.insert(userRewards).values({
+      userId,
+      rewardId: stickerId,
+      isNew: true,
+      equipped: false
+    }).returning();
+    
+    return newSticker;
+  }
 }
 
 export class MemStorage implements IStorage {
@@ -1053,48 +1096,6 @@ export class MemStorage implements IStorage {
     };
   }
   
-  // Sticker methods
-  async getUserStickers(userId: string): Promise<any[]> {
-    const { db } = await import("./db");
-    const { userRewards } = await import("@shared/schema");
-    const { eq } = await import("drizzle-orm");
-    
-    const stickers = await db.select().from(userRewards)
-      .where(eq(userRewards.userId, userId));
-    
-    const stickerArray = stickers.map(s => ({
-      stickerId: s.rewardId,
-      earnedAt: s.earnedAt,
-      isNew: s.isNew
-    }));
-    
-    // Everyone gets the dolphin sticker by default
-    const hasDolphin = stickerArray.some(s => s.stickerId === 'dolphin');
-    if (!hasDolphin) {
-      stickerArray.push({
-        stickerId: 'dolphin',
-        earnedAt: new Date(),
-        isNew: false
-      });
-    }
-    
-    return stickerArray;
-  }
-  
-  async awardSticker(userId: string, stickerId: string): Promise<any> {
-    const { db } = await import("./db");
-    const { userRewards } = await import("@shared/schema");
-    
-    // Award the sticker (can have duplicates)
-    const [newSticker] = await db.insert(userRewards).values({
-      userId,
-      rewardId: stickerId,
-      isNew: true,
-      equipped: false
-    }).returning();
-    
-    return newSticker;
-  }
 }
 
 // Switch to DatabaseStorage for production
