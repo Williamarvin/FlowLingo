@@ -2442,8 +2442,10 @@ Create substantially more comprehensive responses with extensive vocabulary prac
         // Award sticker box for leveling up
         let lootBoxContents;
         if (isDebugLevelUp) {
-          // For debug level ups, guarantee a legendary sticker
-          const legendaryStickers = ANIMAL_STICKERS.filter(s => s.rarity === 'legendary');
+          // For debug level ups, guarantee a legendary sticker (excluding 0 probability ones like Flow Dolphin)
+          const legendaryStickers = ANIMAL_STICKERS.filter(s => 
+            s.rarity === 'legendary' && s.probability > 0
+          );
           const randomLegendary = legendaryStickers[Math.floor(Math.random() * legendaryStickers.length)];
           lootBoxContents = [randomLegendary.id];
           console.log(`DEBUG Level ${newLevel} reached! Awarding legendary sticker: ${randomLegendary.name}`);
@@ -2621,8 +2623,10 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       // Import sticker system functions
       const { ANIMAL_STICKERS } = await import("./stickerSystem");
       
-      // Get all legendary stickers
-      const legendaryStickers = ANIMAL_STICKERS.filter(s => s.rarity === 'legendary');
+      // Get all legendary stickers EXCEPT those with 0 probability (like Flow Dolphin)
+      const legendaryStickers = ANIMAL_STICKERS.filter(s => 
+        s.rarity === 'legendary' && s.probability > 0
+      );
       
       // Pick 1-2 random legendary stickers
       const numStickers = Math.random() > 0.5 ? 2 : 1;
