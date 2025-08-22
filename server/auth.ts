@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 import { users, sessions } from '@shared/schema';
-import { db } from './db';
+import { getDB } from './db-helper';
 import { eq } from 'drizzle-orm';
 import type { Request, Response, NextFunction } from 'express';
 
@@ -48,6 +48,7 @@ export async function requireAuth(req: Request & { userId?: string }, res: Respo
   }
 
   // Check if session exists in database
+  const { db } = await getDB();
   const [session] = await db.select().from(sessions)
     .where(eq(sessions.token, token));
 
@@ -65,6 +66,7 @@ export async function createSession(userId: string): Promise<string> {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
 
+  const { db } = await getDB();
   await db.insert(sessions).values({
     userId,
     token,
@@ -96,6 +98,8 @@ export async function getOrCreateGoogleUser(googleUser: any) {
   const profilePicture = googleUser.picture;
   const username = googleUser.name;
 
+  const { db } = await getDB();
+  
   // Check if user exists
   const [existingUser] = await db.select().from(users)
     .where(eq(users.email, email));
