@@ -338,13 +338,13 @@ function ProgressivePracticeContent() {
         setShowStickerReward(true);
         setStickerRewards(result.newStickers);
         
-        // Auto-continue after showing stickers
+        // Auto-continue after showing stickers (give more time to enjoy the animation)
         setTimeout(() => {
           setShowStickerReward(false);
           // Reload to continue with the new level
           navigate("/practice");
           window.location.reload();
-        }, 3000);
+        }, 8000); // Extended to 8 seconds to enjoy the animation
       } else {
         toast({
           title: "Level Up! 🎉",
@@ -407,44 +407,240 @@ function ProgressivePracticeContent() {
   // Sticker reward animation screen
   if (showStickerReward && stickerRewards.length > 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50 flex overflow-hidden relative">
         <ModernNav />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="bg-white rounded-3xl shadow-xl p-8 text-center max-w-lg">
+        
+        {/* Animated confetti background */}
+        <div className="absolute inset-0 pointer-events-none">
+          {[...Array(20)].map((_, i) => (
             <motion.div
+              key={i}
+              className="absolute"
+              initial={{ 
+                x: Math.random() * window.innerWidth,
+                y: -50,
+                rotate: 0
+              }}
+              animate={{
+                y: window.innerHeight + 50,
+                rotate: 360,
+                x: Math.random() * window.innerWidth
+              }}
+              transition={{
+                duration: 3 + Math.random() * 2,
+                repeat: Infinity,
+                delay: Math.random() * 2,
+                ease: "linear"
+              }}
+            >
+              <div className={`w-3 h-3 ${
+                ['bg-yellow-400', 'bg-pink-400', 'bg-purple-400', 'bg-blue-400', 'bg-green-400'][Math.floor(Math.random() * 5)]
+              } rounded-full`} />
+            </motion.div>
+          ))}
+        </div>
+        
+        <div className="flex-1 flex items-center justify-center z-10">
+          <motion.div 
+            className="bg-white/95 backdrop-blur rounded-3xl shadow-2xl p-8 text-center max-w-2xl w-full mx-4"
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", duration: 0.7 }}
+          >
+            {/* Congratulations header with animation */}
+            <motion.div
+              initial={{ y: -50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <motion.h1 
+                className="text-5xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-yellow-500 bg-clip-text text-transparent mb-2"
+                animate={{
+                  scale: [1, 1.1, 1],
+                }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  repeatDelay: 1
+                }}
+              >
+                CONGRATULATIONS!
+              </motion.h1>
+              <p className="text-xl text-gray-600 mb-6">Level Complete! 🎉</p>
+            </motion.div>
+            
+            {/* Animated gift box that opens */}
+            <motion.div
+              className="mb-6"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ type: "spring", duration: 0.5 }}
+              transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
             >
-              <div className="text-6xl mb-4">🎁</div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-4">New Stickers!</h1>
-              <div className="flex flex-wrap justify-center gap-4 mb-6">
+              <motion.div
+                className="inline-block"
+                animate={{
+                  rotate: [0, -5, 5, -5, 5, 0],
+                }}
+                transition={{
+                  duration: 0.5,
+                  delay: 1,
+                  repeat: 2
+                }}
+              >
+                <div className="relative">
+                  <Gift className="w-24 h-24 text-purple-500 mx-auto" />
+                  <motion.div
+                    className="absolute inset-0 flex items-center justify-center"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0, 1, 0] }}
+                    transition={{ duration: 0.5, repeat: 3, delay: 1 }}
+                  >
+                    <Sparkles className="w-24 h-24 text-yellow-400" />
+                  </motion.div>
+                </div>
+              </motion.div>
+            </motion.div>
+            
+            {/* Sticker rewards display */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 2 }}
+            >
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">You earned new stickers!</h2>
+              <div className="flex flex-wrap justify-center gap-6 mb-6">
                 {stickerRewards.map((sticker: any, index: number) => (
                   <motion.div
                     key={sticker.id}
-                    initial={{ scale: 0, rotate: -180 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ delay: index * 0.2, type: "spring" }}
-                    className="relative"
+                    initial={{ scale: 0, rotate: -360, opacity: 0 }}
+                    animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                    transition={{ 
+                      delay: 2.5 + index * 0.3,
+                      type: "spring",
+                      stiffness: 200
+                    }}
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    className="relative cursor-pointer"
                   >
-                    <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center shadow-lg">
-                      <span className="text-5xl">{sticker.emoji || "🌟"}</span>
-                    </div>
-                    <div className={`absolute -top-2 -right-2 px-2 py-1 rounded-full text-xs font-bold text-white ${
-                      sticker.rarity === 'legendary' ? 'bg-gradient-to-r from-yellow-400 to-orange-400' :
-                      sticker.rarity === 'epic' ? 'bg-gradient-to-r from-purple-500 to-pink-500' :
-                      sticker.rarity === 'rare' ? 'bg-gradient-to-r from-blue-500 to-cyan-500' :
-                      'bg-gradient-to-r from-green-500 to-emerald-500'
-                    }`}>
+                    {/* Glowing effect for rare stickers */}
+                    {(sticker.rarity === 'epic' || sticker.rarity === 'legendary') && (
+                      <motion.div
+                        className={`absolute inset-0 rounded-2xl ${
+                          sticker.rarity === 'legendary' ? 'bg-yellow-400' : 'bg-purple-400'
+                        } opacity-30 blur-xl`}
+                        animate={{
+                          scale: [1, 1.2, 1],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity
+                        }}
+                      />
+                    )}
+                    
+                    <motion.div 
+                      className={`w-32 h-32 rounded-2xl flex flex-col items-center justify-center shadow-xl relative overflow-hidden ${
+                        sticker.rarity === 'legendary' ? 'bg-gradient-to-br from-yellow-200 via-orange-200 to-red-200' :
+                        sticker.rarity === 'epic' ? 'bg-gradient-to-br from-purple-200 via-pink-200 to-blue-200' :
+                        sticker.rarity === 'rare' ? 'bg-gradient-to-br from-blue-200 via-cyan-200 to-teal-200' :
+                        sticker.rarity === 'uncommon' ? 'bg-gradient-to-br from-green-200 via-emerald-200 to-lime-200' :
+                        'bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300'
+                      }`}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {/* Animated sparkles for rare+ stickers */}
+                      {(sticker.rarity === 'rare' || sticker.rarity === 'epic' || sticker.rarity === 'legendary') && (
+                        <motion.div
+                          className="absolute inset-0 pointer-events-none"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                        >
+                          {[...Array(3)].map((_, i) => (
+                            <motion.div
+                              key={i}
+                              className="absolute w-1 h-1 bg-white rounded-full"
+                              style={{
+                                left: `${20 + i * 30}%`,
+                                top: `${20 + i * 25}%`
+                              }}
+                              animate={{
+                                scale: [0, 1, 0],
+                                opacity: [0, 1, 0]
+                              }}
+                              transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                delay: i * 0.3
+                              }}
+                            />
+                          ))}
+                        </motion.div>
+                      )}
+                      
+                      <motion.span 
+                        className="text-6xl mb-2"
+                        animate={{
+                          y: [0, -10, 0]
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          delay: index * 0.2
+                        }}
+                      >
+                        {sticker.emoji || "🌟"}
+                      </motion.span>
+                      <p className="text-sm font-bold text-gray-700">{sticker.name}</p>
+                      <p className="text-xs text-gray-500">{sticker.description}</p>
+                    </motion.div>
+                    
+                    {/* Rarity badge */}
+                    <motion.div 
+                      className={`absolute -top-3 -right-3 px-3 py-1 rounded-full text-xs font-bold text-white shadow-lg ${
+                        sticker.rarity === 'legendary' ? 'bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400' :
+                        sticker.rarity === 'epic' ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500' :
+                        sticker.rarity === 'rare' ? 'bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500' :
+                        sticker.rarity === 'uncommon' ? 'bg-gradient-to-r from-green-500 to-emerald-500' :
+                        'bg-gradient-to-r from-gray-500 to-gray-600'
+                      }`}
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 3 + index * 0.3, type: "spring" }}
+                    >
                       {sticker.rarity?.toUpperCase() || 'NEW'}
-                    </div>
-                    <p className="text-xs mt-2 font-semibold text-gray-700">{sticker.name}</p>
+                    </motion.div>
                   </motion.div>
                 ))}
               </div>
-              <p className="text-gray-600 mb-4">You earned {stickerRewards.length} new sticker{stickerRewards.length > 1 ? 's' : ''}!</p>
+              
+              <motion.p 
+                className="text-lg text-gray-600 font-semibold mb-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 3 + stickerRewards.length * 0.3 }}
+              >
+                Amazing! You collected {stickerRewards.length} new sticker{stickerRewards.length > 1 ? 's' : ''}!
+              </motion.p>
+              
+              {/* Continue button */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 3.5 + stickerRewards.length * 0.3 }}
+              >
+                <Button
+                  onClick={() => {
+                    setShowStickerReward(false);
+                    navigate("/practice");
+                    window.location.reload();
+                  }}
+                  className="bg-gradient-to-r from-purple-500 via-pink-500 to-yellow-500 hover:from-purple-600 hover:via-pink-600 hover:to-yellow-600 text-white font-bold px-8 py-3 rounded-full text-lg shadow-lg transform transition hover:scale-105"
+                >
+                  Continue to Next Level →
+                </Button>
+              </motion.div>
             </motion.div>
-          </div>
+          </motion.div>
         </div>
       </div>
     );
