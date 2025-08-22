@@ -29,6 +29,46 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
   const streak = userProfile?.streakDays || 0;
   const xp = userProfile?.xp || 0;
   const userEmail = userProfile?.email;
+  
+  // State for heart regeneration countdown
+  const [heartCountdown, setHeartCountdown] = useState<string | null>(null);
+  
+  // Update heart countdown timer
+  useEffect(() => {
+    if (userProfile?.nextHeartIn && hearts < 5) {
+      const interval = setInterval(() => {
+        if (userProfile.nextHeartIn) {
+          const now = Date.now();
+          const lastUpdate = userProfile._lastUpdateTime || now;
+          const elapsedSeconds = Math.floor((now - lastUpdate) / 1000);
+          const remainingSeconds = Math.max(0, userProfile.nextHeartIn - elapsedSeconds);
+          
+          if (remainingSeconds <= 0) {
+            setHeartCountdown(null);
+            // Refetch profile to get updated hearts
+            queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+          } else {
+            const minutes = Math.floor(remainingSeconds / 60);
+            const seconds = remainingSeconds % 60;
+            setHeartCountdown(`${minutes}:${String(seconds).padStart(2, '0')}`);
+          }
+        }
+      }, 1000);
+      
+      // Set initial countdown
+      if (userProfile.nextHeartIn) {
+        const minutes = Math.floor(userProfile.nextHeartIn / 60);
+        const seconds = userProfile.nextHeartIn % 60;
+        setHeartCountdown(`${minutes}:${String(seconds).padStart(2, '0')}`);
+        // Store update time for countdown calculation
+        userProfile._lastUpdateTime = Date.now();
+      }
+      
+      return () => clearInterval(interval);
+    } else {
+      setHeartCountdown(null);
+    }
+  }, [userProfile?.nextHeartIn, hearts]);
 
   // Refill hearts mutation (dev only)
   const refillHeartsMutation = useMutation({
@@ -111,10 +151,7 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
                 {hearts < 5 && (
                   <div className="flex items-center gap-1 text-xs text-red-600 font-medium border-l border-red-200 pl-2">
                     <span>+❤️</span>
-                    <span>{userProfile?.nextHeartIn ? 
-                      `${Math.floor(userProfile.nextHeartIn / 60)}:${String(userProfile.nextHeartIn % 60).padStart(2, '0')}` : 
-                      'soon'
-                    }</span>
+                    <span>{heartCountdown || 'calculating...'}</span>
                   </div>
                 )}
               </div>

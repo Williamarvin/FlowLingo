@@ -1843,6 +1843,8 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       user = await storage.updateUserStreak(userId) || user;
       
       // Handle hearts regeneration
+      let nextHeartInSeconds: number | null = null;
+      
       if (user.hearts < (user.maxHearts || 5) && user.lastHeartLostAt) {
         const lastLost = new Date(user.lastHeartLostAt).getTime();
         const now = Date.now();
@@ -1860,6 +1862,13 @@ Create substantially more comprehensive responses with extensive vocabulary prac
               : new Date(lastLost + (heartsToRegenerate * 60 * 60 * 1000))
           }) || user;
         }
+        
+        // Calculate time until next heart (if still regenerating)
+        if (user.lastHeartLostAt && user.hearts < (user.maxHearts || 5)) {
+          const timeSinceLastHeart = now - new Date(user.lastHeartLostAt).getTime();
+          const timeUntilNextHeart = (60 * 60 * 1000) - (timeSinceLastHeart % (60 * 60 * 1000)); // Time until next hour
+          nextHeartInSeconds = Math.ceil(timeUntilNextHeart / 1000); // Convert to seconds
+        }
       }
       
       console.log("Returning user profile:", { 
@@ -1867,9 +1876,18 @@ Create substantially more comprehensive responses with extensive vocabulary prac
         email: user.email,
         level: user.level, 
         hearts: user.hearts,
-        assessmentCompleted: user.assessmentCompleted 
+        assessmentCompleted: user.assessmentCompleted,
+        nextHeartIn: nextHeartInSeconds,
+        lastHeartLostAt: user.lastHeartLostAt
       });
-      res.json(user);
+      
+      // Include nextHeartIn in the response
+      const profileResponse = {
+        ...user,
+        nextHeartIn: nextHeartInSeconds
+      };
+      
+      res.json(profileResponse);
     } catch (error) {
       console.error("Error getting user profile:", error);
       res.status(500).json({ error: "Failed to get user profile" });
