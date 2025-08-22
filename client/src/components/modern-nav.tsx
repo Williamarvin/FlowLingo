@@ -110,6 +110,16 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
                   <span className="text-green-500">⭐</span>
                   <span className="text-sm font-medium text-green-700">Lvl {level}</span>
                 </div>
+                <div className="flex items-center gap-1 px-3 py-1.5 bg-purple-50 rounded-full">
+                  <span>🎁</span>
+                  <span className="text-sm font-medium text-purple-700">
+                    {(() => {
+                      const nextStickerLevel = Math.ceil((level + 1) / 3) * 3;
+                      const levelsToGo = nextStickerLevel - level;
+                      return `${levelsToGo} to 🎁`;
+                    })()}
+                  </span>
+                </div>
                 <div className="flex items-center gap-1 px-3 py-1.5 bg-red-50 rounded-full">
                   <span>❤️</span>
                   <span className="text-sm font-medium text-red-700">{hearts}/5</span>

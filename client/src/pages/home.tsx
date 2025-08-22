@@ -482,8 +482,20 @@ export default function Home() {
                           rewardType = "3 guaranteed rare+ stickers (major milestone!)";
                         }
                         
+                        const levelsToGo = nextReward - level;
+                        
                         return (
-                          <> Next reward at <span className="font-semibold text-purple-600">Level {nextReward}</span> - {rewardType}</>
+                          <>
+                            <div className="bg-white/60 rounded-lg p-2 inline-block">
+                              <span className="text-2xl font-bold text-purple-700">{levelsToGo}</span>
+                              <span className="text-base font-medium text-purple-600 ml-2">
+                                level{levelsToGo > 1 ? 's' : ''} to go
+                              </span>
+                            </div>
+                            <div>
+                              Next reward at <span className="font-semibold text-purple-600">Level {nextReward}</span> - {rewardType}
+                            </div>
+                          </>
                         );
                       })()}
                     </p>

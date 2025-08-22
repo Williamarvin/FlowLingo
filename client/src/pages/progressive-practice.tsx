@@ -520,30 +520,54 @@ function ProgressivePracticeContent() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h4 className="text-sm font-semibold text-gray-900">
-                      Level Up = Sticker Rewards!
+                      Sticker Progress
                     </h4>
                     <Sparkles className="w-3 h-3 text-yellow-500" />
                   </div>
-                  <p className="text-xs text-gray-600">
+                  <div className="text-xs text-gray-600">
                     {(() => {
                       const level = userProfile.level;
                       const nextStickerLevel = Math.ceil((level + 1) / 3) * 3;
                       const hskTransitions = [11, 21, 31, 41, 51];
                       const nextHskTransition = hskTransitions.find(l => l > level);
+                      const majorMilestones = [25, 50, 75, 100];
+                      const nextMilestone = majorMilestones.find(l => l > level);
                       
+                      let nextReward = nextStickerLevel;
+                      let rewardType = "1 sticker";
+                      
+                      // Check special rewards
                       if (level === 10 || level === 20 || level === 30 || level === 40 || level === 50) {
-                        return `Level up to ${level + 1} for an epic/legendary sticker! (HSK transition bonus)`;
+                        nextReward = level + 1;
+                        rewardType = "Epic/Legendary sticker!";
                       } else if (level % 10 === 9) {
-                        return `Level up to ${level + 1} for 2 bonus stickers!`;
+                        nextReward = level + 1;
+                        rewardType = "2 bonus stickers!";
                       } else if (level === 24 || level === 49 || level === 74 || level === 99) {
-                        return `Level up to ${level + 1} for 3 rare+ stickers! (Major milestone)`;
+                        nextReward = level + 1;
+                        rewardType = "3 rare+ stickers!";
                       } else if ((level + 1) % 3 === 0) {
-                        return `Level up to ${level + 1} for a new sticker!`;
-                      } else {
-                        return `Next sticker at level ${nextStickerLevel}`;
+                        nextReward = level + 1;
+                        rewardType = "New sticker!";
                       }
+                      
+                      const levelsToGo = nextReward - level;
+                      
+                      return (
+                        <div className="flex items-center gap-2">
+                          <div className="bg-white/80 rounded px-2 py-1">
+                            <span className="text-lg font-bold text-purple-700">{levelsToGo}</span>
+                            <span className="text-xs font-medium text-purple-600 ml-1">
+                              level{levelsToGo > 1 ? 's' : ''} to go
+                            </span>
+                          </div>
+                          <span className="text-xs">
+                            → {rewardType}
+                          </span>
+                        </div>
+                      );
                     })()}
-                  </p>
+                  </div>
                 </div>
               </div>
             </div>
