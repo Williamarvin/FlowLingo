@@ -47,7 +47,7 @@ function AssessmentContent() {
   // Function to speak Chinese text using OpenAI TTS
   const speakChinese = async (text: string) => {
     try {
-      await audioManager.playTTS(text, 0.65);
+      await audioManager.playTTS(text, 0.5);
     } catch (error) {
       console.error('TTS error:', error);
     }

@@ -47,8 +47,8 @@ function ProgressivePracticeContent() {
   // Function to speak Chinese text using OpenAI TTS
   const speakChinese = async (text: string) => {
     try {
-      // Use audioManager with normal speed for pronunciation
-      await audioManager.playTTS(text, 1.0);
+      // Use audioManager with slower speed for clearer pronunciation
+      await audioManager.playTTS(text, 0.5);
     } catch (error) {
       console.error('TTS error:', error);
     }

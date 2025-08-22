@@ -5,6 +5,10 @@
 FlowLingo is a comprehensive language learning platform that currently specializes in Chinese (Mandarin) with plans for multi-language expansion. The application features a complete multi-user authentication system with email/password login, secure session management, and protected learning routes. Core features include a complete progress tracking system with user levels, XP points, streak tracking, and adaptive difficulty. Key features include text generation with click-to-translate, AI-powered conversations that adapt to user level, voice translator with instant Mandarin-to-English translation, universal media reader (PDF, video, audio, images), vocabulary management with spaced repetition, initial assessment testing, enhanced progressive practice sessions with mandatory retry system and adaptive difficulty adjustment, a comprehensive HSK-based level selection system with 50 unique topic-based levels, and a gamified sticker collection system with 100+ animated animal stickers that users earn through level progression. Built as a full-stack web application with a React frontend and Express backend using PostgreSQL for complete data persistence.
 
 ### Recent Updates (August 2025)
+- **Slower TTS Speech Speed**: Reduced text-to-speech speed from 0.65-1.0 to 0.5 across all components for better language learning
+  - Consistent slower speech rate (0.5) in all features: practice, conversations, assessment, flashcards, voice translator
+  - Improved clarity for Chinese character pronunciation
+  - Better suited for language learners to understand and repeat
 - **Sticker Collection System**: Implemented comprehensive gamification with 100+ animated animal stickers
   - Everyone starts with Flow the dolphin mascot sticker by default
   - Automatic sticker rewards on level progression:
