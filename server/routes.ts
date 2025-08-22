@@ -2404,6 +2404,9 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       const { level, questionsAnswered, correctAnswers, wrongAnswers, accuracy, xpEarned, timeSpent = 0 } = req.body;
       const userId = req.userId; // Get authenticated user ID
       
+      // Import sticker system functions
+      const { generateLootBoxContents, ANIMAL_STICKERS } = await import("./stickerSystem");
+      
       // Award XP to user
       const updatedUser = await storage.addXpToUser(userId, xpEarned);
       
@@ -2415,6 +2418,7 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       // and advance to next level if so
       let newLevel = updatedUser.level;
       let earnedReward = null;
+      let newStickers: any[] = [];
       
       if (accuracy >= 80 && level === updatedUser.level) {
         // User completed their current level with good accuracy, advance to next level
@@ -2423,6 +2427,23 @@ Create substantially more comprehensive responses with extensive vocabulary prac
           level: newLevel,
           lessonsCompleted: updatedUser.lessonsCompleted + 1
         });
+        
+        // Award sticker box for leveling up
+        const lootBoxContents = generateLootBoxContents(newLevel);
+        console.log(`Level ${newLevel} reached! Opening sticker box with ${lootBoxContents.length} sticker(s)`);
+        
+        // Grant each sticker to the user
+        for (const stickerId of lootBoxContents) {
+          try {
+            await storage.grantUserSticker(userId, stickerId);
+            const stickerInfo = ANIMAL_STICKERS.find(s => s.id === stickerId);
+            if (stickerInfo) {
+              newStickers.push(stickerInfo);
+            }
+          } catch (error) {
+            console.error(`Error granting sticker ${stickerId}:`, error);
+          }
+        }
         
         // Check if there's a reward for completing this level
         if (storage.getAllRewards && storage.grantReward) {
@@ -2468,6 +2489,7 @@ Create substantially more comprehensive responses with extensive vocabulary prac
         xpEarned,
         newLevel,
         leveledUp: newLevel > level,
+        newStickers: newStickers, // Include the new stickers
         earnedReward,
         userProfile: {
           level: newLevel,
