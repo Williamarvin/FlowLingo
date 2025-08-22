@@ -62,9 +62,9 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
 
   return (
     <>
-      {/* Top Navigation Bar - Airbnb Style */}
+      {/* Top Navigation Bar - Clean & Spacious */}
       <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
-        <nav className="max-w-screen-xl mx-auto px-6">
+        <nav className="max-w-screen-2xl mx-auto px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <Link href="/">
@@ -97,33 +97,14 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
               ))}
             </div>
 
-            {/* Right Side - Profile & Stats */}
-            <div className="flex items-center gap-4">
-              {/* Stats Pills */}
-              <div className="hidden sm:flex items-center gap-3">
-                <div className="flex items-center gap-1 px-3 py-1.5 bg-orange-50 rounded-full">
-                  <span className="text-orange-500">🔥</span>
-                  <span className="text-sm font-medium text-orange-700">{streak}</span>
+            {/* Right Side - Mascot & Profile */}
+            <div className="flex items-center gap-6">
+              {/* User Mascot */}
+              <Link href="/rewards">
+                <div className="text-3xl cursor-pointer hover:scale-110 transition-transform">
+                  {userProfile?.selectedMascot || '🐬'}
                 </div>
-                <div className="flex items-center gap-1 px-3 py-1.5 bg-green-50 rounded-full">
-                  <span className="text-green-500">⭐</span>
-                  <span className="text-sm font-medium text-green-700">Lvl {level}</span>
-                </div>
-                <div className="flex items-center gap-1 px-3 py-1.5 bg-purple-50 rounded-full">
-                  <span>🎁</span>
-                  <span className="text-sm font-medium text-purple-700">
-                    {(() => {
-                      const nextStickerLevel = Math.ceil((level + 1) / 3) * 3;
-                      const levelsToGo = nextStickerLevel - level;
-                      return `${levelsToGo} to 🎁`;
-                    })()}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1 px-3 py-1.5 bg-red-50 rounded-full">
-                  <span>❤️</span>
-                  <span className="text-sm font-medium text-red-700">{hearts}/5</span>
-                </div>
-              </div>
+              </Link>
 
               {/* Profile Menu */}
               <div className="relative">
@@ -203,7 +184,7 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
               {/* Mobile Menu Toggle */}
               <button
                 onClick={() => setShowMobileMenu(!showMobileMenu)}
-                className="lg:hidden p-2"
+                className="lg:hidden p-2 border border-gray-300 rounded-lg hover:shadow-md transition-shadow"
               >
                 <Menu className="w-6 h-6 text-gray-600" />
               </button>
