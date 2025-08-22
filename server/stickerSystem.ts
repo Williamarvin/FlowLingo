@@ -114,7 +114,7 @@ export const ANIMAL_STICKERS: AnimalSticker[] = [
   { id: 'unicorn', name: 'Unicorn', emoji: '🦄', rarity: 'epic', probability: 0.6, description: 'Making magic' },
   { id: 'dragon', name: 'Dragon', emoji: '🐲', rarity: 'epic', probability: 0.6, description: 'Chinese master' },
   { id: 'phoenix', name: 'Phoenix', emoji: '🔥', rarity: 'epic', probability: 0.5, description: 'Rising up' },
-  { id: 'pegasus', name: 'Flying Pegasus', emoji: '🦄', rarity: 'epic', probability: 0.5, description: 'Soaring dreams' },
+  { id: 'pegasus', name: 'Flying Pegasus', emoji: '🌟', rarity: 'epic', probability: 0.5, description: 'Soaring dreams' },
   { id: 'griffin', name: 'Mighty Griffin', emoji: '🦅', rarity: 'epic', probability: 0.5, description: 'Legendary power' },
   { id: 'kraken', name: 'Deep Kraken', emoji: '🐙', rarity: 'epic', probability: 0.5, description: 'Ocean master' },
   { id: 'hydra', name: 'Many-Headed Hydra', emoji: '🐍', rarity: 'epic', probability: 0.5, description: 'Multiple skills' },

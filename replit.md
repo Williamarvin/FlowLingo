@@ -11,11 +11,11 @@ The platform uses a global XP-based level system where users earn XP from all ac
 Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (August 23, 2025)
+- **Fixed Sticker Emoji Conflict**: Resolved issue where Flying Pegasus and Unicorn shared the same emoji, preventing users from setting pegasus as mascot. Pegasus now uses star emoji (🌟).
 - **Enhanced Loot Box Animations**: Epic/legendary pulls now have special animations with doubled duration, red sparks instead of yellow, and dramatic effects.
 - **Fixed Loot Box Animation**: Resolved issue where loot box animation wasn't showing on level up. Backend now properly returns sticker data when users complete levels.
-- **Mascot Naming Feature**: Added ability to rename mascot on home page with inline editing, persistence to database, and toast notifications.
+- **Mascot Naming Feature**: Added ability to rename mascot on home page with inline editing, persistence to database, and toast notifications (temporarily disabled - needs db:push).
 - **Voice Hover Delays**: Implemented 150ms delay for main Chinese characters and 200ms for answer choices to prevent rapid voice switching.
-- **Auto-scroll Navigation**: Added smooth scrolling to Continue/Try Again buttons in practice mode for better UX.
 
 ## System Architecture
 
