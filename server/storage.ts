@@ -74,6 +74,7 @@ export interface IStorageExtended extends IStorage {
   // Mascot methods
   getUserMascot(userId: string): Promise<any | undefined>;
   updateUserMascot(userId: string, mascot: string): Promise<User | undefined>;
+  updateUserMascotName(userId: string, mascotName: string): Promise<User | undefined>;
   changeMascot(userId: string, rewardId: string): Promise<any>;
   
   // Practice level methods

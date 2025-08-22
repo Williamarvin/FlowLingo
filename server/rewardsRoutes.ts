@@ -216,4 +216,28 @@ export function registerRewardsRoutes(app: Express) {
       res.status(500).json({ error: "Failed to fetch user stickers" });
     }
   });
+
+  // Update mascot name
+  app.post("/api/rewards/update-mascot-name", requireAuth, async (req: any, res) => {
+    const userId = req.userId;
+    const { mascotName } = req.body;
+    
+    if (!mascotName || typeof mascotName !== 'string') {
+      return res.status(400).json({ error: "Mascot name is required" });
+    }
+    
+    const trimmedName = mascotName.trim().slice(0, 20); // Max 20 characters
+    
+    if (!trimmedName) {
+      return res.status(400).json({ error: "Mascot name cannot be empty" });
+    }
+    
+    try {
+      await storage.updateUserMascotName(userId, trimmedName);
+      res.json({ success: true, mascotName: trimmedName });
+    } catch (error) {
+      console.error("Error updating mascot name:", error);
+      res.status(500).json({ error: "Failed to update mascot name" });
+    }
+  });
 }

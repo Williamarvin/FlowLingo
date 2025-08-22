@@ -16,8 +16,8 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const { isAuthenticated, isLoading } = useAuth();
   const [isJumping, setIsJumping] = useState(false);
-  // const [isEditingMascotName, setIsEditingMascotName] = useState(false);
-  // const [mascotName, setMascotName] = useState("");
+  const [isEditingMascotName, setIsEditingMascotName] = useState(false);
+  const [mascotName, setMascotName] = useState("");
   const { toast } = useToast();
   const [showStickerReward, setShowStickerReward] = useState(false);
   const [stickerRewards, setStickerRewards] = useState<any[]>([]);
@@ -31,31 +31,31 @@ export default function Home() {
   // Check if current user is the developer
   const isDeveloper = userProfile?.email === 'williamarvin111@gmail.com';
 
-  // Update mascot name mutation - temporarily disabled
-  // const updateMascotNameMutation = useMutation({
-  //   mutationFn: async (newName: string) => {
-  //     return await apiRequest("/api/rewards/update-mascot-name", {
-  //       method: "POST",
-  //       body: JSON.stringify({ mascotName: newName }),
-  //     });
-  //   },
-  //   onSuccess: () => {
-  //     toast({
-  //       title: "Success!",
-  //       description: "Your mascot's name has been updated.",
-  //     });
-  //     setIsEditingMascotName(false);
-  //     // Invalidate user profile to refresh the data
-  //     queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
-  //   },
-  //   onError: (error) => {
-  //     toast({
-  //       title: "Error",
-  //       description: "Failed to update mascot name. Please try again.",
-  //       variant: "destructive",
-  //     });
-  //   },
-  // });
+  // Update mascot name mutation
+  const updateMascotNameMutation = useMutation({
+    mutationFn: async (newName: string) => {
+      return await apiRequest("/api/rewards/update-mascot-name", {
+        method: "POST",
+        body: JSON.stringify({ mascotName: newName }),
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success!",
+        description: "Your mascot's name has been updated.",
+      });
+      setIsEditingMascotName(false);
+      // Invalidate user profile to refresh the data
+      queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update mascot name. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -64,12 +64,14 @@ export default function Home() {
     else setGreeting("Good evening");
   }, []);
 
-  // Set initial mascot name when profile loads - temporarily disabled
-  // useEffect(() => {
-  //   if (userProfile?.mascotName) {
-  //     setMascotName(userProfile.mascotName);
-  //   }
-  // }, [userProfile]);
+  // Set initial mascot name when profile loads
+  useEffect(() => {
+    if (userProfile?.mascotName) {
+      setMascotName(userProfile.mascotName);
+    } else {
+      setMascotName("Your Mascot");
+    }
+  }, [userProfile]);
 
   const features = [
     {
@@ -462,9 +464,46 @@ export default function Home() {
                   </div>
                   <div className="absolute -bottom-4 -right-2 bg-white rounded-lg px-3 py-2 shadow-md border border-gray-200 min-w-[140px]">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-gray-700">
-                        Your Mascot
-                      </span>
+                      {isEditingMascotName ? (
+                        <div className="flex items-center gap-1">
+                          <Input
+                            value={mascotName}
+                            onChange={(e) => setMascotName(e.target.value)}
+                            onBlur={() => {
+                              if (mascotName.trim()) {
+                                updateMascotNameMutation.mutate(mascotName);
+                              } else {
+                                setMascotName(userProfile?.mascotName || "Your Mascot");
+                                setIsEditingMascotName(false);
+                              }
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                if (mascotName.trim()) {
+                                  updateMascotNameMutation.mutate(mascotName);
+                                } else {
+                                  setMascotName(userProfile?.mascotName || "Your Mascot");
+                                  setIsEditingMascotName(false);
+                                }
+                              } else if (e.key === 'Escape') {
+                                setMascotName(userProfile?.mascotName || "Your Mascot");
+                                setIsEditingMascotName(false);
+                              }
+                            }}
+                            className="h-7 w-24 text-sm font-semibold"
+                            autoFocus
+                            maxLength={20}
+                          />
+                        </div>
+                      ) : (
+                        <span 
+                          className="text-sm font-semibold text-gray-700 cursor-pointer hover:text-gray-900 hover:underline"
+                          onDoubleClick={() => setIsEditingMascotName(true)}
+                          title="Double-click to rename"
+                        >
+                          {mascotName || "Your Mascot"}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </motion.div>
