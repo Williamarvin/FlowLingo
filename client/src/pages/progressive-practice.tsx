@@ -32,6 +32,8 @@ function ProgressivePracticeContent() {
   const [showOutOfHeartsScreen, setShowOutOfHeartsScreen] = useState(false);
   const [wrongAttempts, setWrongAttempts] = useState(0);
   const [showDifficultyOption, setShowDifficultyOption] = useState(false);
+  const [showStickerReward, setShowStickerReward] = useState(false);
+  const [stickerRewards, setStickerRewards] = useState<any[]>([]);
   
   // Ref for continue button to scroll to
   const continueButtonRef = useRef<HTMLButtonElement>(null);
@@ -313,6 +315,7 @@ function ProgressivePracticeContent() {
     const accuracy = totalAttempts > 0 ? (correctAnswers / totalAttempts) * 100 : 0;
     const xp = Math.round(accuracy * 10);
     const timeSpent = Math.floor((Date.now() - sessionStartTime) / 1000); // Time in seconds
+    const passed = accuracy >= 80; // Pass if 80% or higher
     
     // Save practice session and get the result
     const result: any = await savePracticeMutation.mutateAsync({
@@ -328,19 +331,53 @@ function ProgressivePracticeContent() {
     // Refetch profile to update sidebar XP/level display
     await refetchProfile();
     
-    // If user leveled up, navigate to the next level's practice page
+    // If user leveled up, show sticker animation and continue to next level
     if (result && result.leveledUp) {
+      // Show sticker rewards if any
+      if (result.newStickers && result.newStickers.length > 0) {
+        setShowStickerReward(true);
+        setStickerRewards(result.newStickers);
+        
+        // Auto-continue after showing stickers
+        setTimeout(() => {
+          setShowStickerReward(false);
+          // Reload to continue with the new level
+          navigate("/practice");
+          window.location.reload();
+        }, 3000);
+      } else {
+        toast({
+          title: "Level Up! 🎉",
+          description: `Congratulations! You've advanced to Level ${result.newLevel}!`,
+        });
+        // Continue to next level automatically
+        setTimeout(() => {
+          navigate("/practice");
+          window.location.reload();
+        }, 1500);
+      }
+    } else if (passed) {
+      // If passed but didn't level up, still go to next level
       toast({
-        title: "Level Up! 🎉",
-        description: `Congratulations! You've advanced to Level ${result.newLevel}!`,
+        title: "Great Job! ✨",
+        description: `Level ${currentLevel} complete! Moving to Level ${currentLevel + 1}`,
       });
-      // Navigate to the practice page to start the new level
+      // Clear current progress and move to next level
       setTimeout(() => {
-        navigate("/practice");
-        window.location.reload(); // Reload to get the new level from profile
+        setCurrentLevel(currentLevel + 1);
+        queryClient.invalidateQueries({ queryKey: ["/api/practice/questions", currentLevel + 1] });
+        queryClient.invalidateQueries({ queryKey: ["/api/practice/progress", currentLevel + 1] });
+        setCurrentQuestionIndex(0);
+        setCorrectAnswers(0);
+        setWrongAnswers(0);
+        setSelectedAnswer(null);
+        setShowFeedback(false);
+        setShowCompletedScreen(false);
+        setWrongAttempts(0);
+        setShowDifficultyOption(false);
       }, 1500);
     } else {
-      // Navigate back to practice page (not home)
+      // Failed - go back to practice selection
       navigate("/practice");
     }
   };
@@ -367,6 +404,52 @@ function ProgressivePracticeContent() {
   }
 
   // Out of hearts screen
+  // Sticker reward animation screen
+  if (showStickerReward && stickerRewards.length > 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex">
+        <ModernNav />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="bg-white rounded-3xl shadow-xl p-8 text-center max-w-lg">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", duration: 0.5 }}
+            >
+              <div className="text-6xl mb-4">🎁</div>
+              <h1 className="text-3xl font-bold text-gray-800 mb-4">New Stickers!</h1>
+              <div className="flex flex-wrap justify-center gap-4 mb-6">
+                {stickerRewards.map((sticker: any, index: number) => (
+                  <motion.div
+                    key={sticker.id}
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ delay: index * 0.2, type: "spring" }}
+                    className="relative"
+                  >
+                    <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center shadow-lg">
+                      <span className="text-5xl">{sticker.emoji || "🌟"}</span>
+                    </div>
+                    <div className={`absolute -top-2 -right-2 px-2 py-1 rounded-full text-xs font-bold text-white ${
+                      sticker.rarity === 'legendary' ? 'bg-gradient-to-r from-yellow-400 to-orange-400' :
+                      sticker.rarity === 'epic' ? 'bg-gradient-to-r from-purple-500 to-pink-500' :
+                      sticker.rarity === 'rare' ? 'bg-gradient-to-r from-blue-500 to-cyan-500' :
+                      'bg-gradient-to-r from-green-500 to-emerald-500'
+                    }`}>
+                      {sticker.rarity?.toUpperCase() || 'NEW'}
+                    </div>
+                    <p className="text-xs mt-2 font-semibold text-gray-700">{sticker.name}</p>
+                  </motion.div>
+                ))}
+              </div>
+              <p className="text-gray-600 mb-4">You earned {stickerRewards.length} new sticker{stickerRewards.length > 1 ? 's' : ''}!</p>
+            </motion.div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (showOutOfHeartsScreen) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex">
