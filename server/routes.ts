@@ -2442,7 +2442,7 @@ Create substantially more comprehensive responses with extensive vocabulary prac
         // Grant each sticker to the user
         for (const stickerId of lootBoxContents) {
           try {
-            await storage.grantUserSticker(userId, stickerId);
+            await storage.awardSticker(userId, stickerId);
             const stickerInfo = ANIMAL_STICKERS.find(s => s.id === stickerId);
             if (stickerInfo) {
               newStickers.push(stickerInfo);
@@ -2507,6 +2507,48 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     } catch (error) {
       console.error("Error saving practice session:", error);
       res.status(500).json({ error: "Failed to save practice session" });
+    }
+  });
+
+  // DEBUG ENDPOINT - TEMPORARY for testing loot box animation
+  app.post("/api/debug/instant-levelup", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.userId;
+      
+      // Import sticker system functions
+      const { ANIMAL_STICKERS } = await import("./stickerSystem");
+      
+      // Get current user
+      const currentUser = await storage.getUser(userId);
+      if (!currentUser) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      
+      // Level up the user
+      const newLevel = currentUser.level + 1;
+      await storage.updateUserProgress(userId, {
+        level: newLevel,
+        xp: newLevel * 100 // Set XP to match the new level
+      });
+      
+      // Grant a legendary sticker for testing (Phoenix or Dragon)
+      const legendaryStickers = ANIMAL_STICKERS.filter(s => s.rarity === 'legendary');
+      const randomLegendary = legendaryStickers[Math.floor(Math.random() * legendaryStickers.length)];
+      
+      if (randomLegendary) {
+        await storage.awardSticker(userId, randomLegendary.id);
+        console.log(`DEBUG: Granted legendary sticker ${randomLegendary.name} to user for testing`);
+      }
+      
+      res.json({
+        success: true,
+        newLevel,
+        sticker: randomLegendary,
+        message: "Level up successful! Complete any practice to see the loot box animation."
+      });
+    } catch (error) {
+      console.error("Debug level up error:", error);
+      res.status(500).json({ error: "Failed to level up" });
     }
   });
 

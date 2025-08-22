@@ -487,6 +487,55 @@ export default function Home() {
             </div>
           )}
           
+          {/* TEMPORARY DEBUG BUTTON - Remove in production */}
+          <div className="bg-yellow-100 border-2 border-yellow-400 rounded-xl p-4 mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-yellow-800 mb-1">🚧 DEBUG MODE</h3>
+                <p className="text-xs text-yellow-700">Test loot box animation (gives legendary sticker)</p>
+              </div>
+              <Button
+                onClick={async () => {
+                  try {
+                    // Directly call the test endpoint to level up
+                    const response = await fetch("/api/debug/instant-levelup", {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      credentials: "include",
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                      // Reload to trigger animation on next practice completion
+                      toast({
+                        title: "Level Up!",
+                        description: `You're now level ${data.newLevel}! Complete any practice to see the loot box.`,
+                      });
+                      queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+                      
+                      // Navigate to practice to trigger the animation
+                      setTimeout(() => {
+                        setLocation("/practice");
+                      }, 1000);
+                    }
+                  } catch (error) {
+                    toast({
+                      title: "Error",
+                      description: "Failed to level up",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+                className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold"
+              >
+                🎁 Instant Level Up (Test)
+              </Button>
+            </div>
+          </div>
+          
           {/* Sticker Rewards Notification */}
           {userProfile && (
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-sm border border-purple-200 p-6 mb-8">
