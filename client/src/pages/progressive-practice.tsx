@@ -63,7 +63,7 @@ function ProgressivePracticeContent() {
   };
   
   // Function to speak Chinese with delay for hover events
-  const speakChineseWithDelay = (text: string, delay: number = 500) => {
+  const speakChineseWithDelay = (text: string, delay: number = 200) => {
     // Clear any existing timeout
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
@@ -876,14 +876,14 @@ function ProgressivePracticeContent() {
               <div className="text-center mb-8">
                 <div 
                   className="text-6xl font-bold text-gray-900 mb-4 p-8 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl inline-block cursor-pointer hover:bg-gradient-to-br hover:from-green-200 hover:to-emerald-200 transition-all duration-200"
-                  onMouseEnter={() => speakChineseWithDelay(currentQ.chinese, 300)}
+                  onMouseEnter={() => speakChineseWithDelay(currentQ.chinese, 150)}
                   onMouseLeave={() => {
                     // Clear timeout when mouse leaves
                     if (hoverTimeoutRef.current) {
                       clearTimeout(hoverTimeoutRef.current);
                     }
                   }}
-                  title="Hover to hear pronunciation (after 0.3s)"
+                  title="Hover to hear pronunciation"
                 >
                   {currentQ.chinese}
                 </div>
@@ -921,7 +921,7 @@ function ProgressivePracticeContent() {
                   <button
                     key={index}
                     onClick={() => handleAnswer(option)}
-                    onMouseEnter={() => speakChineseWithDelay(getTextToSpeak(), 400)}
+                    onMouseEnter={() => speakChineseWithDelay(getTextToSpeak(), 200)}
                     onMouseLeave={() => {
                       // Clear timeout when mouse leaves to prevent delayed speech
                       if (hoverTimeoutRef.current) {
