@@ -100,13 +100,19 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
             {/* Right Side - Hearts, Mascot & Profile */}
             <div className="flex items-center gap-4">
               {/* Hearts Display */}
-              <div className="flex items-center gap-2 bg-red-50 px-3 py-2 rounded-full">
-                <span className="text-xl">❤️</span>
-                <span className="font-bold text-red-600">{hearts}</span>
-                {hearts < 5 && (
-                  <span className="text-xs text-red-500">
-                    {userProfile?.nextHeartIn ? `+1 in ${Math.floor(userProfile.nextHeartIn / 60)}m` : ''}
-                  </span>
+              <div className="flex items-center gap-2 bg-red-50 px-3 py-2 rounded-full border border-red-200">
+                <div className="flex items-center gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <span key={i} className="text-lg">
+                      {i < hearts ? '❤️' : '🤍'}
+                    </span>
+                  ))}
+                </div>
+                {hearts < 5 && userProfile?.nextHeartIn && (
+                  <div className="flex items-center gap-1 text-xs text-red-600 font-medium border-l border-red-200 pl-2">
+                    <span>+❤️</span>
+                    <span>{Math.floor(userProfile.nextHeartIn / 60)}:{String(userProfile.nextHeartIn % 60).padStart(2, '0')}</span>
+                  </div>
                 )}
               </div>
 
@@ -208,13 +214,19 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
           <div className="lg:hidden border-t border-gray-200 bg-white">
             <div className="px-6 py-4 space-y-2">
               {/* Hearts Display in Mobile */}
-              <div className="flex items-center justify-center gap-2 bg-red-50 px-4 py-3 rounded-lg mb-2">
-                <span className="text-xl">❤️</span>
-                <span className="font-bold text-red-600 text-lg">{hearts}</span>
-                {hearts < 5 && (
-                  <span className="text-xs text-red-500">
-                    {userProfile?.nextHeartIn ? `+1 in ${Math.floor(userProfile.nextHeartIn / 60)}m` : ''}
-                  </span>
+              <div className="flex items-center justify-center gap-2 bg-red-50 px-4 py-3 rounded-lg mb-2 border border-red-200">
+                <div className="flex items-center gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <span key={i} className="text-xl">
+                      {i < hearts ? '❤️' : '🤍'}
+                    </span>
+                  ))}
+                </div>
+                {hearts < 5 && userProfile?.nextHeartIn && (
+                  <div className="flex items-center gap-1 text-sm text-red-600 font-medium border-l border-red-200 pl-2">
+                    <span>+❤️</span>
+                    <span>{Math.floor(userProfile.nextHeartIn / 60)}:{String(userProfile.nextHeartIn % 60).padStart(2, '0')}</span>
+                  </div>
                 )}
               </div>
               
