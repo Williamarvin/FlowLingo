@@ -2508,7 +2508,7 @@ Create substantially more comprehensive responses with extensive vocabulary prac
         });
       }
       
-      res.json({ 
+      const response = { 
         success: true, 
         xpEarned,
         newLevel,
@@ -2520,7 +2520,11 @@ Create substantially more comprehensive responses with extensive vocabulary prac
           xp: updatedUser.xp,
           xpToNextLevel: updatedUser.xpToNextLevel
         }
-      });
+      };
+      
+      console.log(`Save-session response: leveledUp=${leveledUp}, newStickers=${newStickers.length}, stickers=`, newStickers.map(s => s.name));
+      
+      res.json(response);
     } catch (error) {
       console.error("Error saving practice session:", error);
       res.status(500).json({ error: "Failed to save practice session" });
