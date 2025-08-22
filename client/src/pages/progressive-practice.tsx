@@ -38,6 +38,9 @@ function ProgressivePracticeContent() {
   // Ref for continue button to scroll to
   const continueButtonRef = useRef<HTMLButtonElement>(null);
   
+  // Ref for hover TTS delay
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
   // Get level from URL params if provided, otherwise use user's current level
   const urlParams = new URLSearchParams(location.split('?')[1] || '');
   const levelFromUrl = urlParams.get('level');
@@ -58,6 +61,28 @@ function ProgressivePracticeContent() {
       console.error('TTS error:', error);
     }
   };
+  
+  // Function to speak Chinese with delay for hover events
+  const speakChineseWithDelay = (text: string, delay: number = 500) => {
+    // Clear any existing timeout
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    
+    // Set a new timeout to speak after delay
+    hoverTimeoutRef.current = setTimeout(() => {
+      speakChinese(text);
+    }, delay);
+  };
+  
+  // Clear hover timeout when component unmounts
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Fetch user profile to get current level and hearts
   const { data: userProfile, refetch: refetchProfile } = useQuery<any>({
@@ -851,8 +876,14 @@ function ProgressivePracticeContent() {
               <div className="text-center mb-8">
                 <div 
                   className="text-6xl font-bold text-gray-900 mb-4 p-8 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl inline-block cursor-pointer hover:bg-gradient-to-br hover:from-green-200 hover:to-emerald-200 transition-all duration-200"
-                  onMouseEnter={() => speakChinese(currentQ.chinese)}
-                  title="Hover to hear pronunciation"
+                  onMouseEnter={() => speakChineseWithDelay(currentQ.chinese, 300)}
+                  onMouseLeave={() => {
+                    // Clear timeout when mouse leaves
+                    if (hoverTimeoutRef.current) {
+                      clearTimeout(hoverTimeoutRef.current);
+                    }
+                  }}
+                  title="Hover to hear pronunciation (after 0.3s)"
                 >
                   {currentQ.chinese}
                 </div>
@@ -890,7 +921,13 @@ function ProgressivePracticeContent() {
                   <button
                     key={index}
                     onClick={() => handleAnswer(option)}
-                    onMouseEnter={() => speakChinese(getTextToSpeak())}
+                    onMouseEnter={() => speakChineseWithDelay(getTextToSpeak(), 400)}
+                    onMouseLeave={() => {
+                      // Clear timeout when mouse leaves to prevent delayed speech
+                      if (hoverTimeoutRef.current) {
+                        clearTimeout(hoverTimeoutRef.current);
+                      }
+                    }}
                     disabled={showFeedback}
                     className={`
                       p-4 rounded-2xl font-semibold text-lg transition-all transform hover:scale-105
