@@ -2435,9 +2435,26 @@ Create substantially more comprehensive responses with extensive vocabulary prac
           lessonsCompleted: updatedUser.lessonsCompleted + 1
         });
         
+        // Check if this is a debug level up (should get legendary sticker)
+        const globalWithDebug = global as any;
+        const isDebugLevelUp = globalWithDebug.debugLevelUpUsers && globalWithDebug.debugLevelUpUsers.has(userId);
+        
         // Award sticker box for leveling up
-        const lootBoxContents = generateLootBoxContents(newLevel);
-        console.log(`Level ${newLevel} reached! Opening sticker box with ${lootBoxContents.length} sticker(s)`);
+        let lootBoxContents;
+        if (isDebugLevelUp) {
+          // For debug level ups, guarantee a legendary sticker
+          const legendaryStickers = ANIMAL_STICKERS.filter(s => s.rarity === 'legendary');
+          const randomLegendary = legendaryStickers[Math.floor(Math.random() * legendaryStickers.length)];
+          lootBoxContents = [randomLegendary.id];
+          console.log(`DEBUG Level ${newLevel} reached! Awarding legendary sticker: ${randomLegendary.name}`);
+          
+          // Clear the debug flag
+          globalWithDebug.debugLevelUpUsers.delete(userId);
+        } else {
+          // Normal level up sticker generation
+          lootBoxContents = generateLootBoxContents(newLevel);
+          console.log(`Level ${newLevel} reached! Opening sticker box with ${lootBoxContents.length} sticker(s)`);
+        }
         
         // Grant each sticker to the user
         for (const stickerId of lootBoxContents) {
@@ -2531,9 +2548,6 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     try {
       const userId = req.userId;
       
-      // Import sticker system functions
-      const { ANIMAL_STICKERS } = await import("./stickerSystem");
-      
       // Get current user
       const currentUser = await storage.getUser(userId);
       if (!currentUser) {
@@ -2551,21 +2565,19 @@ Create substantially more comprehensive responses with extensive vocabulary prac
         hearts: 5 // Also ensure hearts are full for testing
       });
       
-      // Pre-grant a legendary sticker that will appear in the loot box
-      const legendaryStickers = ANIMAL_STICKERS.filter(s => s.rarity === 'legendary');
-      const randomLegendary = legendaryStickers[Math.floor(Math.random() * legendaryStickers.length)];
+      // Set a flag that next level up should include legendary sticker
+      // Store in session or temporary memory
+      const globalWithDebug = global as any;
+      globalWithDebug.debugLevelUpUsers = globalWithDebug.debugLevelUpUsers || new Set();
+      globalWithDebug.debugLevelUpUsers.add(userId);
       
-      if (randomLegendary) {
-        await storage.awardSticker(userId, randomLegendary.id);
-        console.log(`DEBUG: Pre-granted legendary sticker ${randomLegendary.name} for loot box animation`);
-      }
+      console.log(`DEBUG: Set user ${userId} to receive legendary sticker on next level up`);
       
       res.json({
         success: true,
         newLevel: currentLevel + 1,
         currentXP: 99,
-        sticker: randomLegendary,
-        message: "Ready to level up! Complete ANY practice question to trigger the loot box animation."
+        message: "Ready to level up! Complete ANY practice question to trigger the legendary loot box animation."
       });
     } catch (error) {
       console.error("Debug level up error:", error);
@@ -2578,14 +2590,17 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     try {
       const userId = req.userId;
       
-      // Use the existing refillHearts method from storage
-      const updatedUser = await storage.refillHearts(userId);
+      // Refill hearts directly through storage
+      const updatedUser = await storage.updateUserProgress(userId, {
+        hearts: 5,
+        lastHeartLostAt: null
+      });
       
-      console.log(`DEBUG: Refilled hearts for developer user ${userId} - now has ${updatedUser.hearts} hearts`);
+      console.log(`DEBUG: Refilled hearts for developer user ${userId} - now has 5 hearts`);
       
       res.json({
         success: true,
-        hearts: updatedUser.hearts,
+        hearts: 5,
         message: "Hearts refilled successfully!"
       });
     } catch (error) {
