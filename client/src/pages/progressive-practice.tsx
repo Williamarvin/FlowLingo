@@ -440,13 +440,21 @@ function ProgressivePracticeContent() {
   // Out of hearts screen
   // Sticker reward animation screen
   if (showStickerReward && stickerRewards.length > 0) {
+    // Check if any sticker is epic or legendary
+    const hasEpicOrAbove = stickerRewards.some(sticker => 
+      sticker.rarity === 'epic' || sticker.rarity === 'legendary'
+    );
+    
+    // Double animation duration for epic+ pulls
+    const animationMultiplier = hasEpicOrAbove ? 2 : 1;
+    
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50 flex overflow-hidden relative">
+      <div className={`min-h-screen ${hasEpicOrAbove ? 'bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50' : 'bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50'} flex overflow-hidden relative`}>
         <ModernNav />
         
-        {/* Animated confetti background */}
+        {/* Animated confetti background - red sparks for epic+ */}
         <div className="absolute inset-0 pointer-events-none">
-          {[...Array(20)].map((_, i) => (
+          {[...Array(hasEpicOrAbove ? 30 : 20)].map((_, i) => (
             <motion.div
               key={i}
               className="absolute"
@@ -461,14 +469,16 @@ function ProgressivePracticeContent() {
                 x: Math.random() * window.innerWidth
               }}
               transition={{
-                duration: 3 + Math.random() * 2,
+                duration: (3 + Math.random() * 2) * animationMultiplier,
                 repeat: Infinity,
                 delay: Math.random() * 2,
                 ease: "linear"
               }}
             >
-              <div className={`w-3 h-3 ${
-                ['bg-yellow-400', 'bg-pink-400', 'bg-purple-400', 'bg-blue-400', 'bg-green-400'][Math.floor(Math.random() * 5)]
+              <div className={`${hasEpicOrAbove ? 'w-4 h-4' : 'w-3 h-3'} ${
+                hasEpicOrAbove 
+                  ? ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-red-400', 'bg-orange-400'][Math.floor(Math.random() * 5)]
+                  : ['bg-yellow-400', 'bg-pink-400', 'bg-purple-400', 'bg-blue-400', 'bg-green-400'][Math.floor(Math.random() * 5)]
               } rounded-full`} />
             </motion.div>
           ))}
@@ -485,22 +495,24 @@ function ProgressivePracticeContent() {
             <motion.div
               initial={{ y: -50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.2 * animationMultiplier }}
             >
               <motion.h1 
-                className="text-5xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-yellow-500 bg-clip-text text-transparent mb-2"
+                className={`text-5xl font-bold ${hasEpicOrAbove ? 'bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500' : 'bg-gradient-to-r from-purple-600 via-pink-500 to-yellow-500'} bg-clip-text text-transparent mb-2`}
                 animate={{
-                  scale: [1, 1.1, 1],
+                  scale: hasEpicOrAbove ? [1, 1.2, 1] : [1, 1.1, 1],
                 }}
                 transition={{
-                  duration: 1.5,
+                  duration: 1.5 * animationMultiplier,
                   repeat: Infinity,
                   repeatDelay: 1
                 }}
               >
-                STICKER BOX!
+                {hasEpicOrAbove ? '✨ EPIC STICKER BOX! ✨' : 'STICKER BOX!'}
               </motion.h1>
-              <p className="text-xl text-gray-600 mb-6">Level Complete! Opening your reward... 🎁</p>
+              <p className="text-xl text-gray-600 mb-6">
+                {hasEpicOrAbove ? 'Level Complete! Opening your RARE reward... 🔥' : 'Level Complete! Opening your reward... 🎁'}
+              </p>
             </motion.div>
             
             {/* Animated gift box that opens */}
@@ -508,28 +520,28 @@ function ProgressivePracticeContent() {
               className="mb-6"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+              transition={{ delay: 0.5 * animationMultiplier, type: "spring", stiffness: 200 }}
             >
               <motion.div
                 className="inline-block"
                 animate={{
-                  rotate: [0, -5, 5, -5, 5, 0],
+                  rotate: hasEpicOrAbove ? [0, -10, 10, -10, 10, -5, 5, 0] : [0, -5, 5, -5, 5, 0],
                 }}
                 transition={{
-                  duration: 0.5,
-                  delay: 1,
-                  repeat: 2
+                  duration: 0.5 * animationMultiplier,
+                  delay: 1 * animationMultiplier,
+                  repeat: hasEpicOrAbove ? 4 : 2
                 }}
               >
                 <div className="relative">
-                  <Gift className="w-24 h-24 text-purple-500 mx-auto" />
+                  <Gift className={`${hasEpicOrAbove ? 'w-32 h-32' : 'w-24 h-24'} ${hasEpicOrAbove ? 'text-red-500' : 'text-purple-500'} mx-auto`} />
                   <motion.div
                     className="absolute inset-0 flex items-center justify-center"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: [0, 1, 0] }}
-                    transition={{ duration: 0.5, repeat: 3, delay: 1 }}
+                    transition={{ duration: 0.5 * animationMultiplier, repeat: hasEpicOrAbove ? 6 : 3, delay: 1 * animationMultiplier }}
                   >
-                    <Sparkles className="w-24 h-24 text-yellow-400" />
+                    <Sparkles className={`${hasEpicOrAbove ? 'w-32 h-32' : 'w-24 h-24'} ${hasEpicOrAbove ? 'text-red-500' : 'text-yellow-400'}`} />
                   </motion.div>
                 </div>
               </motion.div>
@@ -539,7 +551,7 @@ function ProgressivePracticeContent() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 2 }}
+              transition={{ delay: 2 * animationMultiplier }}
             >
               <h2 className="text-2xl font-bold text-gray-800 mb-4">Your sticker box contains...</h2>
               <div className="flex flex-wrap justify-center gap-6 mb-6">
@@ -639,7 +651,7 @@ function ProgressivePracticeContent() {
                       }`}
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      transition={{ delay: 3 + index * 0.3, type: "spring" }}
+                      transition={{ delay: (3 + index * 0.3) * animationMultiplier, type: "spring" }}
                     >
                       {sticker.rarity?.toUpperCase() || 'NEW'}
                     </motion.div>
@@ -648,19 +660,19 @@ function ProgressivePracticeContent() {
               </div>
               
               <motion.p 
-                className="text-lg text-gray-600 font-semibold mb-6"
+                className={`text-lg ${hasEpicOrAbove ? 'text-red-600' : 'text-gray-600'} font-semibold mb-6`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 3 + stickerRewards.length * 0.3 }}
+                transition={{ delay: (3 + stickerRewards.length * 0.3) * animationMultiplier }}
               >
-                Amazing! You collected {stickerRewards.length} new sticker{stickerRewards.length > 1 ? 's' : ''}!
+                {hasEpicOrAbove ? '🔥 LEGENDARY PULL! ' : 'Amazing! '}You collected {stickerRewards.length} new sticker{stickerRewards.length > 1 ? 's' : ''}!
               </motion.p>
               
               {/* Continue button */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 3.5 + stickerRewards.length * 0.3 }}
+                transition={{ delay: (3.5 + stickerRewards.length * 0.3) * animationMultiplier }}
               >
                 <Button
                   onClick={() => {
