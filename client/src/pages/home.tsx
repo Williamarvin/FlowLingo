@@ -34,10 +34,7 @@ export default function Home() {
   // Update mascot name mutation
   const updateMascotNameMutation = useMutation({
     mutationFn: async (newName: string) => {
-      return await apiRequest("/api/rewards/update-mascot-name", {
-        method: "POST",
-        body: JSON.stringify({ mascotName: newName }),
-      });
+      return await apiRequest("POST", "/api/rewards/update-mascot-name", { mascotName: newName });
     },
     onSuccess: () => {
       toast({
