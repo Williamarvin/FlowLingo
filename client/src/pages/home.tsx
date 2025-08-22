@@ -411,10 +411,10 @@ export default function Home() {
                   transition={{ duration: 0.6 }}
                 >
                   <div className="w-48 h-48 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full flex items-center justify-center shadow-xl">
-                    <span className="text-8xl animate-bounce">🐬</span>
+                    <span className="text-8xl animate-bounce">{userProfile?.selectedMascot || "🐬"}</span>
                   </div>
                   <div className="absolute -bottom-2 -right-2 bg-white rounded-full px-3 py-1 shadow-md border border-gray-200">
-                    <span className="text-sm font-semibold text-gray-700">Flow</span>
+                    <span className="text-sm font-semibold text-gray-700">Your Mascot</span>
                   </div>
                 </motion.div>
               </div>

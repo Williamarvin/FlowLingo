@@ -73,6 +73,7 @@ export interface IStorageExtended extends IStorage {
   
   // Mascot methods
   getUserMascot(userId: string): Promise<any | undefined>;
+  updateUserMascot(userId: string, mascot: string): Promise<User | undefined>;
   changeMascot(userId: string, rewardId: string): Promise<any>;
   
   // Practice level methods
@@ -1173,6 +1174,21 @@ export class MemStorage implements IStorage {
       wordsLearned: user?.wordsLearned || 0,
       lessonsCompleted: user?.lessonsCompleted || 0
     };
+  }
+  
+  async updateUserMascot(userId: string, mascot: string): Promise<User | undefined> {
+    const { db } = await import("./db");
+    const { users } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const [user] = await db.update(users)
+      .set({
+        selectedMascot: mascot,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
   }
   
 }

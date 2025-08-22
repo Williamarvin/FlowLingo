@@ -40,6 +40,9 @@ export const users = pgTable("users", {
   maxHearts: integer("max_hearts").notNull().default(5),
   lastHeartLostAt: timestamp("last_heart_lost_at"),
   
+  // Mascot Customization
+  selectedMascot: text("selected_mascot").default("🐬"), // Default is Flow the dolphin
+  
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

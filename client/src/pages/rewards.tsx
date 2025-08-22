@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import ModernNav from "@/components/modern-nav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Gift, Trophy, Star, Sparkles, Lock } from "lucide-react";
+import { Gift, Trophy, Star, Sparkles, Lock, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LootBox } from "@/components/loot-box";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { toast } from "@/hooks/use-toast";
 
 interface AnimalSticker {
   id: string;
@@ -51,6 +52,28 @@ function RewardsContent() {
   // Fetch user profile for stats
   const { data: userProfile } = useQuery<any>({
     queryKey: ["/api/user/profile"],
+  });
+  
+  // Mutation to update mascot
+  const changeMascotMutation = useMutation({
+    mutationFn: async (mascot: string) => {
+      const response = await apiRequest("POST", "/api/rewards/change-mascot", { mascot });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+      toast({
+        title: "Mascot Updated!",
+        description: "Your new mascot will appear throughout the app.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Failed to update mascot",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    },
   });
 
   const handleStickerClick = (stickerId: string) => {
@@ -117,6 +140,27 @@ function RewardsContent() {
           </p>
         </div>
 
+        {/* Current Mascot Display */}
+        {userProfile?.selectedMascot && (
+          <Card className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-purple-200">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="text-6xl animate-bounce">
+                  {userProfile.selectedMascot}
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                    Your Current Mascot
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    This mascot appears throughout FlowLingo to cheer you on!
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
         {/* Collection Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
@@ -283,6 +327,11 @@ function RewardsContent() {
                           {sticker.count}
                         </div>
                       )}
+                      {userProfile?.selectedMascot === sticker.emoji && (
+                        <div className="absolute top-2 left-2 bg-green-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
+                          <Check className="w-4 h-4" />
+                        </div>
+                      )}
                     </>
                   ) : (
                     <div className="text-5xl mb-2 relative">
@@ -315,6 +364,28 @@ function RewardsContent() {
                   <p className="text-xs text-gray-400 mt-1">
                     {sticker.probability}% chance
                   </p>
+                  
+                  {sticker.collected && (
+                    <Button
+                      size="sm"
+                      variant={userProfile?.selectedMascot === sticker.emoji ? "default" : "outline"}
+                      className="mt-2 w-full text-xs"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        changeMascotMutation.mutate(sticker.emoji);
+                      }}
+                      disabled={changeMascotMutation.isPending}
+                    >
+                      {userProfile?.selectedMascot === sticker.emoji ? (
+                        <>
+                          <Check className="w-3 h-3 mr-1" />
+                          Current Mascot
+                        </>
+                      ) : (
+                        "Set as Mascot"
+                      )}
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             </div>

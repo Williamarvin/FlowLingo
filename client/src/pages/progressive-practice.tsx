@@ -346,7 +346,7 @@ function ProgressivePracticeContent() {
         <ModernNav />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="text-6xl mb-4">📚</div>
+            <div className="text-6xl mb-4 animate-bounce">{userProfile?.selectedMascot || "🐬"}</div>
             <div className="text-2xl font-bold text-green-700">Loading practice session...</div>
           </div>
         </div>
@@ -419,7 +419,16 @@ function ProgressivePracticeContent() {
         <ModernNav />
         <div className="flex-1 flex items-center justify-center">
           <div className="bg-white rounded-3xl shadow-xl p-8 text-center max-w-lg">
-            <div className="text-6xl mb-6">{passed ? '🏆' : '📊'}</div>
+            <motion.div 
+              className="text-6xl mb-6 inline-block"
+              animate={{
+                y: [0, -20, 0],
+                rotate: [0, -10, 10, 0]
+              }}
+              transition={{ duration: 1, repeat: Infinity, repeatDelay: 2 }}
+            >
+              {userProfile?.selectedMascot || "🐬"}
+            </motion.div>
             <h1 className="text-3xl font-bold text-gray-800 mb-4">
               {passed ? 'Lesson Passed!' : 'Lesson Complete'}
             </h1>

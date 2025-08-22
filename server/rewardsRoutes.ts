@@ -38,15 +38,23 @@ export function registerRewardsRoutes(app: Express) {
   // Change user's mascot
   app.post("/api/rewards/change-mascot", requireAuth, async (req: any, res) => {
     const userId = req.userId;
-    const { rewardId } = req.body;
+    const { mascot } = req.body;
     
-    if (!rewardId) {
-      return res.status(400).json({ error: "Reward ID is required" });
+    if (!mascot) {
+      return res.status(400).json({ error: "Mascot emoji is required" });
     }
     
     try {
-      const result = await storage.changeMascot(userId, rewardId);
-      res.json(result);
+      // Check if user has this sticker unlocked
+      const userStickers = await storage.getUserStickers(userId);
+      const hasSticker = userStickers.some(s => s.emoji === mascot);
+      
+      if (!hasSticker && mascot !== "🐬") { // Allow dolphin as default
+        return res.status(403).json({ error: "You don't have this sticker unlocked" });
+      }
+      
+      const result = await storage.updateUserMascot(userId, mascot);
+      res.json({ success: true, mascot });
     } catch (error) {
       console.error("Error changing mascot:", error);
       res.status(500).json({ error: "Failed to change mascot" });
@@ -161,8 +169,8 @@ export function registerRewardsRoutes(app: Express) {
   });
 
   // Get user's collected stickers
-  app.get("/api/stickers/collection", async (req, res) => {
-    const userId = req.session?.userId || "demo-user";
+  app.get("/api/stickers/collection", requireAuth, async (req: any, res) => {
+    const userId = req.userId;
     
     try {
       const stickers = await storage.getUserStickers(userId);
