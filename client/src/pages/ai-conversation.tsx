@@ -63,7 +63,27 @@ function AiConversationContent() {
       const response = await apiRequest("POST", "/api/conversation/voice", data);
       return response.json();
     },
-    onSuccess: (response) => {
+    onSuccess: (response, variables) => {
+      // Update the last user message with translation data
+      if (response.userMessage) {
+        setMessages(prev => {
+          const newMessages = [...prev];
+          // Find the last user message and update it with translation
+          for (let i = newMessages.length - 1; i >= 0; i--) {
+            if (newMessages[i].role === 'user' && !newMessages[i].pinyin) {
+              newMessages[i] = {
+                ...newMessages[i],
+                chinese: response.userMessage.chinese,
+                pinyin: response.userMessage.pinyin,
+                english: response.userMessage.english
+              };
+              break;
+            }
+          }
+          return newMessages;
+        });
+      }
+      
       const assistantMessage: Message = {
         content: response.message,
         role: "assistant",

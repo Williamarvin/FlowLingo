@@ -1081,6 +1081,39 @@ Output: Only Chinese text, no explanations.`;
     try {
       const { message, topic, difficulty, level, conversationHistory = [] } = req.body;
       
+      // First, translate the user's message to get pinyin and English
+      let userPinyin = "";
+      let userEnglish = "";
+      
+      try {
+        const translationPrompt = `Translate this Chinese text and provide pinyin. Return JSON with exactly these fields:
+{
+  "pinyin": "pinyin with tones",
+  "english": "English translation"
+}
+
+Text: ${message}`;
+
+        const translationResponse = await openai.chat.completions.create({
+          model: "gpt-4o",
+          messages: [
+            { 
+              role: "system", 
+              content: "You are a Chinese language translator. Always return valid JSON in the exact format requested."
+            },
+            { role: "user", content: translationPrompt }
+          ],
+          response_format: { type: "json_object" },
+          temperature: 0.3,
+        });
+
+        const translationResult = JSON.parse(translationResponse.choices[0].message.content || "{}");
+        userPinyin = translationResult.pinyin || "";
+        userEnglish = translationResult.english || "";
+      } catch (e) {
+        console.error("Failed to translate user message:", e);
+      }
+      
       // Build conversation context
       const contextMessages = conversationHistory.map((msg: any) => ({
         role: msg.role,
@@ -1158,7 +1191,12 @@ After your Chinese response, provide a JSON block with this format:
         message: chinese,
         pinyin,
         english,
-        chinese
+        chinese,
+        userMessage: {
+          chinese: message,
+          pinyin: userPinyin,
+          english: userEnglish
+        }
       });
     } catch (error) {
       console.error("Voice conversation error:", error);
