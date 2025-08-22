@@ -2407,6 +2407,10 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       // Import sticker system functions
       const { generateLootBoxContents, ANIMAL_STICKERS } = await import("./stickerSystem");
       
+      // Get user's level before awarding XP
+      const userBeforeXP = await storage.getUser(userId);
+      const levelBefore = userBeforeXP?.level || 1;
+      
       // Award XP to user
       const updatedUser = await storage.addXpToUser(userId, xpEarned);
       
@@ -2414,17 +2418,20 @@ Create substantially more comprehensive responses with extensive vocabulary prac
         throw new Error("User not found");
       }
       
-      // Check if user completed the level with good accuracy (80% or higher)
-      // and advance to next level if so
+      // Check if user leveled up from the XP gain (regardless of which practice level they're on)
       let newLevel = updatedUser.level;
       let earnedReward = null;
       let newStickers: any[] = [];
       
-      if (accuracy >= 80 && level === updatedUser.level) {
-        // User completed their current level with good accuracy, advance to next level
-        newLevel = level + 1;
+      // User leveled up if their new level is higher than before
+      const leveledUp = newLevel > levelBefore;
+      
+      if (leveledUp) {
+        // User reached a new global level!
+        console.log(`User leveled up from ${levelBefore} to ${newLevel}!`);
+        
+        // Update lessons completed count
         await storage.updateUserProgress(userId, {
-          level: newLevel,
           lessonsCompleted: updatedUser.lessonsCompleted + 1
         });
         
@@ -2488,7 +2495,7 @@ Create substantially more comprehensive responses with extensive vocabulary prac
         success: true, 
         xpEarned,
         newLevel,
-        leveledUp: newLevel > level,
+        leveledUp: leveledUp, // Use the actual leveledUp flag based on global level change
         newStickers: newStickers, // Include the new stickers
         earnedReward,
         userProfile: {
