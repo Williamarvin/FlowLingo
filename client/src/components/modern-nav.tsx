@@ -77,22 +77,21 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
             </Link>
 
             {/* Center Navigation - Desktop */}
-            <div className="hidden md:flex items-center bg-white border border-gray-300 rounded-full shadow-sm hover:shadow-md transition-shadow px-1">
+            <div className="hidden lg:flex items-center gap-3 bg-gray-50 rounded-full p-2 shadow-sm border border-gray-200">
               {navTabs.map((tab, index) => (
                 <Link key={tab.path} href={tab.path}>
                   <button
                     className={`
-                      px-6 py-3 text-sm font-medium transition-colors flex items-center gap-1
-                      ${index === 0 ? 'rounded-l-full' : ''}
-                      ${index === navTabs.length - 1 ? 'rounded-r-full' : ''}
+                      px-6 py-3 text-sm font-medium transition-all duration-200 rounded-full
+                      flex items-center gap-2 whitespace-nowrap
                       ${location === tab.path 
-                        ? 'text-gray-900 bg-gray-100' 
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        ? 'text-white bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg scale-105' 
+                        : 'text-gray-700 hover:text-gray-900 hover:bg-white hover:shadow-md hover:scale-105'
                       }
                     `}
                   >
-                    <span>{tab.icon}</span>
-                    <span>{tab.label}</span>
+                    <span className="text-lg">{tab.icon}</span>
+                    <span className="font-medium">{tab.label}</span>
                   </button>
                 </Link>
               ))}
@@ -204,7 +203,7 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
               {/* Mobile Menu Toggle */}
               <button
                 onClick={() => setShowMobileMenu(!showMobileMenu)}
-                className="md:hidden p-2"
+                className="lg:hidden p-2"
               >
                 <Menu className="w-6 h-6 text-gray-600" />
               </button>
@@ -214,22 +213,22 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
 
         {/* Mobile Navigation */}
         {showMobileMenu && (
-          <div className="md:hidden border-t border-gray-200 bg-white">
+          <div className="lg:hidden border-t border-gray-200 bg-white">
             <div className="px-6 py-4 space-y-2">
               {navTabs.map((tab) => (
                 <Link key={tab.path} href={tab.path}>
                   <button
                     onClick={() => setShowMobileMenu(false)}
                     className={`
-                      w-full px-4 py-3 text-left rounded-lg transition-colors
+                      w-full px-4 py-3 text-left rounded-lg transition-colors flex items-center gap-2
                       ${location === tab.path 
-                        ? 'bg-gray-100 text-gray-900 font-medium' 
+                        ? 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 font-medium' 
                         : 'text-gray-600 hover:bg-gray-50'
                       }
                     `}
                   >
-                    <span className="mr-2">{tab.icon}</span>
-                    {tab.label}
+                    <span className="text-lg">{tab.icon}</span>
+                    <span>{tab.label}</span>
                   </button>
                 </Link>
               ))}
