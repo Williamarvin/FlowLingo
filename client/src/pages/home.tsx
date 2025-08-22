@@ -457,36 +457,27 @@ export default function Home() {
                   <div className="space-y-3 mb-3">
                     {(() => {
                       const level = userProfile.level;
-                      const nextStickerLevel = Math.ceil((level + 1) / 3) * 3;
-                      const hskTransitions = [11, 21, 31, 41, 51];
-                      const nextHskTransition = hskTransitions.find(l => l > level);
+                      const nextLevel = level + 1; // Every level gives a sticker box now
                       const majorMilestones = [25, 50, 75, 100];
                       const nextMilestone = majorMilestones.find(l => l > level);
                       
-                      let nextReward = nextStickerLevel;
-                      let rewardType = "a sticker";
+                      // Default: next level gives a sticker box
+                      let nextReward = nextLevel;
+                      let rewardType = "sticker box (1-3 random stickers)";
                       let rewardIcon = "🎁";
                       
-                      // Check which reward comes first
-                      if (nextHskTransition && (!nextReward || nextHskTransition < nextReward)) {
-                        nextReward = nextHskTransition;
-                        rewardType = "Epic/Legendary sticker (HSK level up!)";
-                        rewardIcon = "⭐";
-                      }
-                      if (level % 10 === 9) {
-                        nextReward = level + 1;
-                        rewardType = "2 stickers with better odds";
+                      // Check for special rewards
+                      if (nextLevel % 25 === 0) {
+                        rewardType = "special box (2-4 stickers, better odds!)";
+                        rewardIcon = "🏆";
+                      } else if (nextLevel % 10 === 0) {
+                        rewardType = "bonus box (better odds!)";
                         rewardIcon = "🎁🎁";
                       }
-                      if (nextMilestone && nextMilestone - level <= 3) {
-                        nextReward = nextMilestone;
-                        rewardType = "3 rare+ stickers (milestone!)";
-                        rewardIcon = "🏆";
-                      }
                       
-                      const levelsToGo = nextReward - level;
-                      const startLevel = nextReward - 3; // Show progress for last 3 levels
-                      const progressPercent = ((level - startLevel) / 3) * 100;
+                      const levelsToGo = 1; // Always 1 level to go for next reward
+                      const currentXP = userProfile.xp % 100;
+                      const progressPercent = currentXP; // XP is already 0-100
                       
                       return (
                         <>
@@ -499,10 +490,8 @@ export default function Home() {
                                 <span className="text-lg">{rewardIcon}</span>
                               </div>
                               <div className="text-right">
-                                <span className="text-2xl font-bold text-purple-700">{levelsToGo}</span>
-                                <span className="text-xs font-medium text-purple-600 ml-1">
-                                  level{levelsToGo > 1 ? 's' : ''} to go
-                                </span>
+                                <span className="text-sm font-medium text-gray-600">XP: </span>
+                                <span className="text-lg font-bold text-purple-700">{currentXP}/100</span>
                               </div>
                             </div>
                             
@@ -520,22 +509,45 @@ export default function Home() {
                                   )}
                                 </div>
                               </div>
-                              {/* Level markers */}
+                              {/* XP markers */}
                               <div className="absolute inset-0 flex items-center justify-between px-2">
-                                <span className="text-xs font-medium text-gray-600">{startLevel}</span>
-                                <span className="text-xs font-medium text-gray-600">{nextReward}</span>
+                                <span className="text-xs font-medium text-gray-600">0 XP</span>
+                                <span className="text-xs font-medium text-gray-600">100 XP</span>
                               </div>
                             </div>
                             
                             <p className="text-xs text-gray-600 mt-2 text-center">
-                              Next: {rewardType}
+                              Next level up: {rewardType}
                             </p>
                           </div>
                           
-                          <div className="flex flex-wrap gap-2 text-xs">
-                            <span className="bg-white px-2 py-1 rounded-full">Every 3 levels: 1 sticker</span>
-                            <span className="bg-white px-2 py-1 rounded-full">Every 10 levels: 2 bonus stickers</span>
-                            <span className="bg-purple-100 px-2 py-1 rounded-full">HSK: Epic/Legendary!</span>
+                          <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-3 space-y-1">
+                            <h4 className="text-xs font-semibold text-purple-800 mb-2">🎲 Sticker Box Probabilities:</h4>
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              <span className="flex items-center gap-1">
+                                <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
+                                Common: 50%
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                                Uncommon: 30%
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                Rare: 13%
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+                                Epic: 6%
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                                Legendary: 1%
+                              </span>
+                            </div>
+                            <p className="text-xs text-purple-700 font-medium mt-2">
+                              🎁 Every level = 1 sticker box!
+                            </p>
                           </div>
                         </>
                       );
