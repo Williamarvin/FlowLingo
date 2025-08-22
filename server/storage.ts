@@ -711,6 +711,201 @@ export class DatabaseStorage implements IStorageExtended {
       }
     }
   }
+  
+  // Rewards methods
+  async getAllRewards(): Promise<any[]> {
+    const stickerCatalog = await import("./stickerSystem");
+    return stickerCatalog.ANIMAL_STICKERS;
+  }
+  
+  async getUserRewards(userId: string): Promise<any[]> {
+    const { db } = await import("./db");
+    const { userRewards } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    return await db.select().from(userRewards).where(eq(userRewards.userId, userId));
+  }
+  
+  async getRewardsWithUserStatus(userId: string): Promise<any[]> {
+    const allRewards = await this.getAllRewards();
+    const userRewardsList = await this.getUserRewards(userId);
+    const userRewardIds = userRewardsList.map(r => r.rewardId);
+    
+    return allRewards.map(reward => ({
+      ...reward,
+      earned: userRewardIds.includes(reward.id),
+      isNew: userRewardsList.find(ur => ur.rewardId === reward.id)?.isNew || false
+    }));
+  }
+  
+  async grantReward(userId: string, rewardId: string): Promise<any> {
+    const { db } = await import("./db");
+    const { userRewards } = await import("@shared/schema");
+    
+    const [reward] = await db.insert(userRewards).values({
+      userId,
+      rewardId,
+      isNew: true,
+      equipped: false
+    }).returning();
+    
+    return reward;
+  }
+  
+  async markRewardsAsSeen(userId: string): Promise<void> {
+    const { db } = await import("./db");
+    const { userRewards } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    await db.update(userRewards)
+      .set({ isNew: false })
+      .where(eq(userRewards.userId, userId));
+  }
+  
+  // Mascot methods
+  async getUserMascot(userId: string): Promise<any | undefined> {
+    const { db } = await import("./db");
+    const { users } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const [user] = await db.select().from(users).where(eq(users.id, userId));
+    return user?.selectedMascot;
+  }
+  
+  async updateUserMascot(userId: string, mascot: string): Promise<User | undefined> {
+    const { db } = await import("./db");
+    const { users } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const [user] = await db.update(users)
+      .set({
+        selectedMascot: mascot,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+  
+  async changeMascot(userId: string, rewardId: string): Promise<any> {
+    const stickerCatalog = await import("./stickerSystem");
+    const sticker = stickerCatalog.ANIMAL_STICKERS.find(s => s.id === rewardId);
+    
+    if (!sticker) {
+      throw new Error("Invalid sticker ID");
+    }
+    
+    return await this.updateUserMascot(userId, sticker.emoji);
+  }
+  
+  // Practice level methods
+  async getPracticeLevel(userId: string): Promise<any | undefined> {
+    const { db } = await import("./db");
+    const { practiceLevels } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const [level] = await db.select().from(practiceLevels).where(eq(practiceLevels.userId, userId));
+    return level;
+  }
+  
+  async updatePracticeLevel(userId: string, xp: number, levelCompleted?: number): Promise<any> {
+    const { db } = await import("./db");
+    const { practiceLevels } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const currentLevel = await this.getPracticeLevel(userId);
+    
+    if (!currentLevel) {
+      const [newLevel] = await db.insert(practiceLevels).values({
+        userId,
+        practiceLevel: levelCompleted || 1,
+        practiceXp: xp
+      }).returning();
+      return newLevel;
+    }
+    
+    const updates: any = { practiceXp: xp };
+    if (levelCompleted) {
+      updates.practiceLevel = levelCompleted;
+    }
+    
+    const [updated] = await db.update(practiceLevels)
+      .set(updates)
+      .where(eq(practiceLevels.userId, userId))
+      .returning();
+    
+    return updated;
+  }
+  
+  // XP transaction methods
+  async addXpTransaction(userId: string, amount: number, source: string, sourceId?: string, description?: string): Promise<any> {
+    const { db } = await import("./db");
+    const { xpTransactions, users } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    // Add XP transaction
+    const [transaction] = await db.insert(xpTransactions).values({
+      userId,
+      amount,
+      source,
+      sourceId,
+      description,
+      appliedToGlobal: true,
+      appliedToPractice: source === 'practice'
+    }).returning();
+    
+    // Update user's global XP
+    const [user] = await db.select().from(users).where(eq(users.id, userId));
+    if (user) {
+      const newXp = user.xp + amount;
+      const newLevel = Math.floor(newXp / 100) + 1;
+      
+      await db.update(users)
+        .set({
+          xp: newXp,
+          level: newLevel,
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, userId));
+    }
+    
+    // If it's practice, also update practice level
+    if (source === 'practice') {
+      await this.updatePracticeLevel(userId, amount);
+    }
+    
+    return transaction;
+  }
+  
+  async getUserRewardProfile(userId: string): Promise<any> {
+    const { db } = await import("./db");
+    const { users, practiceLevels, userMascots, userRewards } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const [user] = await db.select().from(users).where(eq(users.id, userId));
+    const [practiceLevel] = await db.select().from(practiceLevels).where(eq(practiceLevels.userId, userId));
+    const [mascot] = await db.select().from(userMascots).where(eq(userMascots.userId, userId));
+    const userRewardsList = await db.select().from(userRewards).where(eq(userRewards.userId, userId));
+    
+    const stickers = userRewardsList.filter(r => r.rewardId); // We'd need to join with rewards to get type
+    const badges = userRewardsList.filter(r => r.rewardId); // We'd need to join with rewards to get type
+    
+    return {
+      id: user?.id,
+      username: user?.username,
+      email: user?.email,
+      level: user?.level || 1,
+      xp: user?.xp || 0,
+      practiceLevel: practiceLevel?.practiceLevel || 1,
+      practiceXp: practiceLevel?.practiceXp || 0,
+      totalStickers: stickers.length,
+      totalBadges: badges.length,
+      currentMascot: mascot?.currentMascotEmoji || '🐬',
+      streakDays: user?.streakDays || 0,
+      wordsLearned: user?.wordsLearned || 0,
+      lessonsCompleted: user?.lessonsCompleted || 0
+    };
+  }
 }
 
 export class MemStorage implements IStorage {
@@ -931,375 +1126,9 @@ export class MemStorage implements IStorage {
     this.pdfDocuments.set(id, document);
     return document;
   }
-  
-  // Rewards methods
-  async getAllRewards(): Promise<any[]> {
-    const { db } = await import("./db");
-    const { rewards } = await import("@shared/schema");
-    
-    return await db.select().from(rewards);
-  }
-  
-  async getUserRewards(userId: string): Promise<any[]> {
-    const { db } = await import("./db");
-    const { userRewards } = await import("@shared/schema");
-    const { eq } = await import("drizzle-orm");
-    
-    return await db.select().from(userRewards).where(eq(userRewards.userId, userId));
-  }
-  
-  async getRewardsWithUserStatus(userId: string): Promise<any[]> {
-    const { db } = await import("./db");
-    const { rewards, userRewards } = await import("@shared/schema");
-    const { eq, sql } = await import("drizzle-orm");
-    
-    const allRewards = await db.select().from(rewards);
-    const userRewardsList = await db.select().from(userRewards).where(eq(userRewards.userId, userId));
-    
-    // Map user rewards for easy lookup
-    const userRewardsMap = new Map(userRewardsList.map(ur => [ur.rewardId, ur]));
-    
-    // Combine rewards with user status
-    return allRewards.map(reward => ({
-      ...reward,
-      isEarned: userRewardsMap.has(reward.id),
-      isNew: userRewardsMap.get(reward.id)?.isNew || false,
-      equipped: userRewardsMap.get(reward.id)?.equipped || false
-    }));
-  }
-  
-  async grantReward(userId: string, rewardId: string): Promise<any> {
-    const { db } = await import("./db");
-    const { userRewards } = await import("@shared/schema");
-    const { eq, and } = await import("drizzle-orm");
-    
-    // Check if user already has this reward
-    const existing = await db.select().from(userRewards)
-      .where(and(eq(userRewards.userId, userId), eq(userRewards.rewardId, rewardId)));
-    
-    if (existing.length > 0) {
-      return existing[0];
-    }
-    
-    // Grant the reward
-    const [newReward] = await db.insert(userRewards).values({
-      userId,
-      rewardId,
-      isNew: true,
-      equipped: false
-    }).returning();
-    
-    return newReward;
-  }
-  
-  async markRewardsAsSeen(userId: string): Promise<void> {
-    const { db } = await import("./db");
-    const { userRewards } = await import("@shared/schema");
-    const { eq } = await import("drizzle-orm");
-    
-    await db.update(userRewards)
-      .set({ isNew: false })
-      .where(eq(userRewards.userId, userId));
-  }
-  
-  // Mascot methods
-  async getUserMascot(userId: string): Promise<any | undefined> {
-    const { db } = await import("./db");
-    const { userMascots } = await import("@shared/schema");
-    const { eq } = await import("drizzle-orm");
-    
-    const [mascot] = await db.select().from(userMascots).where(eq(userMascots.userId, userId));
-    return mascot;
-  }
-  
-  async changeMascot(userId: string, rewardId: string): Promise<any> {
-    const { db } = await import("./db");
-    const { userMascots, rewards, userRewards } = await import("@shared/schema");
-    const { eq, and } = await import("drizzle-orm");
-    
-    // First, get the reward details
-    const [reward] = await db.select().from(rewards).where(eq(rewards.id, rewardId));
-    if (!reward || reward.type !== 'mascot') {
-      throw new Error("Invalid mascot reward");
-    }
-    
-    // Check if user owns this mascot
-    const [userReward] = await db.select().from(userRewards)
-      .where(and(eq(userRewards.userId, userId), eq(userRewards.rewardId, rewardId)));
-    
-    if (!userReward) {
-      throw new Error("User does not own this mascot");
-    }
-    
-    // Unequip all mascots for this user
-    await db.update(userRewards)
-      .set({ equipped: false })
-      .where(eq(userRewards.userId, userId));
-    
-    // Equip the selected mascot
-    await db.update(userRewards)
-      .set({ equipped: true })
-      .where(and(eq(userRewards.userId, userId), eq(userRewards.rewardId, rewardId)));
-    
-    // Update or create user mascot
-    const existing = await this.getUserMascot(userId);
-    if (existing) {
-      const [updated] = await db.update(userMascots)
-        .set({ 
-          currentMascotId: rewardId,
-          currentMascotEmoji: reward.emoji,
-          updatedAt: new Date()
-        })
-        .where(eq(userMascots.userId, userId))
-        .returning();
-      return updated;
-    } else {
-      const [created] = await db.insert(userMascots).values({
-        userId,
-        currentMascotId: rewardId,
-        currentMascotEmoji: reward.emoji
-      }).returning();
-      return created;
-    }
-  }
-  
-  // Practice level methods
-  async getPracticeLevel(userId: string): Promise<any | undefined> {
-    const { db } = await import("./db");
-    const { practiceLevels } = await import("@shared/schema");
-    const { eq } = await import("drizzle-orm");
-    
-    const [level] = await db.select().from(practiceLevels).where(eq(practiceLevels.userId, userId));
-    return level;
-  }
-  
-  async updatePracticeLevel(userId: string, xp: number, levelCompleted?: number): Promise<any> {
-    const { db } = await import("./db");
-    const { practiceLevels } = await import("@shared/schema");
-    const { eq } = await import("drizzle-orm");
-    
-    const existing = await this.getPracticeLevel(userId);
-    
-    if (existing) {
-      const newXp = existing.practiceXp + xp;
-      const newLevel = Math.floor(newXp / 100) + 1;
-      const lastCompleted = levelCompleted || existing.lastCompletedLevel;
-      
-      const [updated] = await db.update(practiceLevels)
-        .set({
-          practiceXp: newXp,
-          practiceLevel: newLevel,
-          lastCompletedLevel: lastCompleted,
-          updatedAt: new Date()
-        })
-        .where(eq(practiceLevels.userId, userId))
-        .returning();
-      return updated;
-    } else {
-      const [created] = await db.insert(practiceLevels).values({
-        userId,
-        practiceXp: xp,
-        practiceLevel: 1,
-        lastCompletedLevel: levelCompleted || 0
-      }).returning();
-      return created;
-    }
-  }
-  
-  // XP transaction methods
-  async addXpTransaction(userId: string, amount: number, source: string, sourceId?: string, description?: string): Promise<any> {
-    const { db } = await import("./db");
-    const { xpTransactions, users } = await import("@shared/schema");
-    const { eq } = await import("drizzle-orm");
-    
-    // Add XP transaction
-    const [transaction] = await db.insert(xpTransactions).values({
-      userId,
-      amount,
-      source,
-      sourceId,
-      description,
-      appliedToGlobal: true,
-      appliedToPractice: source === 'practice'
-    }).returning();
-    
-    // Update user's global XP
-    const [user] = await db.select().from(users).where(eq(users.id, userId));
-    if (user) {
-      const newXp = user.xp + amount;
-      const newLevel = Math.floor(newXp / 100) + 1;
-      
-      await db.update(users)
-        .set({
-          xp: newXp,
-          level: newLevel,
-          updatedAt: new Date()
-        })
-        .where(eq(users.id, userId));
-    }
-    
-    // If it's practice, also update practice level
-    if (source === 'practice') {
-      await this.updatePracticeLevel(userId, amount);
-    }
-    
-    return transaction;
-  }
-  
-  async getUserRewardProfile(userId: string): Promise<any> {
-    const { db } = await import("./db");
-    const { users, practiceLevels, userMascots, userRewards } = await import("@shared/schema");
-    const { eq } = await import("drizzle-orm");
-    
-    const [user] = await db.select().from(users).where(eq(users.id, userId));
-    const [practiceLevel] = await db.select().from(practiceLevels).where(eq(practiceLevels.userId, userId));
-    const [mascot] = await db.select().from(userMascots).where(eq(userMascots.userId, userId));
-    const userRewardsList = await db.select().from(userRewards).where(eq(userRewards.userId, userId));
-    
-    const stickers = userRewardsList.filter(r => r.rewardId); // We'd need to join with rewards to get type
-    const badges = userRewardsList.filter(r => r.rewardId); // We'd need to join with rewards to get type
-    
-    return {
-      id: user?.id,
-      username: user?.username,
-      email: user?.email,
-      level: user?.level || 1,
-      xp: user?.xp || 0,
-      practiceLevel: practiceLevel?.practiceLevel || 1,
-      practiceXp: practiceLevel?.practiceXp || 0,
-      totalStickers: stickers.length,
-      totalBadges: badges.length,
-      currentMascot: mascot?.currentMascotEmoji || '🐬',
-      streakDays: user?.streakDays || 0,
-      wordsLearned: user?.wordsLearned || 0,
-      lessonsCompleted: user?.lessonsCompleted || 0
-    };
-  }
-  
-  async updateUserMascot(userId: string, mascot: string): Promise<User | undefined> {
-    const { db } = await import("./db");
-    const { users } = await import("@shared/schema");
-    const { eq } = await import("drizzle-orm");
-    
-    const [user] = await db.update(users)
-      .set({
-        selectedMascot: mascot,
-        updatedAt: new Date()
-      })
-      .where(eq(users.id, userId))
-      .returning();
-    return user;
-  }
-
-  // Add all missing methods required by IStorageExtended
-  async getAllRewards(): Promise<any[]> {
-    const stickerCatalog = await import("./stickerSystem");
-    return stickerCatalog.ANIMAL_STICKERS;
-  }
-  
-  async getUserRewards(userId: string): Promise<any[]> {
-    const { db } = await import("./db");
-    const { userRewards } = await import("@shared/schema");
-    const { eq } = await import("drizzle-orm");
-    
-    return await db.select().from(userRewards).where(eq(userRewards.userId, userId));
-  }
-  
-  async getRewardsWithUserStatus(userId: string): Promise<any[]> {
-    const allRewards = await this.getAllRewards();
-    const userRewardsList = await this.getUserRewards(userId);
-    const userRewardIds = userRewardsList.map(r => r.rewardId);
-    
-    return allRewards.map(reward => ({
-      ...reward,
-      earned: userRewardIds.includes(reward.id),
-      isNew: userRewardsList.find(ur => ur.rewardId === reward.id)?.isNew || false
-    }));
-  }
-  
-  async grantReward(userId: string, rewardId: string): Promise<any> {
-    const { db } = await import("./db");
-    const { userRewards } = await import("@shared/schema");
-    
-    const [reward] = await db.insert(userRewards).values({
-      userId,
-      rewardId,
-      isNew: true,
-      equipped: false
-    }).returning();
-    
-    return reward;
-  }
-  
-  async markRewardsAsSeen(userId: string): Promise<void> {
-    const { db } = await import("./db");
-    const { userRewards } = await import("@shared/schema");
-    const { eq } = await import("drizzle-orm");
-    
-    await db.update(userRewards)
-      .set({ isNew: false })
-      .where(eq(userRewards.userId, userId));
-  }
-  
-  async getUserMascot(userId: string): Promise<any | undefined> {
-    const { db } = await import("./db");
-    const { users } = await import("@shared/schema");
-    const { eq } = await import("drizzle-orm");
-    
-    const [user] = await db.select().from(users).where(eq(users.id, userId));
-    return user?.selectedMascot;
-  }
-  
-  async changeMascot(userId: string, rewardId: string): Promise<any> {
-    const stickerCatalog = await import("./stickerSystem");
-    const sticker = stickerCatalog.ANIMAL_STICKERS.find(s => s.id === rewardId);
-    
-    if (!sticker) {
-      throw new Error("Invalid sticker ID");
-    }
-    
-    return await this.updateUserMascot(userId, sticker.emoji);
-  }
-  
-  async getPracticeLevel(userId: string): Promise<any | undefined> {
-    const { db } = await import("./db");
-    const { practiceLevels } = await import("@shared/schema");
-    const { eq } = await import("drizzle-orm");
-    
-    const [level] = await db.select().from(practiceLevels).where(eq(practiceLevels.userId, userId));
-    return level;
-  }
-  
-  async updatePracticeLevel(userId: string, xp: number, levelCompleted?: number): Promise<any> {
-    const { db } = await import("./db");
-    const { practiceLevels } = await import("@shared/schema");
-    const { eq } = await import("drizzle-orm");
-    
-    const currentLevel = await this.getPracticeLevel(userId);
-    
-    if (!currentLevel) {
-      const [newLevel] = await db.insert(practiceLevels).values({
-        userId,
-        practiceLevel: levelCompleted || 1,
-        practiceXp: xp
-      }).returning();
-      return newLevel;
-    }
-    
-    const updates: any = { practiceXp: xp };
-    if (levelCompleted) {
-      updates.practiceLevel = levelCompleted;
-    }
-    
-    const [updated] = await db.update(practiceLevels)
-      .set(updates)
-      .where(eq(practiceLevels.userId, userId))
-      .returning();
-    
-    return updated;
-  }
-  
 }
+
+
 
 // Switch to DatabaseStorage for production
 export const storage: IStorageExtended = new DatabaseStorage();
