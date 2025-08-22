@@ -179,11 +179,33 @@ function FlashcardsContent() {
       setCurrentIndex(prev => prev + 1);
       setShowAnswer(false);
     } else {
-      // Session complete
-      toast({
-        title: "Session Complete!",
-        description: "Great job! You've reviewed all cards in this deck.",
-      });
+      // Session complete - Award XP
+      const awardXP = async () => {
+        try {
+          const response = await apiRequest("POST", "/api/flashcards/award-xp", {
+            cardsReviewed: totalCards,
+            correctCount: sessionCorrect,
+          });
+          if (response.ok) {
+            const data = await response.json();
+            if (data.xpEarned > 0) {
+              toast({
+                title: `Session Complete! +${data.xpEarned} XP`,
+                description: `Great job! You got ${sessionCorrect}/${totalCards} cards correct.`,
+              });
+              queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+            }
+          }
+        } catch (error) {
+          console.error("Error awarding XP:", error);
+          toast({
+            title: "Session Complete!",
+            description: "Great job! You've reviewed all cards in this deck.",
+          });
+        }
+      };
+      
+      awardXP();
       setCurrentIndex(0);
       setSessionCorrect(0);
       setSessionWrong(0);

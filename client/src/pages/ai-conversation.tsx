@@ -18,6 +18,12 @@ interface Message {
   chinese?: string;
   pinyin?: string;
   english?: string;
+  feedback?: {
+    pronunciationTips?: string[];
+    wordChoiceSuggestions?: string[];
+    overallFeedback?: string;
+    alternativePhrase?: string;
+  };
 }
 
 function AiConversationContent() {
@@ -41,6 +47,7 @@ function AiConversationContent() {
   const lastSpeechTimeRef = useRef<number>(0);
   const isInCallRef = useRef<boolean>(false);
   const isPendingRef = useRef<boolean>(false);
+  const conversationStartTimeRef = useRef<number>(0);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -64,18 +71,19 @@ function AiConversationContent() {
       return response.json();
     },
     onSuccess: (response, variables) => {
-      // Update the last user message with translation data
+      // Update the last user message with translation data and feedback
       if (response.userMessage) {
         setMessages(prev => {
           const newMessages = [...prev];
-          // Find the last user message and update it with translation
+          // Find the last user message and update it with translation and feedback
           for (let i = newMessages.length - 1; i >= 0; i--) {
             if (newMessages[i].role === 'user' && !newMessages[i].pinyin) {
               newMessages[i] = {
                 ...newMessages[i],
                 chinese: response.userMessage.chinese,
                 pinyin: response.userMessage.pinyin,
-                english: response.userMessage.english
+                english: response.userMessage.english,
+                feedback: response.feedback // Add pronunciation feedback
               };
               break;
             }
@@ -411,6 +419,7 @@ function AiConversationContent() {
     setIsInCall(true);
     setIsListening(true);
     setMessages([]);
+    conversationStartTimeRef.current = Date.now(); // Track conversation start time
     
     // Clear all transcript references and timers
     setTranscript("");
@@ -449,7 +458,7 @@ function AiConversationContent() {
     }
   };
 
-  const endConversation = () => {
+  const endConversation = async () => {
     setIsInCall(false);
     setIsListening(false);
     setIsSpeaking(false);
@@ -470,6 +479,30 @@ function AiConversationContent() {
     if (silenceTimerRef.current) {
       clearTimeout(silenceTimerRef.current);
       silenceTimerRef.current = null;
+    }
+    
+    // Award XP for the conversation
+    if (messages.length > 2 && conversationStartTimeRef.current > 0) { // Only award if there was actual conversation
+      try {
+        const response = await apiRequest("POST", "/api/conversation/award-xp", {
+          messagesCount: Math.floor(messages.length / 2), // Divide by 2 to get exchanges
+          duration: Math.floor((Date.now() - conversationStartTimeRef.current) / 1000),
+          quality: 'good' // Could analyze conversation quality in future
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.xpEarned > 0) {
+            toast({
+              title: `+${data.xpEarned} XP Earned!`,
+              description: "Great conversation practice!",
+            });
+            queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+          }
+        }
+      } catch (error) {
+        console.error("Error awarding XP:", error);
+      }
     }
   };
 
@@ -611,6 +644,42 @@ function AiConversationContent() {
                           {message.english && (
                             <div className="text-sm text-gray-500 italic">
                               {message.english}
+                            </div>
+                          )}
+                          {/* Pronunciation Feedback */}
+                          {message.feedback && message.role === 'user' && (
+                            <div className="mt-3 pt-3 border-t border-green-200 space-y-2">
+                              {message.feedback.overallFeedback && (
+                                <div className="text-sm text-green-600 font-medium">
+                                  💡 {message.feedback.overallFeedback}
+                                </div>
+                              )}
+                              {message.feedback.pronunciationTips && message.feedback.pronunciationTips.length > 0 && (
+                                <div className="text-sm text-gray-600">
+                                  <span className="font-medium">🎯 Pronunciation Tips:</span>
+                                  <ul className="ml-4 mt-1 space-y-1">
+                                    {message.feedback.pronunciationTips.map((tip, i) => (
+                                      <li key={i} className="text-gray-500">• {tip}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                              {message.feedback.wordChoiceSuggestions && message.feedback.wordChoiceSuggestions.length > 0 && (
+                                <div className="text-sm text-gray-600">
+                                  <span className="font-medium">✨ Word Choice:</span>
+                                  <ul className="ml-4 mt-1 space-y-1">
+                                    {message.feedback.wordChoiceSuggestions.map((suggestion, i) => (
+                                      <li key={i} className="text-gray-500">• {suggestion}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                              {message.feedback.alternativePhrase && (
+                                <div className="text-sm bg-green-50 p-2 rounded-lg">
+                                  <span className="font-medium text-green-700">More natural:</span>
+                                  <div className="text-green-600 mt-1">{message.feedback.alternativePhrase}</div>
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>

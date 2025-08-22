@@ -522,6 +522,96 @@ function ProgressivePracticeContent() {
             <div className="w-24"></div> {/* Spacer for centering */}
           </div>
           
+          {/* HSK Level Progress Bar */}
+          {userProfile && userProfile.level && (
+            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl shadow-sm border border-blue-200 p-4 mb-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-white rounded-lg shadow-sm">
+                  <Trophy className="w-5 h-5 text-blue-500" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-sm font-semibold text-gray-900">
+                    HSK Level Progress
+                  </h4>
+                </div>
+              </div>
+              
+              {(() => {
+                const level = userProfile.level;
+                const currentHSK = Math.ceil(level / 10);
+                const nextHSK = currentHSK < 6 ? currentHSK + 1 : 6;
+                const hskStartLevel = (currentHSK - 1) * 10 + 1;
+                const hskEndLevel = currentHSK * 10;
+                const levelsInHSK = level - hskStartLevel + 1;
+                const progressPercent = (levelsInHSK / 10) * 100;
+                const levelsToNextHSK = hskEndLevel - level;
+                
+                return (
+                  <div className="space-y-3">
+                    <div className="bg-white/80 rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg font-bold text-blue-700">HSK {currentHSK}</span>
+                          {currentHSK < 6 && (
+                            <>
+                              <span className="text-xs text-gray-500">→</span>
+                              <span className="text-sm font-medium text-blue-600">HSK {nextHSK}</span>
+                            </>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          {currentHSK < 6 ? (
+                            <>
+                              <span className="text-2xl font-bold text-blue-700">{levelsToNextHSK}</span>
+                              <span className="text-xs font-medium text-blue-600 ml-1">
+                                level{levelsToNextHSK > 1 ? 's' : ''} to HSK {nextHSK}
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-sm font-medium text-green-600">Max HSK Level!</span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* HSK Progress Bar */}
+                      <div className="relative h-8 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className="absolute h-full bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full transition-all duration-500 ease-out"
+                          style={{ width: `${Math.max(5, progressPercent)}%` }}
+                        >
+                          <div className="h-full flex items-center justify-end pr-2">
+                            {progressPercent > 20 && (
+                              <span className="text-xs text-white font-medium">
+                                {Math.round(progressPercent)}%
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {/* Level markers */}
+                        <div className="absolute inset-0 flex items-center justify-between px-2">
+                          <span className="text-xs font-medium text-gray-600">Level {hskStartLevel}</span>
+                          <span className="text-xs font-medium text-gray-600">Level {hskEndLevel}</span>
+                        </div>
+                      </div>
+                      
+                      <p className="text-xs text-gray-600 mt-2 text-center">
+                        {currentHSK < 6 
+                          ? `Complete ${10 - levelsInHSK + 1} more levels to reach HSK ${nextHSK}`
+                          : "You've reached the highest HSK level!"}
+                      </p>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      <span className="bg-white px-2 py-1 rounded-full">HSK 1-2: Beginner</span>
+                      <span className="bg-white px-2 py-1 rounded-full">HSK 3-4: Intermediate</span>
+                      <span className="bg-blue-100 px-2 py-1 rounded-full">HSK 5-6: Advanced</span>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+          
           {/* Sticker Rewards Progress Bar - Always Visible */}
           {userProfile && userProfile.level && (
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-sm border border-purple-200 p-4 mb-4">

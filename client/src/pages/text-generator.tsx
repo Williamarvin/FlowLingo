@@ -1,5 +1,5 @@
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import HighlightableText from "@/components/highlightable-text";
@@ -7,12 +7,56 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ModernNav from "@/components/modern-nav";
 import { audioManager } from "@/lib/audioManager";
+import { useToast } from "@/hooks/use-toast";
 
 function TextGeneratorContent() {
   const [topic, setTopic] = useState("Daily Conversation");
   const [difficulty, setDifficulty] = useState("Beginner (HSK 1-2)");
   const [length, setLength] = useState("Short (300-400 characters)");
   const [generatedText, setGeneratedText] = useState<any>(null);
+  const [interactionStartTime, setInteractionStartTime] = useState<number>(0);
+  const [charactersTranslated, setCharactersTranslated] = useState<number>(0);
+  
+  const { toast } = useToast();
+  
+  // Award XP when leaving the page
+  useEffect(() => {
+    return () => {
+      if (charactersTranslated > 0 && interactionStartTime > 0) {
+        // Send XP award request when component unmounts
+        apiRequest("POST", "/api/text-generator/award-xp", {
+          charactersTranslated,
+          interactionTime: Math.floor((Date.now() - interactionStartTime) / 1000),
+        }).catch(console.error);
+      }
+    };
+  }, [charactersTranslated, interactionStartTime]);
+
+  const awardXP = async () => {
+    if (charactersTranslated > 0 && interactionStartTime > 0) {
+      try {
+        const response = await apiRequest("POST", "/api/text-generator/award-xp", {
+          charactersTranslated,
+          interactionTime: Math.floor((Date.now() - interactionStartTime) / 1000),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.xpEarned > 0) {
+            toast({
+              title: `+${data.xpEarned} XP Earned!`,
+              description: "Great text practice session!",
+            });
+            queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+          }
+        }
+      } catch (error) {
+        console.error("Error awarding XP:", error);
+      }
+    }
+    // Reset tracking
+    setCharactersTranslated(0);
+    setInteractionStartTime(0);
+  };
 
   const generateTextMutation = useMutation({
     mutationFn: async (params: { topic: string; difficulty: string; length: string }) => {
@@ -20,7 +64,10 @@ function TextGeneratorContent() {
       return response.json();
     },
     onSuccess: (data) => {
+      // Award XP for previous session if any
+      awardXP();
       setGeneratedText(data);
+      setInteractionStartTime(Date.now()); // Start tracking new session
     },
   });
 
@@ -45,6 +92,8 @@ function TextGeneratorContent() {
 
   const handleSaveWord = (word: any) => {
     saveWordMutation.mutate(word);
+    // Track character translation
+    setCharactersTranslated(prev => prev + (word.character?.length || 0));
   };
 
   const handleSpeak = async () => {

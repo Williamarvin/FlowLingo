@@ -922,6 +922,79 @@ Output: Only Chinese text, no explanations.`;
     }
   });
 
+  // Award XP for conversation practice
+  app.post("/api/conversation/award-xp", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.userId;
+      const { messagesCount, duration, quality } = req.body;
+      
+      // Calculate XP based on conversation quality and length
+      // Base XP: 5 per message exchange, bonus for quality
+      const baseXP = Math.min(messagesCount * 5, 100); // Cap at 100
+      const qualityBonus = quality === 'excellent' ? 20 : quality === 'good' ? 10 : 0;
+      const xpEarned = baseXP + qualityBonus;
+      
+      const user = await storage.getUserProfile(userId);
+      const newXP = (user.xp || 0) + xpEarned;
+      
+      // Update user XP
+      await storage.updateUserProfile(userId, { xp: newXP });
+      
+      res.json({ xpEarned, newXP });
+    } catch (error) {
+      console.error("Error awarding conversation XP:", error);
+      res.status(500).json({ error: "Failed to award XP" });
+    }
+  });
+  
+  // Award XP for flashcard practice
+  app.post("/api/flashcards/award-xp", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.userId;
+      const { cardsReviewed, correctCount } = req.body;
+      
+      // Calculate XP: 2 per card reviewed + 3 bonus per correct
+      const baseXP = cardsReviewed * 2;
+      const correctBonus = correctCount * 3;
+      const xpEarned = Math.min(baseXP + correctBonus, 50); // Cap at 50 per session
+      
+      const user = await storage.getUserProfile(userId);
+      const newXP = (user.xp || 0) + xpEarned;
+      
+      // Update user XP
+      await storage.updateUserProfile(userId, { xp: newXP });
+      
+      res.json({ xpEarned, newXP });
+    } catch (error) {
+      console.error("Error awarding flashcard XP:", error);
+      res.status(500).json({ error: "Failed to award XP" });
+    }
+  });
+  
+  // Award XP for text generation interaction
+  app.post("/api/text-generator/award-xp", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.userId;
+      const { charactersTranslated, interactionTime } = req.body;
+      
+      // Calculate XP: 1 per 10 characters translated, bonus for engagement time
+      const baseXP = Math.floor(charactersTranslated / 10);
+      const timeBonus = Math.floor(interactionTime / 60) * 2; // 2 XP per minute
+      const xpEarned = Math.min(baseXP + timeBonus, 30); // Cap at 30 per session
+      
+      const user = await storage.getUserProfile(userId);
+      const newXP = (user.xp || 0) + xpEarned;
+      
+      // Update user XP
+      await storage.updateUserProfile(userId, { xp: newXP });
+      
+      res.json({ xpEarned, newXP });
+    } catch (error) {
+      console.error("Error awarding text generator XP:", error);
+      res.status(500).json({ error: "Failed to award XP" });
+    }
+  });
+
   app.post("/api/flashcards/:id/review", async (req, res) => {
     try {
       const { id } = req.params;
@@ -1072,6 +1145,7 @@ Output: Only Chinese text, no explanations.`;
       // First, translate the user's message to get pinyin and English
       let userPinyin = "";
       let userEnglish = "";
+      let pronunciationFeedback = {};
       
       try {
         const translationPrompt = `Translate this Chinese text and provide pinyin. Return JSON with exactly these fields:
@@ -1098,6 +1172,30 @@ Text: ${message}`;
         const translationResult = JSON.parse(translationResponse.choices[0].message.content || "{}");
         userPinyin = translationResult.pinyin || "";
         userEnglish = translationResult.english || "";
+        
+        // Analyze pronunciation and word choice
+        const feedbackPrompt = `Analyze this Chinese sentence from a level ${level} learner:
+"${message}" (${userPinyin})
+
+Provide encouraging feedback in JSON:
+{
+  "pronunciationTips": ["1-2 specific tips for hard tones/sounds"],
+  "wordChoiceSuggestions": ["1-2 suggestions for more natural phrasing"],
+  "overallFeedback": "brief encouraging comment",
+  "alternativePhrase": "more natural way to say it (if needed, else null)"
+}`;
+
+        const feedbackResponse = await openai.chat.completions.create({
+          model: "gpt-4o",
+          messages: [
+            { role: "system", content: "You are a supportive Chinese tutor. Be constructive and encouraging." },
+            { role: "user", content: feedbackPrompt }
+          ],
+          response_format: { type: "json_object" },
+          temperature: 0.5,
+        });
+
+        pronunciationFeedback = JSON.parse(feedbackResponse.choices[0].message.content || "{}");
       } catch (e) {
         console.error("Failed to translate user message:", e);
       }
@@ -1108,7 +1206,7 @@ Text: ${message}`;
         content: msg.content
       }));
       
-      // Create system prompt for natural voice conversation
+      // Create system prompt for natural voice conversation with feedback
       const systemPrompt = `You are a native Mandarin Chinese teacher having a natural voice conversation with a student. 
 Your personality: Friendly, patient, encouraging, and conversational.
 Student level: ${level} (${difficulty})
@@ -1184,7 +1282,8 @@ After your Chinese response, provide a JSON block with this format:
           chinese: message,
           pinyin: userPinyin,
           english: userEnglish
-        }
+        },
+        feedback: pronunciationFeedback // Include pronunciation and word choice feedback
       });
     } catch (error) {
       console.error("Voice conversation error:", error);
@@ -1777,117 +1876,144 @@ Create substantially more comprehensive responses with extensive vocabulary prac
   // Assessment endpoints
   // Get assessment questions
   app.get("/api/assessment/questions", (req, res) => {
-    // Return 10 assessment questions of varying difficulty
+    // Return 12 harder assessment questions with varied types including pronunciation and sentence building
     const assessmentQuestions = [
       {
         id: "q1",
-        type: "multiple-choice",
-        question: "What does this character mean?",
-        chinese: "你",
-        pinyin: "nǐ",
-        english: "you",
-        options: ["hello", "you", "good", "thank you"],
-        correctAnswer: "you",
+        type: "pronunciation",
+        question: "Which character has the 3rd tone?",
+        chinese: "",
+        pinyin: "",
+        english: "",
+        options: ["好 (hǎo)", "吗 (ma)", "是 (shì)", "去 (qù)"],
+        correctAnswer: "好 (hǎo)",
         level: 1
       },
       {
         id: "q2", 
-        type: "translation",
-        question: "Choose the correct translation:",
-        chinese: "你好",
-        pinyin: "nǐ hǎo",
-        english: "hello",
-        options: ["你好", "再见", "谢谢", "对不起"],
-        correctAnswer: "你好",
-        level: 1
+        type: "sentence-building",
+        question: "Put these words in the correct order to make: 'I am a student'",
+        chinese: "我是学生",
+        pinyin: "wǒ shì xuéshēng",
+        english: "I am a student",
+        options: ["学生/是/我", "我/是/学生", "是/我/学生", "我/学生/是"],
+        correctAnswer: "我/是/学生",
+        level: 2
       },
       {
         id: "q3",
-        type: "multiple-choice", 
-        question: "What does this mean?",
-        chinese: "学生",
-        pinyin: "xuéshēng",
-        english: "student",
-        options: ["teacher", "student", "school", "book"],
-        correctAnswer: "student",
-        level: 2
+        type: "tone-pair", 
+        question: "Which word has the 4th tone followed by 1st tone?",
+        chinese: "",
+        pinyin: "",
+        english: "",
+        options: ["北京 (běijīng)", "上海 (shànghǎi)", "中国 (zhōngguó)", "美国 (měiguó)"],
+        correctAnswer: "上海 (shànghǎi)",
+        level: 3
       },
       {
         id: "q4",
-        type: "translation",
-        question: "How do you say 'thank you'?",
-        chinese: "谢谢",
-        pinyin: "xièxie", 
-        english: "thank you",
-        options: ["谢谢", "你好", "再见", "对不起"],
-        correctAnswer: "谢谢",
-        level: 2
+        type: "sentence-building",
+        question: "Complete the sentence: 我___中文 (I ___ Chinese)",
+        chinese: "学",
+        pinyin: "xué", 
+        english: "study",
+        options: ["学", "说", "写", "看"],
+        correctAnswer: "学",
+        level: 4
       },
       {
         id: "q5",
         type: "multiple-choice",
-        question: "What is the meaning?",
-        chinese: "工作",
-        pinyin: "gōngzuò",
-        english: "work/job",
-        options: ["home", "work", "food", "money"],
-        correctAnswer: "work",
-        level: 3
+        question: "What is the meaning of this idiom?",
+        chinese: "马马虎虎",
+        pinyin: "mǎmǎhūhū",
+        english: "so-so/careless",
+        options: ["excellent", "so-so", "terrible", "quick"],
+        correctAnswer: "so-so",
+        level: 5
       },
       {
         id: "q6",
-        type: "translation", 
-        question: "Choose the correct Chinese:",
-        chinese: "我很忙",
-        pinyin: "wǒ hěn máng",
-        english: "I am very busy",
-        options: ["我很好", "我很忙", "我很累", "我很饿"],
-        correctAnswer: "我很忙",
-        level: 4
-      },
-      {
-        id: "q7",
-        type: "multiple-choice",
-        question: "What does this phrase mean?",
-        chinese: "经济发展",
-        pinyin: "jīngjì fāzhǎn", 
-        english: "economic development",
-        options: ["social progress", "economic development", "cultural exchange", "political reform"],
-        correctAnswer: "economic development",
+        type: "grammar", 
+        question: "Choose the correct measure word: 一___书 (one book)",
+        chinese: "本",
+        pinyin: "běn",
+        english: "measure word for books",
+        options: ["个", "本", "张", "支"],
+        correctAnswer: "本",
         level: 6
       },
       {
+        id: "q7",
+        type: "sentence-building",
+        question: "Arrange to form: 'Although it's raining, I still want to go out'",
+        chinese: "虽然下雨，我还是想出去",
+        pinyin: "suīrán xiàyǔ, wǒ háishì xiǎng chūqù", 
+        english: "Although it's raining, I still want to go out",
+        options: ["虽然/下雨/我/还是/想/出去", "下雨/虽然/我/想/还是/出去", "我/虽然/下雨/还是/想/出去", "虽然/我/下雨/还是/想/出去"],
+        correctAnswer: "虽然/下雨/我/还是/想/出去",
+        level: 8
+      },
+      {
         id: "q8",
-        type: "translation",
-        question: "Select the correct translation:",
-        chinese: "环境保护",
-        pinyin: "huánjìng bǎohù",
-        english: "environmental protection", 
-        options: ["环境保护", "经济发展", "社会进步", "文化交流"],
-        correctAnswer: "环境保护",
-        level: 7
+        type: "classical",
+        question: "What does this classical Chinese phrase mean?",
+        chinese: "学而时习之",
+        pinyin: "xué ér shí xí zhī",
+        english: "to learn and practice repeatedly", 
+        options: ["to learn and practice repeatedly", "to teach others", "to forget quickly", "to study hard"],
+        correctAnswer: "to learn and practice repeatedly",
+        level: 10
       },
       {
         id: "q9",
-        type: "multiple-choice",
-        question: "What is the meaning of this idiom?",
-        chinese: "画蛇添足",
-        pinyin: "huà shé tiān zú",
-        english: "to gild the lily (unnecessary addition)",
-        options: ["to work hard", "to gild the lily", "to be careful", "to save money"],
-        correctAnswer: "to gild the lily",
-        level: 9
+        type: "complex-grammar",
+        question: "Choose the sentence with correct 把 structure:",
+        chinese: "把",
+        pinyin: "bǎ",
+        english: "ba structure",
+        options: ["我把书看完了", "我看把书完了", "我看完把书了", "把我书看完了"],
+        correctAnswer: "我把书看完了",
+        level: 12
       },
       {
         id: "q10",
-        type: "translation",
-        question: "Choose the correct idiom:",
-        chinese: "亡羊补牢",
-        pinyin: "wáng yáng bǔ láo",
-        english: "better late than never",
-        options: ["亡羊补牢", "画蛇添足", "井底之蛙", "守株待兔"],
-        correctAnswer: "亡羊补牢", 
-        level: 10
+        type: "idiom",
+        question: "Complete the chengyu: 一石___鸟 (kill two birds with one stone)",
+        chinese: "二",
+        pinyin: "èr",
+        english: "two",
+        options: ["一", "二", "三", "四"],
+        correctAnswer: "二", 
+        level: 15
+      },
+      {
+        id: "q11",
+        type: "formal-register",
+        question: "Which is the most formal way to say 'thank you'?",
+        chinese: "感谢您",
+        pinyin: "gǎnxiè nín",
+        english: "thank you (formal)",
+        options: ["谢谢", "多谢", "感谢您", "谢了"],
+        correctAnswer: "感谢您",
+        level: 20
+      },
+      {
+        id: "q12",
+        type: "advanced-grammar",
+        question: "Select the sentence using 不但...而且 correctly:",
+        chinese: "不但...而且",
+        pinyin: "bùdàn...érqiě",
+        english: "not only...but also",
+        options: [
+          "他不但聪明而且努力",
+          "他不但聪明而且也努力", 
+          "不但他聪明而且努力",
+          "他聪明不但而且努力"
+        ],
+        correctAnswer: "他不但聪明而且努力",
+        level: 25
       }
     ];
 
@@ -1899,18 +2025,20 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     try {
       const { answers } = req.body;
       
-      // Get assessment questions with full data for flashcard creation
+      // Get assessment questions with full data for flashcard creation (updated to match new harder questions)
       const fullAssessmentQuestions = [
-        { id: "q1", chinese: "你", pinyin: "nǐ", english: "you", correctAnswer: "you", level: 1 },
-        { id: "q2", chinese: "你好", pinyin: "nǐ hǎo", english: "hello", correctAnswer: "你好", level: 1 },
-        { id: "q3", chinese: "学生", pinyin: "xué shēng", english: "student", correctAnswer: "student", level: 2 },
-        { id: "q4", chinese: "谢谢", pinyin: "xiè xiè", english: "thank you", correctAnswer: "谢谢", level: 2 },
-        { id: "q5", chinese: "工作", pinyin: "gōng zuò", english: "work", correctAnswer: "work", level: 3 },
-        { id: "q6", chinese: "我很忙", pinyin: "wǒ hěn máng", english: "I am very busy", correctAnswer: "我很忙", level: 4 },
-        { id: "q7", chinese: "经济发展", pinyin: "jīng jì fā zhǎn", english: "economic development", correctAnswer: "economic development", level: 6 },
-        { id: "q8", chinese: "环境保护", pinyin: "huán jìng bǎo hù", english: "environmental protection", correctAnswer: "环境保护", level: 7 },
-        { id: "q9", chinese: "画蛇添足", pinyin: "huà shé tiān zú", english: "to gild the lily", correctAnswer: "to gild the lily", level: 9 },
-        { id: "q10", chinese: "亡羊补牢", pinyin: "wáng yáng bǔ láo", english: "better late than never", correctAnswer: "亡羊补牢", level: 10 }
+        { id: "q1", chinese: "好", pinyin: "hǎo", english: "good", correctAnswer: "好 (hǎo)", level: 1 },
+        { id: "q2", chinese: "我是学生", pinyin: "wǒ shì xuéshēng", english: "I am a student", correctAnswer: "我/是/学生", level: 2 },
+        { id: "q3", chinese: "上海", pinyin: "shànghǎi", english: "Shanghai", correctAnswer: "上海 (shànghǎi)", level: 3 },
+        { id: "q4", chinese: "学", pinyin: "xué", english: "study", correctAnswer: "学", level: 4 },
+        { id: "q5", chinese: "马马虎虎", pinyin: "mǎmǎhūhū", english: "so-so", correctAnswer: "so-so", level: 5 },
+        { id: "q6", chinese: "本", pinyin: "běn", english: "measure word for books", correctAnswer: "本", level: 6 },
+        { id: "q7", chinese: "虽然下雨，我还是想出去", pinyin: "suīrán xiàyǔ, wǒ háishì xiǎng chūqù", english: "Although it's raining, I still want to go out", correctAnswer: "虽然/下雨/我/还是/想/出去", level: 8 },
+        { id: "q8", chinese: "学而时习之", pinyin: "xué ér shí xí zhī", english: "to learn and practice repeatedly", correctAnswer: "to learn and practice repeatedly", level: 10 },
+        { id: "q9", chinese: "我把书看完了", pinyin: "wǒ bǎ shū kàn wán le", english: "I finished reading the book", correctAnswer: "我把书看完了", level: 12 },
+        { id: "q10", chinese: "一石二鸟", pinyin: "yī shí èr niǎo", english: "kill two birds with one stone", correctAnswer: "二", level: 15 },
+        { id: "q11", chinese: "感谢您", pinyin: "gǎnxiè nín", english: "thank you (formal)", correctAnswer: "感谢您", level: 20 },
+        { id: "q12", chinese: "不但...而且", pinyin: "bùdàn...érqiě", english: "not only...but also", correctAnswer: "他不但聪明而且努力", level: 25 }
       ];
 
       // Calculate score and save wrong answers as flashcards
@@ -1938,24 +2066,36 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       }
 
       const score = correctAnswers;
-      const percentage = Math.round((score / 10) * 100);
+      const percentage = Math.round((score / 12) * 100); // Now 12 questions instead of 10
       
-      // Determine level based on score with skill-based placement
+      // Determine level based on score with skill-based placement - capped at HSK 5 (level 50)
       let placementLevel = 1;
-      if (score >= 10) {
-        placementLevel = 10;
+      if (score >= 12) {
+        placementLevel = 50; // Perfect score = HSK 5 (max)
+      } else if (score >= 11) {
+        placementLevel = 45; // HSK 5 intermediate
+      } else if (score >= 10) {
+        placementLevel = 40; // HSK 4 advanced
       } else if (score >= 9) {
-        placementLevel = 9;
+        placementLevel = 35; // HSK 4 intermediate
       } else if (score >= 8) {
-        placementLevel = 7;
+        placementLevel = 30; // HSK 3 advanced
       } else if (score >= 7) {
-        placementLevel = 5;
+        placementLevel = 25; // HSK 3 intermediate
       } else if (score >= 6) {
-        placementLevel = 3;
+        placementLevel = 20; // HSK 2 advanced
+      } else if (score >= 5) {
+        placementLevel = 15; // HSK 2 intermediate
       } else if (score >= 4) {
-        placementLevel = 2;
+        placementLevel = 10; // HSK 1 advanced
+      } else if (score >= 3) {
+        placementLevel = 7; // HSK 1 intermediate
+      } else if (score >= 2) {
+        placementLevel = 5; // HSK 1 beginner
+      } else if (score >= 1) {
+        placementLevel = 3; // HSK 1 entry
       } else {
-        placementLevel = 1;
+        placementLevel = 1; // Absolute beginner
       }
 
       // Update user profile with new level and mark assessment as completed
