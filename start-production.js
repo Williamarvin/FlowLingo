@@ -3,7 +3,8 @@
 // Production Start Script for Railway
 // This handles database migration and server startup
 
-const { execSync } = require('child_process');
+import { execSync } from 'child_process';
+import { Pool } from '@neondatabase/serverless';
 
 console.log('🚀 Starting FlowLingo Production Server...\n');
 
@@ -29,7 +30,6 @@ console.log('✅ All required environment variables found\n');
 // Run database migration if needed
 console.log('📦 Checking database schema...');
 try {
-  const { Pool } = require('@neondatabase/serverless');
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
   
   pool.query(`
@@ -57,7 +57,7 @@ try {
     
     // Start the server
     console.log('🌐 Starting Express server...\n');
-    require('./server/index.js');
+    await import('./server/index.js');
     
   }).catch(async (err) => {
     console.error('⚠️  Could not check tables:', err.message);
@@ -75,7 +75,7 @@ try {
     
     // Start the server anyway
     console.log('🌐 Starting Express server...\n');
-    require('./server/index.js');
+    await import('./server/index.js');
   });
   
 } catch (error) {
@@ -90,5 +90,5 @@ try {
   }
   
   // Start the server
-  require('./server/index.js');
+  await import('./server/index.js');
 }
