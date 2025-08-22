@@ -168,137 +168,125 @@ function setCachedText(key: string, data: any) {
 }
 
 // Helper function to generate practice questions
+// Helper to get level by ID from the levelStructure
+const getLevelById = (level: number) => {
+  // Simplified level structure for practice questions
+  const levels = [
+    { level: 1, topic: "Greetings & Introductions", hskLevel: 1 },
+    { level: 2, topic: "Family & Relationships", hskLevel: 1 },
+    { level: 3, topic: "Numbers & Counting", hskLevel: 1 },
+    { level: 4, topic: "Time & Dates", hskLevel: 1 },
+    { level: 5, topic: "Daily Activities", hskLevel: 1 },
+    { level: 6, topic: "Food & Dining", hskLevel: 1 },
+    { level: 7, topic: "Shopping & Money", hskLevel: 1 },
+    { level: 8, topic: "Colors & Shapes", hskLevel: 1 },
+    { level: 9, topic: "Body Parts & Health", hskLevel: 1 },
+    { level: 10, topic: "Basic Directions", hskLevel: 1 },
+    // Add more levels as needed
+  ];
+  
+  return levels.find(l => l.level === level);
+};
+
 function generatePracticeQuestions(level: number) {
   const questions = [];
   const questionTypes = ["multiple-choice", "translation"] as const;
   const usedWords = new Set<string>(); // Track words that have been used as correct answers
   
-  // Level-based vocabulary
-  const levelVocabulary: Record<number, Array<{chinese: string, pinyin: string, english: string}>> = {
-    1: [
-      { chinese: "你好", pinyin: "nǐ hǎo", english: "hello" },
-      { chinese: "谢谢", pinyin: "xiè xiè", english: "thank you" },
-      { chinese: "再见", pinyin: "zài jiàn", english: "goodbye" },
-      { chinese: "是", pinyin: "shì", english: "yes/to be" },
-      { chinese: "不", pinyin: "bù", english: "no/not" },
-      { chinese: "我", pinyin: "wǒ", english: "I/me" },
-      { chinese: "你", pinyin: "nǐ", english: "you" },
-      { chinese: "他", pinyin: "tā", english: "he" },
-      { chinese: "她", pinyin: "tā", english: "she" },
-      { chinese: "们", pinyin: "men", english: "plural marker" }
-    ],
-    2: [
-      { chinese: "吃", pinyin: "chī", english: "to eat" },
-      { chinese: "喝", pinyin: "hē", english: "to drink" },
-      { chinese: "看", pinyin: "kàn", english: "to look/watch" },
-      { chinese: "听", pinyin: "tīng", english: "to listen" },
-      { chinese: "说", pinyin: "shuō", english: "to speak" },
-      { chinese: "读", pinyin: "dú", english: "to read" },
-      { chinese: "写", pinyin: "xiě", english: "to write" },
-      { chinese: "走", pinyin: "zǒu", english: "to walk" },
-      { chinese: "来", pinyin: "lái", english: "to come" },
-      { chinese: "去", pinyin: "qù", english: "to go" }
-    ],
-    3: [
-      { chinese: "学习", pinyin: "xué xí", english: "to study" },
-      { chinese: "工作", pinyin: "gōng zuò", english: "to work" },
-      { chinese: "休息", pinyin: "xiū xi", english: "to rest" },
-      { chinese: "旅行", pinyin: "lǚ xíng", english: "to travel" },
-      { chinese: "购物", pinyin: "gòu wù", english: "to shop" },
-      { chinese: "运动", pinyin: "yùn dòng", english: "to exercise" },
-      { chinese: "游泳", pinyin: "yóu yǒng", english: "to swim" },
-      { chinese: "跑步", pinyin: "pǎo bù", english: "to run" },
-      { chinese: "唱歌", pinyin: "chàng gē", english: "to sing" },
-      { chinese: "跳舞", pinyin: "tiào wǔ", english: "to dance" }
-    ],
-    4: [
-      { chinese: "电脑", pinyin: "diàn nǎo", english: "computer" },
-      { chinese: "手机", pinyin: "shǒu jī", english: "mobile phone" },
-      { chinese: "朋友", pinyin: "péng yǒu", english: "friend" },
-      { chinese: "家人", pinyin: "jiā rén", english: "family" },
-      { chinese: "老师", pinyin: "lǎo shī", english: "teacher" },
-      { chinese: "学生", pinyin: "xué shēng", english: "student" },
-      { chinese: "医生", pinyin: "yī shēng", english: "doctor" },
-      { chinese: "办公室", pinyin: "bàn gōng shì", english: "office" },
-      { chinese: "公司", pinyin: "gōng sī", english: "company" },
-      { chinese: "市场", pinyin: "shì chǎng", english: "market" }
-    ],
-    5: [
-      { chinese: "发展", pinyin: "fā zhǎn", english: "develop" },
-      { chinese: "经济", pinyin: "jīng jì", english: "economy" },
-      { chinese: "文化", pinyin: "wén huà", english: "culture" },
-      { chinese: "历史", pinyin: "lì shǐ", english: "history" },
-      { chinese: "社会", pinyin: "shè huì", english: "society" },
-      { chinese: "环境", pinyin: "huán jìng", english: "environment" },
-      { chinese: "科技", pinyin: "kē jì", english: "technology" },
-      { chinese: "教育", pinyin: "jiào yù", english: "education" },
-      { chinese: "健康", pinyin: "jiàn kāng", english: "health" },
-      { chinese: "安全", pinyin: "ān quán", english: "safety" }
-    ],
-    6: [
-      { chinese: "国际", pinyin: "guó jì", english: "international" },
-      { chinese: "政府", pinyin: "zhèng fǔ", english: "government" },
-      { chinese: "管理", pinyin: "guǎn lǐ", english: "management" },
-      { chinese: "投资", pinyin: "tóu zī", english: "investment" },
-      { chinese: "市场营销", pinyin: "shì chǎng yíng xiāo", english: "marketing" },
-      { chinese: "金融", pinyin: "jīn róng", english: "finance" },
-      { chinese: "贸易", pinyin: "mào yì", english: "trade" },
-      { chinese: "创新", pinyin: "chuàng xīn", english: "innovation" },
-      { chinese: "合作", pinyin: "hé zuò", english: "cooperation" },
-      { chinese: "竞争", pinyin: "jìng zhēng", english: "competition" }
-    ],
-    7: [
-      { chinese: "全球化", pinyin: "quán qiú huà", english: "globalization" },
-      { chinese: "可持续", pinyin: "kě chí xù", english: "sustainable" },
-      { chinese: "数字化", pinyin: "shù zì huà", english: "digitalization" },
-      { chinese: "人工智能", pinyin: "rén gōng zhì néng", english: "artificial intelligence" },
-      { chinese: "大数据", pinyin: "dà shù jù", english: "big data" },
-      { chinese: "云计算", pinyin: "yún jì suàn", english: "cloud computing" },
-      { chinese: "物联网", pinyin: "wù lián wǎng", english: "Internet of Things" },
-      { chinese: "区块链", pinyin: "qū kuài liàn", english: "blockchain" },
-      { chinese: "自动化", pinyin: "zì dòng huà", english: "automation" },
-      { chinese: "智能制造", pinyin: "zhì néng zhì zào", english: "smart manufacturing" }
-    ],
-    8: [
-      { chinese: "战略规划", pinyin: "zhàn lüè guī huà", english: "strategic planning" },
-      { chinese: "风险管理", pinyin: "fēng xiǎn guǎn lǐ", english: "risk management" },
-      { chinese: "供应链", pinyin: "gōng yìng liàn", english: "supply chain" },
-      { chinese: "品牌建设", pinyin: "pǐn pái jiàn shè", english: "brand building" },
-      { chinese: "客户关系", pinyin: "kè hù guān xì", english: "customer relations" },
-      { chinese: "市场研究", pinyin: "shì chǎng yán jiū", english: "market research" },
-      { chinese: "产品开发", pinyin: "chǎn pǐn kāi fā", english: "product development" },
-      { chinese: "质量控制", pinyin: "zhì liàng kòng zhì", english: "quality control" },
-      { chinese: "成本效益", pinyin: "chéng běn xiào yì", english: "cost-effectiveness" },
-      { chinese: "绩效评估", pinyin: "jì xiào píng gū", english: "performance evaluation" }
-    ],
-    9: [
-      { chinese: "企业文化", pinyin: "qǐ yè wén huà", english: "corporate culture" },
-      { chinese: "知识产权", pinyin: "zhī shí chǎn quán", english: "intellectual property" },
-      { chinese: "跨文化交流", pinyin: "kuà wén huà jiāo liú", english: "cross-cultural communication" },
-      { chinese: "社会责任", pinyin: "shè huì zé rèn", english: "social responsibility" },
-      { chinese: "利益相关者", pinyin: "lì yì xiāng guān zhě", english: "stakeholder" },
-      { chinese: "商业模式", pinyin: "shāng yè mó shì", english: "business model" },
-      { chinese: "价值链", pinyin: "jià zhí liàn", english: "value chain" },
-      { chinese: "竞争优势", pinyin: "jìng zhēng yōu shì", english: "competitive advantage" },
-      { chinese: "市场细分", pinyin: "shì chǎng xì fēn", english: "market segmentation" },
-      { chinese: "并购重组", pinyin: "bìng gòu chóng zǔ", english: "mergers and acquisitions" }
-    ],
-    10: [
-      { chinese: "宏观经济政策", pinyin: "hóng guān jīng jì zhèng cè", english: "macroeconomic policy" },
-      { chinese: "产业升级转型", pinyin: "chǎn yè shēng jí zhuǎn xíng", english: "industrial upgrading" },
-      { chinese: "创新生态系统", pinyin: "chuàng xīn shēng tài xì tǒng", english: "innovation ecosystem" },
-      { chinese: "数字化转型", pinyin: "shù zì huà zhuǎn xíng", english: "digital transformation" },
-      { chinese: "可持续发展目标", pinyin: "kě chí xù fā zhǎn mù biāo", english: "sustainable development goals" },
-      { chinese: "全球价值链", pinyin: "quán qiú jià zhí liàn", english: "global value chain" },
-      { chinese: "风险评估框架", pinyin: "fēng xiǎn píng gū kuàng jià", english: "risk assessment framework" },
-      { chinese: "企业社会责任报告", pinyin: "qǐ yè shè huì zé rèn bào gào", english: "CSR report" },
-      { chinese: "人才培养战略", pinyin: "rén cái péi yǎng zhàn lüè", english: "talent development strategy" },
-      { chinese: "技术创新驱动", pinyin: "jì shù chuàng xīn qū dòng", english: "technology innovation-driven" }
-    ]
+  // Get the level data from the new structure
+  const levelData = getLevelById(level);
+  if (!levelData) {
+    // Fallback to default vocabulary if level not found
+    console.error(`Level ${level} not found in structure`);
+    level = 1;
+  }
+  
+  // Generate topic-specific vocabulary based on level
+  const generateTopicVocabulary = (levelNum: number) => {
+    const levelInfo = getLevelById(levelNum);
+    if (!levelInfo) return [];
+    
+    // Create vocabulary based on the level's topic focus
+    // This is a simplified version - in production, you'd want a proper HSK vocabulary database
+    const topicVocab = [];
+    
+    // For now, use placeholder vocabulary that matches the topic
+    // This would be replaced with actual HSK vocabulary database
+    switch(levelInfo.topic) {
+      case "Greetings & Introductions":
+        return [
+          { chinese: "你好", pinyin: "nǐ hǎo", english: "hello" },
+          { chinese: "谢谢", pinyin: "xiè xiè", english: "thank you" },
+          { chinese: "再见", pinyin: "zài jiàn", english: "goodbye" },
+          { chinese: "请", pinyin: "qǐng", english: "please" },
+          { chinese: "对不起", pinyin: "duì bù qǐ", english: "sorry" },
+          { chinese: "没关系", pinyin: "méi guān xi", english: "it's okay" },
+          { chinese: "我", pinyin: "wǒ", english: "I/me" },
+          { chinese: "你", pinyin: "nǐ", english: "you" },
+          { chinese: "他", pinyin: "tā", english: "he" },
+          { chinese: "她", pinyin: "tā", english: "she" }
+        ];
+      case "Family & Relationships":
+        return [
+          { chinese: "家", pinyin: "jiā", english: "home/family" },
+          { chinese: "爸爸", pinyin: "bà ba", english: "father" },
+          { chinese: "妈妈", pinyin: "mā ma", english: "mother" },
+          { chinese: "哥哥", pinyin: "gē ge", english: "older brother" },
+          { chinese: "姐姐", pinyin: "jiě jie", english: "older sister" },
+          { chinese: "弟弟", pinyin: "dì di", english: "younger brother" },
+          { chinese: "妹妹", pinyin: "mèi mei", english: "younger sister" },
+          { chinese: "朋友", pinyin: "péng yǒu", english: "friend" },
+          { chinese: "同学", pinyin: "tóng xué", english: "classmate" },
+          { chinese: "老师", pinyin: "lǎo shī", english: "teacher" }
+        ];
+      case "Numbers & Counting":
+        return [
+          { chinese: "一", pinyin: "yī", english: "one" },
+          { chinese: "二", pinyin: "èr", english: "two" },
+          { chinese: "三", pinyin: "sān", english: "three" },
+          { chinese: "四", pinyin: "sì", english: "four" },
+          { chinese: "五", pinyin: "wǔ", english: "five" },
+          { chinese: "六", pinyin: "liù", english: "six" },
+          { chinese: "七", pinyin: "qī", english: "seven" },
+          { chinese: "八", pinyin: "bā", english: "eight" },
+          { chinese: "九", pinyin: "jiǔ", english: "nine" },
+          { chinese: "十", pinyin: "shí", english: "ten" }
+        ];
+      default:
+        // For other topics, use existing vocabulary
+        break;
+    }
+    
+    return topicVocab;
   };
   
-  // Support all levels up to 10
-  const maxLevel = Math.min(level, 10);
+  // Level-based vocabulary - now using topic-specific vocabulary  
+  const levelVocabulary: Record<number, Array<{chinese: string, pinyin: string, english: string}>> = {};
+  
+  // Generate vocabulary for levels 1-50 based on topics
+  for (let i = 1; i <= 50; i++) {
+    const vocab = generateTopicVocabulary(i);
+    if (vocab && vocab.length > 0) {
+      levelVocabulary[i] = vocab;
+    } else {
+      // Fallback to basic vocabulary if no specific topic vocabulary
+      levelVocabulary[i] = [
+        { chinese: "学习", pinyin: "xué xí", english: "to study" },
+        { chinese: "练习", pinyin: "liàn xí", english: "to practice" },
+        { chinese: "中文", pinyin: "zhōng wén", english: "Chinese" },
+        { chinese: "汉语", pinyin: "hàn yǔ", english: "Chinese language" },
+        { chinese: "词汇", pinyin: "cí huì", english: "vocabulary" },
+        { chinese: "语法", pinyin: "yǔ fǎ", english: "grammar" },
+        { chinese: "发音", pinyin: "fā yīn", english: "pronunciation" },
+        { chinese: "理解", pinyin: "lǐ jiě", english: "to understand" },
+        { chinese: "记住", pinyin: "jì zhù", english: "to remember" },
+        { chinese: "复习", pinyin: "fù xí", english: "to review" }
+      ];
+    }
+  }
+  
+  // Support all levels up to 50
+  const maxLevel = Math.min(level, 50);
   const availableVocab: Array<{chinese: string, pinyin: string, english: string}> = [];
   
   // Get vocabulary for current level and below
@@ -2066,6 +2054,21 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     }
   });
   
+  // Get all practice progress for level selection
+  app.get("/api/practice/all-progress", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.userId;
+      
+      // For now, return empty progress (would be fetched from database in production)
+      const progressByLevel: Record<number, any> = {};
+      
+      res.json(progressByLevel);
+    } catch (error) {
+      console.error("Error fetching all practice progress:", error);
+      res.status(500).json({ error: "Failed to fetch practice progress" });
+    }
+  });
+
   // Practice endpoints
   app.get("/api/practice/questions/:level", async (req, res) => {
     try {

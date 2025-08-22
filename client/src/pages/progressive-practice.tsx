@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import ModernNav from "@/components/modern-nav";
 import { useLocation } from "wouter";
 import { toast } from "@/hooks/use-toast";
-import { Heart, Clock, Trophy, X } from "lucide-react";
+import { Heart, Clock, Trophy, X, ArrowLeft } from "lucide-react";
 import { audioManager } from "@/lib/audioManager";
+import { levelStructure, getLevelInfo } from "../../../shared/levelStructure";
 
 interface Question {
   id: string;
@@ -21,7 +22,7 @@ interface Question {
 }
 
 function ProgressivePracticeContent() {
-  const [, navigate] = useLocation();
+  const [location, navigate] = useLocation();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -30,7 +31,12 @@ function ProgressivePracticeContent() {
   const [showOutOfHeartsScreen, setShowOutOfHeartsScreen] = useState(false);
   const [wrongAttempts, setWrongAttempts] = useState(0);
   const [showDifficultyOption, setShowDifficultyOption] = useState(false);
-  const [currentLevel, setCurrentLevel] = useState(1);
+  
+  // Get level from URL params if provided, otherwise use user's current level
+  const urlParams = new URLSearchParams(location.split('?')[1] || '');
+  const levelFromUrl = urlParams.get('level');
+  const [currentLevel, setCurrentLevel] = useState(levelFromUrl ? parseInt(levelFromUrl) : 1);
+  
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [wrongAnswers, setWrongAnswers] = useState(0);
   const [hearts, setHearts] = useState(5);
@@ -471,11 +477,33 @@ function ProgressivePracticeContent() {
       {/* Main Content Area */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="max-w-2xl mx-auto">
+          {/* Back to Levels Button and Topic Info */}
+          <div className="mb-4 flex items-center justify-between">
+            <Button
+              onClick={() => navigate("/levels")}
+              variant="ghost"
+              className="text-gray-600 hover:text-gray-800"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Levels
+            </Button>
+            
+            {/* Topic Information */}
+            <div className="text-center">
+              <h2 className="text-lg font-bold text-gray-800">
+                Level {currentLevel}: {getLevelInfo(currentLevel)?.topic || "Practice"}
+              </h2>
+              <p className="text-sm text-gray-500">
+                HSK {getLevelInfo(currentLevel)?.hskLevel || Math.ceil(currentLevel / 10)}
+              </p>
+            </div>
+            
+            <div className="w-24"></div> {/* Spacer for centering */}
+          </div>
+          
           {/* Top Header with Hearts and Progress */}
           <div className="bg-white rounded-2xl shadow-md p-4 mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-gray-600">Level {currentLevel}</span>
-              <div className="w-px h-6 bg-gray-300"></div>
               <div className="flex items-center gap-1">
                 {[...Array(5)].map((_, i) => (
                   <Heart

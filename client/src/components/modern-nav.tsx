@@ -27,6 +27,7 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
   const xp = userProfile?.xp || 0;
 
   const navTabs = [
+    { path: "/levels", label: "Levels", icon: "🗺️" },
     { path: "/practice", label: "Practice", icon: "🎯" },
     { path: "/ai-conversation", label: "Conversations", icon: "💬" },
     { path: "/flashcards", label: "Flashcards", icon: "📚" },

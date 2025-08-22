@@ -20,6 +20,7 @@ import ProgressivePractice from "@/pages/progressive-practice";
 import VoiceTranslator from "@/pages/voice-translator";
 import TestConnection from "@/pages/test-connection";
 import Rewards from "@/pages/rewards";
+import LevelSelection from "@/pages/level-selection";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -38,6 +39,7 @@ function Router() {
       <Route path="/flashcards" component={Flashcards} />
       <Route path="/assessment" component={Assessment} />
       <Route path="/practice" component={ProgressivePractice} />
+      <Route path="/levels" component={LevelSelection} />
       <Route path="/voice-translator" component={VoiceTranslator} />
       <Route path="/rewards" component={Rewards} />
       <Route path="/test-connection" component={TestConnection} />
