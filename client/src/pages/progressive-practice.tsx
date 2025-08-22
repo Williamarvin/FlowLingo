@@ -367,8 +367,10 @@ function ProgressivePracticeContent() {
     
     // If user leveled up, show sticker animation and continue to next level
     if (result && result.leveledUp) {
+      console.log("Level up detected! Result:", result);
       // Show sticker rewards if any
       if (result.newStickers && result.newStickers.length > 0) {
+        console.log("New stickers received:", result.newStickers);
         setShowStickerReward(true);
         setStickerRewards(result.newStickers);
         
@@ -380,6 +382,7 @@ function ProgressivePracticeContent() {
           window.location.reload();
         }, 8000); // Extended to 8 seconds to enjoy the animation
       } else {
+        console.log("Level up but no stickers received");
         toast({
           title: "Level Up! 🎉",
           description: `Congratulations! You've advanced to Level ${result.newLevel}!`,
