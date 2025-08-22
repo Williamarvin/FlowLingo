@@ -122,7 +122,7 @@ export const ANIMAL_STICKERS: AnimalSticker[] = [
   
   // Legendary Animals (1% total - 2 animals)
   { id: 'golden_dragon', name: 'Golden Dragon', emoji: '🐉', rarity: 'legendary', probability: 0.5, description: 'Ultimate master' },
-  { id: 'cosmic_phoenix', name: 'Cosmic Phoenix', emoji: '✨', rarity: 'legendary', probability: 0.5, description: 'Transcendent' },
+  { id: 'cosmic_phoenix', name: 'Cosmic Phoenix', emoji: '🐦‍🔥', rarity: 'legendary', probability: 0.5, description: 'Transcendent' },
 ];
 
 // Get rarity color for display
