@@ -12,7 +12,7 @@ export interface AnimalSticker {
 // Define all animal stickers with their probabilities (100+ animals)
 export const ANIMAL_STICKERS: AnimalSticker[] = [
   // Special Default Sticker (everyone has this)
-  { id: 'dolphin', name: 'Flow Dolphin', emoji: '🐬', rarity: 'common', probability: 0, description: 'The FlowLingo mascot - smart and playful!' },
+  { id: 'dolphin', name: 'Flow Dolphin', emoji: '🐬', rarity: 'legendary', probability: 0, description: 'The FlowLingo mascot - smart and playful!' },
   
   // Common Animals (60% total - 40 animals)
   { id: 'dog', name: 'Loyal Dog', emoji: '🐕', rarity: 'common', probability: 2, description: 'A faithful companion' },
