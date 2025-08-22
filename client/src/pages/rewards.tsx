@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import ModernNav from "@/components/modern-nav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -358,7 +358,7 @@ function RewardsContent() {
         onClose={() => {
           setShowLootBox(false);
           // Refresh catalog after getting new stickers
-          window.location.reload();
+          queryClient.invalidateQueries({ queryKey: ["/api/stickers/catalog"] });
         }}
         stickers={earnedStickers}
         onStickerReceived={(stickers) => {
