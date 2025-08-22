@@ -492,7 +492,7 @@ function FlashcardsContent() {
           </div>
 
           {/* Filter Tabs - Modern Style */}
-          <Tabs defaultValue="all" className="mb-6" onValueChange={(v) => {
+          <Tabs value={activeTab} className="mb-6" onValueChange={(v) => {
             setActiveTab(v as any);
             setCurrentIndex(0);
             setShowAnswer(false);
