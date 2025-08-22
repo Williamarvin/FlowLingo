@@ -108,10 +108,13 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
                     </span>
                   ))}
                 </div>
-                {hearts < 5 && userProfile?.nextHeartIn && (
+                {hearts < 5 && (
                   <div className="flex items-center gap-1 text-xs text-red-600 font-medium border-l border-red-200 pl-2">
                     <span>+❤️</span>
-                    <span>{Math.floor(userProfile.nextHeartIn / 60)}:{String(userProfile.nextHeartIn % 60).padStart(2, '0')}</span>
+                    <span>{userProfile?.nextHeartIn ? 
+                      `${Math.floor(userProfile.nextHeartIn / 60)}:${String(userProfile.nextHeartIn % 60).padStart(2, '0')}` : 
+                      'soon'
+                    }</span>
                   </div>
                 )}
               </div>
@@ -222,10 +225,13 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
                     </span>
                   ))}
                 </div>
-                {hearts < 5 && userProfile?.nextHeartIn && (
+                {hearts < 5 && (
                   <div className="flex items-center gap-1 text-sm text-red-600 font-medium border-l border-red-200 pl-2">
                     <span>+❤️</span>
-                    <span>{Math.floor(userProfile.nextHeartIn / 60)}:{String(userProfile.nextHeartIn % 60).padStart(2, '0')}</span>
+                    <span>{userProfile?.nextHeartIn ? 
+                      `${Math.floor(userProfile.nextHeartIn / 60)}:${String(userProfile.nextHeartIn % 60).padStart(2, '0')}` : 
+                      'soon'
+                    }</span>
                   </div>
                 )}
               </div>
