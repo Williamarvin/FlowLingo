@@ -24,6 +24,9 @@ export default function Home() {
     queryKey: ["/api/user/profile"],
     enabled: isAuthenticated,
   });
+  
+  // Check if current user is the developer
+  const isDeveloper = userProfile?.email === 'williamarvin111@gmail.com';
 
   // Update mascot name mutation - temporarily disabled
   // const updateMascotNameMutation = useMutation({
@@ -487,54 +490,105 @@ export default function Home() {
             </div>
           )}
           
-          {/* TEMPORARY DEBUG BUTTON - Remove in production */}
-          <div className="bg-yellow-100 border-2 border-yellow-400 rounded-xl p-4 mb-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-bold text-yellow-800 mb-1">🚧 DEBUG MODE</h3>
-                <p className="text-xs text-yellow-700">Test loot box animation (gives legendary sticker)</p>
+          {/* DEVELOPER MODE CONTROLS - Only visible to williamarvin111@gmail.com */}
+          {isDeveloper && (
+            <div className="bg-gradient-to-r from-purple-100 to-pink-100 border-2 border-purple-400 rounded-xl p-4 mb-8 space-y-4">
+              <div className="flex items-center justify-between mb-2">
+                <div>
+                  <h3 className="text-sm font-bold text-purple-800 flex items-center gap-2">
+                    🔧 Developer Mode
+                    <span className="text-xs font-normal text-purple-600">(Only visible to you)</span>
+                  </h3>
+                </div>
               </div>
-              <Button
-                onClick={async () => {
-                  try {
-                    // Directly call the test endpoint to level up
-                    const response = await fetch("/api/debug/instant-levelup", {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      credentials: "include",
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (data.success) {
-                      // Reload to trigger animation on next practice completion
-                      toast({
-                        title: "Level Up!",
-                        description: `You're now level ${data.newLevel}! Complete any practice to see the loot box.`,
+              
+              {/* Level Up Test */}
+              <div className="flex items-center justify-between bg-white/50 rounded-lg p-3">
+                <div>
+                  <p className="text-xs font-semibold text-purple-700">Test Loot Box Animation</p>
+                  <p className="text-xs text-purple-600">Instant level up + legendary sticker</p>
+                </div>
+                <Button
+                  onClick={async () => {
+                    try {
+                      const response = await fetch("/api/debug/instant-levelup", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        credentials: "include",
                       });
-                      queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
                       
-                      // Navigate to practice to trigger the animation
-                      setTimeout(() => {
-                        setLocation("/practice");
-                      }, 1000);
+                      const data = await response.json();
+                      
+                      if (data.success) {
+                        toast({
+                          title: "Level Up!",
+                          description: `You're now level ${data.newLevel}! Complete any practice to see the loot box.`,
+                        });
+                        queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+                        
+                        setTimeout(() => {
+                          setLocation("/practice");
+                        }, 1000);
+                      }
+                    } catch (error) {
+                      toast({
+                        title: "Error",
+                        description: "Failed to level up",
+                        variant: "destructive",
+                      });
                     }
-                  } catch (error) {
-                    toast({
-                      title: "Error",
-                      description: "Failed to level up",
-                      variant: "destructive",
-                    });
-                  }
-                }}
-                className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold"
-              >
-                🎁 Instant Level Up (Test)
-              </Button>
+                  }}
+                  size="sm"
+                  className="bg-purple-600 hover:bg-purple-700 text-white font-bold"
+                >
+                  🎁 Level Up
+                </Button>
+              </div>
+              
+              {/* Heart Refill */}
+              <div className="flex items-center justify-between bg-white/50 rounded-lg p-3">
+                <div>
+                  <p className="text-xs font-semibold text-purple-700">Refill Hearts</p>
+                  <p className="text-xs text-purple-600">Reset hearts to full (5 hearts)</p>
+                </div>
+                <Button
+                  onClick={async () => {
+                    try {
+                      const response = await fetch("/api/debug/refill-hearts", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        credentials: "include",
+                      });
+                      
+                      const data = await response.json();
+                      
+                      if (data.success) {
+                        toast({
+                          title: "Hearts Refilled!",
+                          description: "You now have 5 hearts.",
+                        });
+                        queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+                      }
+                    } catch (error) {
+                      toast({
+                        title: "Error",
+                        description: "Failed to refill hearts",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                  size="sm"
+                  className="bg-red-600 hover:bg-red-700 text-white font-bold"
+                >
+                  ❤️ Refill
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
           
           {/* Sticker Rewards Notification */}
           {userProfile && (

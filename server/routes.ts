@@ -2510,8 +2510,24 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     }
   });
 
-  // DEBUG ENDPOINT - TEMPORARY for testing loot box animation
-  app.post("/api/debug/instant-levelup", requireAuth, async (req: any, res) => {
+  // Middleware to check if user is developer
+  const requireDeveloper = async (req: any, res: any, next: any) => {
+    try {
+      const userId = req.userId;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.email !== 'williamarvin111@gmail.com') {
+        return res.status(403).json({ error: "Developer access only" });
+      }
+      
+      next();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to verify developer access" });
+    }
+  };
+
+  // DEBUG ENDPOINT - Developer only instant level up
+  app.post("/api/debug/instant-levelup", requireAuth, requireDeveloper, async (req: any, res) => {
     try {
       const userId = req.userId;
       
@@ -2549,6 +2565,27 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     } catch (error) {
       console.error("Debug level up error:", error);
       res.status(500).json({ error: "Failed to level up" });
+    }
+  });
+  
+  // DEBUG ENDPOINT - Developer only heart refill
+  app.post("/api/debug/refill-hearts", requireAuth, requireDeveloper, async (req: any, res) => {
+    try {
+      const userId = req.userId;
+      
+      // Use the existing refillHearts method from storage
+      const updatedUser = await storage.refillHearts(userId);
+      
+      console.log(`DEBUG: Refilled hearts for developer user ${userId} - now has ${updatedUser.hearts} hearts`);
+      
+      res.json({
+        success: true,
+        hearts: updatedUser.hearts,
+        message: "Hearts refilled successfully!"
+      });
+    } catch (error) {
+      console.error("Debug heart refill error:", error);
+      res.status(500).json({ error: "Failed to refill hearts" });
     }
   });
 
