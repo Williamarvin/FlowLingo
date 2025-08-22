@@ -285,6 +285,9 @@ function ProgressivePracticeContent() {
         setWrongAttempts(0);
         setShowDifficultyOption(false);
         
+        // Scroll to top for better UX
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
         // Save progress to database
         const answeredQuestions = questions.slice(0, nextIndex).map(q => q.id);
         saveProgressMutation.mutate({
@@ -309,6 +312,9 @@ function ProgressivePracticeContent() {
       // Try again - reset for same question
       setSelectedAnswer(null);
       setShowFeedback(false);
+      
+      // Scroll to top for better UX when trying again
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -332,6 +338,9 @@ function ProgressivePracticeContent() {
       setShowFeedback(false);
       setWrongAttempts(0);
       setShowDifficultyOption(false);
+      
+      // Scroll to top when going to previous level
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
