@@ -840,6 +840,22 @@ export class DatabaseStorage implements IStorageExtended {
       .returning();
     return user;
   }
+
+  async updateUserMascotName(userId: string, mascotName: string): Promise<User | undefined> {
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
+    const { users } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    const [user] = await db.update(users)
+      .set({
+        mascotName: mascotName,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
   
   async changeMascot(userId: string, rewardId: string): Promise<any> {
     const stickerCatalog = await import("./stickerSystem");

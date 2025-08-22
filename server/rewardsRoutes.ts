@@ -74,6 +74,29 @@ export function registerRewardsRoutes(app: Express) {
     }
   });
   
+  // Update mascot name
+  app.post("/api/rewards/update-mascot-name", requireAuth, async (req: any, res) => {
+    const userId = req.userId;
+    const { mascotName } = req.body;
+    
+    if (!mascotName || mascotName.trim().length === 0) {
+      return res.status(400).json({ error: "Mascot name is required" });
+    }
+    
+    // Validate mascot name length (max 50 characters)
+    if (mascotName.length > 50) {
+      return res.status(400).json({ error: "Mascot name must be 50 characters or less" });
+    }
+    
+    try {
+      const result = await storage.updateUserMascotName(userId, mascotName.trim());
+      res.json({ success: true, mascotName: mascotName.trim() });
+    } catch (error) {
+      console.error("Error updating mascot name:", error);
+      res.status(500).json({ error: "Failed to update mascot name" });
+    }
+  });
+  
   // Mark rewards as seen (remove NEW badge)
   app.post("/api/rewards/mark-seen", requireAuth, async (req: any, res) => {
     const userId = req.userId;

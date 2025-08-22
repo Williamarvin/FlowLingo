@@ -42,6 +42,7 @@ export const users = pgTable("users", {
   
   // Mascot Customization
   selectedMascot: text("selected_mascot").default("🐬"), // Default is Flow the dolphin
+  mascotName: text("mascot_name").default("Flow"), // Custom name for the mascot
   
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

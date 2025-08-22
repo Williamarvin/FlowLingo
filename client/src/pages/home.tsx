@@ -1,22 +1,54 @@
 import { Link, useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import ModernNav from "@/components/modern-nav";
-import { ArrowRight, Trophy, Flame, BookOpen, MessageCircle, Headphones, FileText, LogIn, Star, Gift, Sparkles } from "lucide-react";
+import { ArrowRight, Trophy, Flame, BookOpen, MessageCircle, Headphones, FileText, LogIn, Star, Gift, Sparkles, Edit2, Check, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Home() {
   const [greeting, setGreeting] = useState("");
   const [, setLocation] = useLocation();
   const { isAuthenticated, isLoading } = useAuth();
   const [isJumping, setIsJumping] = useState(false);
+  const [isEditingMascotName, setIsEditingMascotName] = useState(false);
+  const [mascotName, setMascotName] = useState("");
+  const { toast } = useToast();
   
   // Get user profile data (only if authenticated)
   const { data: userProfile } = useQuery<any>({
     queryKey: ["/api/user/profile"],
     enabled: isAuthenticated,
+  });
+
+  // Update mascot name mutation
+  const updateMascotNameMutation = useMutation({
+    mutationFn: async (newName: string) => {
+      return await apiRequest("/api/rewards/update-mascot-name", {
+        method: "POST",
+        body: JSON.stringify({ mascotName: newName }),
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success!",
+        description: "Your mascot's name has been updated.",
+      });
+      setIsEditingMascotName(false);
+      // Invalidate user profile to refresh the data
+      queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update mascot name. Please try again.",
+        variant: "destructive",
+      });
+    },
   });
 
   useEffect(() => {
@@ -25,6 +57,13 @@ export default function Home() {
     else if (hour < 18) setGreeting("Good afternoon");
     else setGreeting("Good evening");
   }, []);
+
+  // Set initial mascot name when profile loads
+  useEffect(() => {
+    if (userProfile?.mascotName) {
+      setMascotName(userProfile.mascotName);
+    }
+  }, [userProfile]);
 
   const features = [
     {
@@ -399,22 +438,81 @@ export default function Home() {
               {/* Mascot Visual */}
               <div className="lg:w-1/3 flex justify-center">
                 <motion.div 
-                  className="relative cursor-pointer"
-                  onClick={() => {
-                    setIsJumping(true);
-                    setTimeout(() => setIsJumping(false), 600);
-                  }}
+                  className="relative"
                   animate={isJumping ? {
                     y: [0, -40, 0],
                     rotate: [0, -15, 15, 0]
                   } : {}}
                   transition={{ duration: 0.6 }}
                 >
-                  <div className="w-48 h-48 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full flex items-center justify-center shadow-xl">
+                  <div 
+                    className="w-48 h-48 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full flex items-center justify-center shadow-xl cursor-pointer"
+                    onClick={() => {
+                      setIsJumping(true);
+                      setTimeout(() => setIsJumping(false), 600);
+                    }}
+                  >
                     <span className="text-8xl animate-bounce">{userProfile?.selectedMascot || "🐬"}</span>
                   </div>
-                  <div className="absolute -bottom-2 -right-2 bg-white rounded-full px-3 py-1 shadow-md border border-gray-200">
-                    <span className="text-sm font-semibold text-gray-700">Your Mascot</span>
+                  <div className="absolute -bottom-4 -right-2 bg-white rounded-lg px-3 py-2 shadow-md border border-gray-200 min-w-[140px]">
+                    {isEditingMascotName ? (
+                      <div className="flex items-center gap-1">
+                        <Input
+                          value={mascotName}
+                          onChange={(e) => setMascotName(e.target.value)}
+                          className="h-7 text-sm font-semibold text-gray-700 px-1 py-0"
+                          placeholder="Name your mascot"
+                          maxLength={50}
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              if (mascotName.trim()) {
+                                updateMascotNameMutation.mutate(mascotName);
+                              }
+                            } else if (e.key === 'Escape') {
+                              setIsEditingMascotName(false);
+                              setMascotName(userProfile?.mascotName || "Your Mascot");
+                            }
+                          }}
+                        />
+                        <button
+                          onClick={() => {
+                            if (mascotName.trim()) {
+                              updateMascotNameMutation.mutate(mascotName);
+                            }
+                          }}
+                          disabled={updateMascotNameMutation.isPending}
+                          className="p-1 hover:bg-gray-100 rounded transition-colors"
+                        >
+                          <Check className="w-4 h-4 text-green-600" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsEditingMascotName(false);
+                            setMascotName(userProfile?.mascotName || "Your Mascot");
+                          }}
+                          className="p-1 hover:bg-gray-100 rounded transition-colors"
+                        >
+                          <X className="w-4 h-4 text-gray-500" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-gray-700">
+                          {userProfile?.mascotName || "Your Mascot"}
+                        </span>
+                        <button
+                          onClick={() => {
+                            setIsEditingMascotName(true);
+                            setMascotName(userProfile?.mascotName || "");
+                          }}
+                          className="p-0.5 hover:bg-gray-100 rounded transition-colors"
+                        >
+                          <Edit2 className="w-3 h-3 text-gray-500" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               </div>
