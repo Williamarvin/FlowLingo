@@ -685,62 +685,46 @@ export class DatabaseStorage implements IStorageExtended {
     
     const stickersToAward: string[] = [];
     
-    // HSK level transitions (every 10 levels marks a new HSK level)
-    const hskTransitions = [11, 21, 31, 41, 51]; // Moving from HSK1→2, HSK2→3, etc.
-    
     // Check each level between old and new (in case of multiple level-ups)
     for (let level = oldLevel + 1; level <= newLevel; level++) {
-      // Major milestones: 25, 50, 75, 100 - Get 3 stickers with guaranteed rare or better
-      if (level === 25 || level === 50 || level === 75 || level === 100) {
-        for (let i = 0; i < 3; i++) {
-          const rareStickers = stickerCatalog.ANIMAL_STICKERS.filter(s => 
-            s.rarity === 'rare' || s.rarity === 'epic' || s.rarity === 'legendary'
-          );
-          const randomSticker = rareStickers[Math.floor(Math.random() * rareStickers.length)];
-          stickersToAward.push(randomSticker.id);
-        }
-        console.log(`Level ${level} major milestone reached! Awarding 3 rare+ stickers`);
-      }
-      // HSK level transitions - Get guaranteed epic or legendary
-      else if (hskTransitions.includes(level)) {
-        const epicOrLegendary = stickerCatalog.ANIMAL_STICKERS.filter(s => 
-          s.rarity === 'epic' || s.rarity === 'legendary'
-        );
-        const randomSticker = epicOrLegendary[Math.floor(Math.random() * epicOrLegendary.length)];
-        stickersToAward.push(randomSticker.id);
-        const hskLevel = Math.floor(level / 10) + 1;
-        console.log(`HSK ${hskLevel - 1} → HSK ${hskLevel} transition! Awarding epic+ sticker`);
-      }
-      // Every 10 levels - Get 2 stickers with better odds
-      else if (level % 10 === 0) {
-        for (let i = 0; i < 2; i++) {
-          const roll = Math.random() * 100;
-          let selectedRarity: string;
-          if (roll < 30) selectedRarity = 'uncommon';
-          else if (roll < 60) selectedRarity = 'rare';
-          else if (roll < 85) selectedRarity = 'epic';
-          else selectedRarity = 'legendary';
-          
-          const stickersOfRarity = stickerCatalog.ANIMAL_STICKERS.filter(s => s.rarity === selectedRarity);
-          const randomSticker = stickersOfRarity[Math.floor(Math.random() * stickersOfRarity.length)];
-          stickersToAward.push(randomSticker.id);
-        }
-        console.log(`Level ${level} (multiple of 10) reached! Awarding 2 stickers with better odds`);
-      }
-      // Every level (not covered by special cases above) - Get 1 random sticker
-      else {
+      // Every level gets a sticker box with 1-3 stickers based on random chance
+      const numberOfStickers = this.rollNumberOfStickers(level);
+      
+      console.log(`Level ${level} reached! Opening sticker box with ${numberOfStickers} sticker(s)`);
+      
+      for (let i = 0; i < numberOfStickers; i++) {
+        // Roll for rarity based on probability
         const roll = Math.random() * 100;
         let selectedRarity: string;
-        if (roll < 60) selectedRarity = 'common';
-        else if (roll < 85) selectedRarity = 'uncommon';
-        else if (roll < 95) selectedRarity = 'rare';
-        else if (roll < 99) selectedRarity = 'epic';
-        else selectedRarity = 'legendary';
+        
+        // Standard probability distribution
+        if (roll < 50) selectedRarity = 'common';        // 50% chance
+        else if (roll < 80) selectedRarity = 'uncommon'; // 30% chance  
+        else if (roll < 93) selectedRarity = 'rare';     // 13% chance
+        else if (roll < 99) selectedRarity = 'epic';     // 6% chance
+        else selectedRarity = 'legendary';               // 1% chance
+        
+        // Special bonus chances for milestone levels
+        if (level % 25 === 0) { // Every 25 levels
+          // Better odds for rare+ stickers
+          const bonusRoll = Math.random() * 100;
+          if (bonusRoll < 20) selectedRarity = 'uncommon';
+          else if (bonusRoll < 50) selectedRarity = 'rare';
+          else if (bonusRoll < 80) selectedRarity = 'epic';
+          else selectedRarity = 'legendary';
+        } else if (level % 10 === 0) { // Every 10 levels
+          // Slightly better odds
+          const bonusRoll = Math.random() * 100;
+          if (bonusRoll < 40) selectedRarity = 'common';
+          else if (bonusRoll < 70) selectedRarity = 'uncommon';
+          else if (bonusRoll < 87) selectedRarity = 'rare';
+          else if (bonusRoll < 96) selectedRarity = 'epic';
+          else selectedRarity = 'legendary';
+        }
         
         const stickersOfRarity = stickerCatalog.ANIMAL_STICKERS.filter(s => s.rarity === selectedRarity);
         const randomSticker = stickersOfRarity[Math.floor(Math.random() * stickersOfRarity.length)];
         stickersToAward.push(randomSticker.id);
-        console.log(`Level ${level} reached! Awarding 1 sticker`);
       }
     }
     
@@ -751,6 +735,29 @@ export class DatabaseStorage implements IStorageExtended {
       } catch (error) {
         console.error(`Error awarding sticker ${stickerId}:`, error);
       }
+    }
+  }
+  
+  // Helper function to determine number of stickers in the box
+  private rollNumberOfStickers(level: number): number {
+    const roll = Math.random() * 100;
+    
+    // Special levels get more stickers
+    if (level % 25 === 0) {
+      // Milestone levels: 25, 50, 75, 100
+      if (roll < 30) return 2;  // 30% chance for 2 stickers
+      else if (roll < 80) return 3;  // 50% chance for 3 stickers
+      else return 4;  // 20% chance for 4 stickers
+    } else if (level % 10 === 0) {
+      // Every 10 levels
+      if (roll < 50) return 1;  // 50% chance for 1 sticker
+      else if (roll < 85) return 2;  // 35% chance for 2 stickers
+      else return 3;  // 15% chance for 3 stickers
+    } else {
+      // Regular levels
+      if (roll < 70) return 1;  // 70% chance for 1 sticker
+      else if (roll < 95) return 2;  // 25% chance for 2 stickers
+      else return 3;  // 5% chance for 3 stickers
     }
   }
   

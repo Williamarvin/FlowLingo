@@ -464,9 +464,9 @@ function ProgressivePracticeContent() {
                   repeatDelay: 1
                 }}
               >
-                CONGRATULATIONS!
+                STICKER BOX!
               </motion.h1>
-              <p className="text-xl text-gray-600 mb-6">Level Complete! 🎉</p>
+              <p className="text-xl text-gray-600 mb-6">Level Complete! Opening your reward... 🎁</p>
             </motion.div>
             
             {/* Animated gift box that opens */}
@@ -507,7 +507,7 @@ function ProgressivePracticeContent() {
               animate={{ opacity: 1 }}
               transition={{ delay: 2 }}
             >
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">You earned new stickers!</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">Your sticker box contains...</h2>
               <div className="flex flex-wrap justify-center gap-6 mb-6">
                 {stickerRewards.map((sticker: any, index: number) => (
                   <motion.div
