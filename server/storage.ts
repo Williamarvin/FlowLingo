@@ -86,6 +86,7 @@ export interface IStorageExtended extends IStorage {
   // Sticker methods
   getUserStickers(userId: string): Promise<any[]>;
   awardSticker(userId: string, stickerId: string): Promise<any>;
+  awardLevelUpStickers(userId: string, oldLevel: number, newLevel: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorageExtended {
@@ -184,11 +185,15 @@ export class DatabaseStorage implements IStorageExtended {
     const newXp = user.xp + xp;
     let newLevel = user.level;
     let newXpToNextLevel = user.xpToNextLevel;
+    const oldLevel = user.level;
     
     // Check for level up
     if (newXp >= user.xpToNextLevel) {
       newLevel = user.level + 1;
       newXpToNextLevel = user.xpToNextLevel + (50 * newLevel); // Progressive XP requirement
+      
+      // Award stickers for level milestones
+      await this.awardLevelUpStickers(userId, oldLevel, newLevel);
     }
     
     const [updatedUser] = await db.update(users)
@@ -630,6 +635,67 @@ export class DatabaseStorage implements IStorageExtended {
     }).returning();
     
     return newSticker;
+  }
+  
+  async awardLevelUpStickers(userId: string, oldLevel: number, newLevel: number): Promise<void> {
+    const stickerCatalog = await import("./stickerSystem");
+    
+    const stickersToAward: string[] = [];
+    
+    // Check each level between old and new (in case of multiple level-ups)
+    for (let level = oldLevel + 1; level <= newLevel; level++) {
+      // Major milestones: 25, 50, 75, 100 - Get 3 stickers with guaranteed rare or better
+      if (level === 25 || level === 50 || level === 75 || level === 100) {
+        for (let i = 0; i < 3; i++) {
+          const rareStickers = stickerCatalog.ANIMAL_STICKERS.filter(s => 
+            s.rarity === 'rare' || s.rarity === 'epic' || s.rarity === 'legendary'
+          );
+          const randomSticker = rareStickers[Math.floor(Math.random() * rareStickers.length)];
+          stickersToAward.push(randomSticker.id);
+        }
+        console.log(`Level ${level} milestone reached! Awarding 3 rare+ stickers`);
+      }
+      // Every 10 levels - Get 2 stickers with better odds
+      else if (level % 10 === 0) {
+        for (let i = 0; i < 2; i++) {
+          const roll = Math.random() * 100;
+          let selectedRarity: string;
+          if (roll < 30) selectedRarity = 'uncommon';
+          else if (roll < 60) selectedRarity = 'rare';
+          else if (roll < 85) selectedRarity = 'epic';
+          else selectedRarity = 'legendary';
+          
+          const stickersOfRarity = stickerCatalog.ANIMAL_STICKERS.filter(s => s.rarity === selectedRarity);
+          const randomSticker = stickersOfRarity[Math.floor(Math.random() * stickersOfRarity.length)];
+          stickersToAward.push(randomSticker.id);
+        }
+        console.log(`Level ${level} (multiple of 10) reached! Awarding 2 stickers with better odds`);
+      }
+      // Every 5 levels - Get 1 random sticker
+      else if (level % 5 === 0) {
+        const roll = Math.random() * 100;
+        let selectedRarity: string;
+        if (roll < 60) selectedRarity = 'common';
+        else if (roll < 85) selectedRarity = 'uncommon';
+        else if (roll < 95) selectedRarity = 'rare';
+        else if (roll < 99) selectedRarity = 'epic';
+        else selectedRarity = 'legendary';
+        
+        const stickersOfRarity = stickerCatalog.ANIMAL_STICKERS.filter(s => s.rarity === selectedRarity);
+        const randomSticker = stickersOfRarity[Math.floor(Math.random() * stickersOfRarity.length)];
+        stickersToAward.push(randomSticker.id);
+        console.log(`Level ${level} (multiple of 5) reached! Awarding 1 sticker`);
+      }
+    }
+    
+    // Award all the stickers
+    for (const stickerId of stickersToAward) {
+      try {
+        await this.awardSticker(userId, stickerId);
+      } catch (error) {
+        console.error(`Error awarding sticker ${stickerId}:`, error);
+      }
+    }
   }
 }
 

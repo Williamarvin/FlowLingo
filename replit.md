@@ -2,9 +2,19 @@
 
 ## Overview
 
-FlowLingo is a comprehensive language learning platform that currently specializes in Chinese (Mandarin) with plans for multi-language expansion. The application features a complete multi-user authentication system with email/password login, secure session management, and protected learning routes. Core features include a complete progress tracking system with user levels, XP points, streak tracking, and adaptive difficulty. Key features include text generation with click-to-translate, AI-powered conversations that adapt to user level, voice translator with instant Mandarin-to-English translation, universal media reader (PDF, video, audio, images), vocabulary management with spaced repetition, initial assessment testing, enhanced progressive practice sessions with mandatory retry system and adaptive difficulty adjustment, and a comprehensive HSK-based level selection system with 50 unique topic-based levels. Built as a full-stack web application with a React frontend and Express backend using PostgreSQL for complete data persistence.
+FlowLingo is a comprehensive language learning platform that currently specializes in Chinese (Mandarin) with plans for multi-language expansion. The application features a complete multi-user authentication system with email/password login, secure session management, and protected learning routes. Core features include a complete progress tracking system with user levels, XP points, streak tracking, and adaptive difficulty. Key features include text generation with click-to-translate, AI-powered conversations that adapt to user level, voice translator with instant Mandarin-to-English translation, universal media reader (PDF, video, audio, images), vocabulary management with spaced repetition, initial assessment testing, enhanced progressive practice sessions with mandatory retry system and adaptive difficulty adjustment, a comprehensive HSK-based level selection system with 50 unique topic-based levels, and a gamified sticker collection system with 100+ animated animal stickers that users earn through level progression. Built as a full-stack web application with a React frontend and Express backend using PostgreSQL for complete data persistence.
 
 ### Recent Updates (August 2025)
+- **Sticker Collection System**: Implemented comprehensive gamification with 100+ animated animal stickers
+  - Everyone starts with Flow the dolphin mascot sticker by default
+  - Automatic sticker rewards on level progression:
+    - Every 5 levels (5, 10, 15, 20...): Get 1 random sticker
+    - Every 10 levels (10, 20, 30...): Get 2 stickers with better rarity odds
+    - Major milestones (25, 50, 75, 100): Get 3 guaranteed rare or better stickers
+  - Stickers organized by rarity: Common (60%), Uncommon (25%), Rare (10%), Epic (4%), Legendary (1%)
+  - Click-to-jump animation on individual stickers
+  - Sorting system shows unlocked stickers first, organized from rarest to least rare
+  - Test loot box feature for trying out the collection system
 - **Enhanced TTS Speech Speed**: Slowed down text-to-speech for clearer pronunciation
   - Reduced OpenAI TTS speed from 0.8 to 0.65 across all components for better language learning
   - Consistent slower speech rate in all features: practice, conversations, flashcards, voice translator
