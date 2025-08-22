@@ -97,8 +97,19 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
               ))}
             </div>
 
-            {/* Right Side - Mascot & Profile */}
-            <div className="flex items-center gap-6">
+            {/* Right Side - Hearts, Mascot & Profile */}
+            <div className="flex items-center gap-4">
+              {/* Hearts Display */}
+              <div className="flex items-center gap-2 bg-red-50 px-3 py-2 rounded-full">
+                <span className="text-xl">❤️</span>
+                <span className="font-bold text-red-600">{hearts}</span>
+                {hearts < 5 && (
+                  <span className="text-xs text-red-500">
+                    {userProfile?.nextHeartIn ? `+1 in ${Math.floor(userProfile.nextHeartIn / 60)}m` : ''}
+                  </span>
+                )}
+              </div>
+
               {/* User Mascot */}
               <Link href="/rewards">
                 <div className="text-3xl cursor-pointer hover:scale-110 transition-transform">
@@ -196,6 +207,17 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
         {showMobileMenu && (
           <div className="lg:hidden border-t border-gray-200 bg-white">
             <div className="px-6 py-4 space-y-2">
+              {/* Hearts Display in Mobile */}
+              <div className="flex items-center justify-center gap-2 bg-red-50 px-4 py-3 rounded-lg mb-2">
+                <span className="text-xl">❤️</span>
+                <span className="font-bold text-red-600 text-lg">{hearts}</span>
+                {hearts < 5 && (
+                  <span className="text-xs text-red-500">
+                    {userProfile?.nextHeartIn ? `+1 in ${Math.floor(userProfile.nextHeartIn / 60)}m` : ''}
+                  </span>
+                )}
+              </div>
+              
               {navTabs.map((tab) => (
                 <Link key={tab.path} href={tab.path}>
                   <button
