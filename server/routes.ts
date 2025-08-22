@@ -465,8 +465,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       res.status(201).json({ user: { id: user.id, email: user.email, username: user.username } });
-    } catch (error) {
-      console.error("Signup error:", error);
+    } catch (error: any) {
+      console.error("Signup error details:", {
+        message: error.message,
+        stack: error.stack,
+        code: error.code,
+        detail: error.detail
+      });
+      
+      // Provide more specific error messages for debugging in production
+      if (process.env.NODE_ENV === 'production') {
+        // Check for common database errors
+        if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+          return res.status(500).json({ error: "Database connection failed. Please check DATABASE_URL configuration." });
+        }
+        if (error.code === '42P01') {
+          return res.status(500).json({ error: "Database tables not found. Run database migration: npm run db:push" });
+        }
+        if (error.message?.includes('JWT_SECRET')) {
+          return res.status(500).json({ error: "JWT_SECRET not configured. Add it to environment variables." });
+        }
+      }
+      
       res.status(500).json({ error: "Failed to create account" });
     }
   });
