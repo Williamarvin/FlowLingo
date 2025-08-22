@@ -57,7 +57,8 @@ try {
     
     // Start the server
     console.log('🌐 Starting Express server...\n');
-    await import('./server/index.js');
+    // Use tsx to run TypeScript directly
+    execSync('npx tsx server/index.ts', { stdio: 'inherit' });
     
   }).catch(async (err) => {
     console.error('⚠️  Could not check tables:', err.message);
@@ -75,7 +76,8 @@ try {
     
     // Start the server anyway
     console.log('🌐 Starting Express server...\n');
-    await import('./server/index.js');
+    // Use tsx to run TypeScript directly
+    execSync('npx tsx server/index.ts', { stdio: 'inherit' });
   });
   
 } catch (error) {
@@ -90,5 +92,5 @@ try {
   }
   
   // Start the server
-  await import('./server/index.js');
+  execSync('npx tsx server/index.ts', { stdio: 'inherit' });
 }
