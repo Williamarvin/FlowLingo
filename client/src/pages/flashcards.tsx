@@ -174,7 +174,7 @@ function FlashcardsContent() {
       // Session complete
       toast({
         title: "Session Complete!",
-        description: `Correct: ${sessionCorrect + (correct ? 1 : 0)}, Wrong: ${sessionWrong + (correct ? 0 : 1)}`,
+        description: "Great job! You've reviewed all cards in this deck.",
       });
       setCurrentIndex(0);
       setSessionCorrect(0);
@@ -327,7 +327,7 @@ function FlashcardsContent() {
           </div>
 
           {/* Stats Bar - Modern Glass Cards */}
-          <div className="grid grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="modern-card p-4 hover:scale-[1.02] transition-all duration-300">
               <div className="flex items-center justify-between">
                 <div>
@@ -362,19 +362,6 @@ function FlashcardsContent() {
                 </div>
                 <div className="p-3 bg-green-100 rounded-xl">
                   <Target className="w-6 h-6 text-green-600" />
-                </div>
-              </div>
-            </div>
-            <div className="modern-card p-4 hover:scale-[1.02] transition-all duration-300">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">Session Score</p>
-                  <p className="text-2xl font-bold text-yellow-600">
-                    {sessionCorrect}/{sessionCorrect + sessionWrong}
-                  </p>
-                </div>
-                <div className="p-3 bg-yellow-100 rounded-xl">
-                  <Trophy className="w-6 h-6 text-yellow-600" />
                 </div>
               </div>
             </div>
