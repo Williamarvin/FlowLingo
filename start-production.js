@@ -55,6 +55,16 @@ try {
     
     await pool.end();
     
+    // Build the client first
+    console.log('🔨 Building client...\n');
+    try {
+      execSync('npm run build', { stdio: 'inherit' });
+      console.log('✅ Client build completed!\n');
+    } catch (buildError) {
+      console.error('❌ Client build failed:', buildError.message);
+      console.error('Continuing anyway...\n');
+    }
+    
     // Start the server
     console.log('🌐 Starting Express server...\n');
     // Use tsx to run TypeScript directly
@@ -74,6 +84,16 @@ try {
     
     await pool.end();
     
+    // Build the client first
+    console.log('🔨 Building client...\n');
+    try {
+      execSync('npm run build', { stdio: 'inherit' });
+      console.log('✅ Client build completed!\n');
+    } catch (buildError) {
+      console.error('❌ Client build failed:', buildError.message);
+      console.error('Continuing anyway...\n');
+    }
+    
     // Start the server anyway
     console.log('🌐 Starting Express server...\n');
     // Use tsx to run TypeScript directly
@@ -89,6 +109,16 @@ try {
     execSync('npm run db:push', { stdio: 'inherit' });
   } catch (migrationError) {
     console.error('Migration attempt failed, continuing...\n');
+  }
+  
+  // Build the client first
+  console.log('🔨 Building client...\n');
+  try {
+    execSync('npm run build', { stdio: 'inherit' });
+    console.log('✅ Client build completed!\n');
+  } catch (buildError) {
+    console.error('❌ Client build failed:', buildError.message);
+    console.error('Continuing anyway...\n');
   }
   
   // Start the server
