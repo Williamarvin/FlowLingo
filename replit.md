@@ -8,8 +8,9 @@ FlowLingo is a comprehensive language learning platform that currently specializ
 - **Sticker Collection System**: Implemented comprehensive gamification with 100+ animated animal stickers
   - Everyone starts with Flow the dolphin mascot sticker by default
   - Automatic sticker rewards on level progression:
-    - Every 5 levels (5, 10, 15, 20...): Get 1 random sticker
+    - Every 3 levels (3, 6, 9, 12...): Get 1 random sticker
     - Every 10 levels (10, 20, 30...): Get 2 stickers with better rarity odds
+    - HSK level transitions (levels 11, 21, 31, 41, 51): Get guaranteed epic or legendary sticker
     - Major milestones (25, 50, 75, 100): Get 3 guaranteed rare or better stickers
   - Stickers organized by rarity: Common (60%), Uncommon (25%), Rare (10%), Epic (4%), Legendary (1%)
   - Click-to-jump animation on individual stickers
