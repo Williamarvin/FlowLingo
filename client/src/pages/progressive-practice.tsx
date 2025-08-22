@@ -1132,36 +1132,24 @@ function ProgressivePracticeContent() {
               
               {(() => {
                 const level = userProfile.level;
-                const nextStickerLevel = Math.ceil((level + 1) / 3) * 3;
-                const hskTransitions = [11, 21, 31, 41, 51];
-                const nextHskTransition = hskTransitions.find(l => l > level);
-                const majorMilestones = [25, 50, 75, 100];
-                const nextMilestone = majorMilestones.find(l => l > level);
+                const nextLevel = level + 1; // Every level gives a sticker box now
                 
-                let nextReward = nextStickerLevel;
-                let rewardType = "a sticker";
+                // Default: next level gives a sticker box
+                let nextReward = nextLevel;
+                let rewardType = "sticker box (1-3 random stickers)";
                 let rewardIcon = "🎁";
                 
-                // Check which reward comes first
-                if (nextHskTransition && (!nextReward || nextHskTransition < nextReward)) {
-                  nextReward = nextHskTransition;
-                  rewardType = "Epic/Legendary sticker (HSK level up!)";
-                  rewardIcon = "⭐";
-                }
-                if (level % 10 === 9) {
-                  nextReward = level + 1;
-                  rewardType = "2 stickers with better odds";
+                // Check for special rewards
+                if (nextLevel % 25 === 0) {
+                  rewardType = "special box (2-4 stickers, better odds!)";
+                  rewardIcon = "🏆";
+                } else if (nextLevel % 10 === 0) {
+                  rewardType = "bonus box (better odds!)";
                   rewardIcon = "🎁🎁";
                 }
-                if (nextMilestone && nextMilestone - level <= 3) {
-                  nextReward = nextMilestone;
-                  rewardType = "3 rare+ stickers (milestone!)";
-                  rewardIcon = "🏆";
-                }
                 
-                const levelsToGo = nextReward - level;
-                const startLevel = nextReward - 3; // Show progress for last 3 levels
-                const progressPercent = ((level - startLevel) / 3) * 100;
+                const currentXP = userProfile.xp % 100;
+                const progressPercent = currentXP; // XP is already 0-100
                 
                 return (
                   <div className="space-y-3">
@@ -1174,10 +1162,8 @@ function ProgressivePracticeContent() {
                           <span className="text-lg">{rewardIcon}</span>
                         </div>
                         <div className="text-right">
-                          <span className="text-2xl font-bold text-purple-700">{levelsToGo}</span>
-                          <span className="text-xs font-medium text-purple-600 ml-1">
-                            level{levelsToGo > 1 ? 's' : ''} to go
-                          </span>
+                          <span className="text-sm font-medium text-gray-600">XP: </span>
+                          <span className="text-lg font-bold text-purple-700">{currentXP}/100</span>
                         </div>
                       </div>
                       
@@ -1195,22 +1181,29 @@ function ProgressivePracticeContent() {
                             )}
                           </div>
                         </div>
-                        {/* Level markers */}
+                        {/* XP markers */}
                         <div className="absolute inset-0 flex items-center justify-between px-2">
-                          <span className="text-xs font-medium text-gray-600">{startLevel}</span>
-                          <span className="text-xs font-medium text-gray-600">{nextReward}</span>
+                          <span className="text-xs font-medium text-gray-600">0 XP</span>
+                          <span className="text-xs font-medium text-gray-600">100 XP</span>
                         </div>
                       </div>
                       
                       <p className="text-xs text-gray-600 mt-2 text-center">
-                        Next: {rewardType}
+                        Next level up: {rewardType}
                       </p>
                     </div>
                     
-                    <div className="flex flex-wrap gap-2 text-xs">
-                      <span className="bg-white px-2 py-1 rounded-full">Every 3 levels: 1 sticker</span>
-                      <span className="bg-white px-2 py-1 rounded-full">Every 10 levels: 2 bonus stickers</span>
-                      <span className="bg-purple-100 px-2 py-1 rounded-full">HSK: Epic/Legendary!</span>
+                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-2 text-xs">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold text-purple-800">🎁 Every level = 1 sticker box!</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="text-gray-600">Common: 50%</span>
+                        <span className="text-green-600">Uncommon: 30%</span>
+                        <span className="text-blue-600">Rare: 13%</span>
+                        <span className="text-purple-600">Epic: 6%</span>
+                        <span className="text-yellow-600">Legendary: 1%</span>
+                      </div>
                     </div>
                   </div>
                 );
