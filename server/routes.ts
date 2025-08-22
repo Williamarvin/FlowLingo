@@ -851,7 +851,7 @@ Output: Only Chinese text, no explanations.`;
 
   app.post("/api/tts", async (req, res) => {
     try {
-      const { text, speed = 0.65 } = req.body; // Default speed 0.65 for clearer pronunciation
+      const { text, speed = 0.75 } = req.body; // Default speed 0.75 for natural yet clear pronunciation
       
       if (!text) {
         return res.status(400).json({ error: "Text is required" });
@@ -873,10 +873,10 @@ Output: Only Chinese text, no explanations.`;
       }
 
       // Not in cache, generate new audio
-      // Use OpenAI's TTS API
+      // Use OpenAI's TTS API with HD quality for more natural sound
       const mp3 = await openai.audio.speech.create({
-        model: "tts-1",
-        voice: "nova", // Nova is a natural-sounding voice good for language learning
+        model: "tts-1-hd", // HD model for higher quality, more natural sound
+        voice: "shimmer", // Shimmer has warm, natural tone perfect for Chinese language learning
         input: text,
         speed: speed // Use the provided speed or default
       });
