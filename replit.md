@@ -2,9 +2,20 @@
 
 ## Overview
 
-FlowLingo is a comprehensive language learning platform that currently specializes in Chinese (Mandarin) with plans for multi-language expansion. The application features a complete progress tracking system with user levels, XP points, streak tracking, and adaptive difficulty. Key features include text generation with click-to-translate, AI-powered conversations that adapt to user level, voice translator with instant Mandarin-to-English translation, universal media reader (PDF, video, audio, images), vocabulary management with spaced repetition, initial assessment testing, and enhanced progressive practice sessions with mandatory retry system and adaptive difficulty adjustment. Built as a full-stack web application with a React frontend and Express backend using PostgreSQL for complete data persistence.
+FlowLingo is a comprehensive language learning platform that currently specializes in Chinese (Mandarin) with plans for multi-language expansion. The application features a complete multi-user authentication system with email/password login, secure session management, and protected learning routes. Core features include a complete progress tracking system with user levels, XP points, streak tracking, and adaptive difficulty. Key features include text generation with click-to-translate, AI-powered conversations that adapt to user level, voice translator with instant Mandarin-to-English translation, universal media reader (PDF, video, audio, images), vocabulary management with spaced repetition, initial assessment testing, and enhanced progressive practice sessions with mandatory retry system and adaptive difficulty adjustment. Built as a full-stack web application with a React frontend and Express backend using PostgreSQL for complete data persistence.
 
-### Recent Updates (December 2025)
+### Recent Updates (August 2025)
+- **Complete Authentication System**: Implemented multi-user authentication with email/password login
+  - Secure password hashing with bcrypt
+  - JWT-based session management with PostgreSQL session store
+  - Protected routes that redirect to login when accessed without authentication
+  - Logout functionality with session cleanup
+  - Public home page with login prompt for protected features
+  - Automatic redirect to intended page after successful login
+  - Profile dropdown menu showing signed-in user email
+  - Google OAuth prepared (UI in place, backend ready for configuration)
+
+### Previous Updates (December 2025)
 - **Flow Mascot Design**: Created friendly mascot named "Flow" for FlowLingo
   - Smart and playful dolphin character called "Flow" symbolizing intelligence and communication
   - Ocean blue color theme with water effects and bubbles

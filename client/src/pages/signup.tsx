@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,9 +19,13 @@ export default function Signup() {
 
   const signupMutation = useMutation({
     mutationFn: async (credentials: { email: string; password: string; username: string }) => {
-      return await apiRequest("POST", "/api/auth/signup", credentials);
+      const response = await apiRequest("POST", "/api/auth/signup", credentials);
+      return response.json();
     },
     onSuccess: () => {
+      // Invalidate auth query to refetch user data
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+      
       toast({
         title: "Welcome to FlowLingo!",
         description: "Your account has been created successfully. Let's start learning!",
@@ -29,6 +33,7 @@ export default function Signup() {
       setLocation("/");
     },
     onError: (error: any) => {
+      console.error("Signup error:", error);
       toast({
         title: "Signup failed",
         description: error.message || "Failed to create account",

@@ -1,7 +1,8 @@
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { ChevronDown, Globe, Menu, User } from "lucide-react";
+import { ChevronDown, Globe, Menu, User, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ModernNavProps {
   currentPage?: string;
@@ -11,11 +12,13 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
   const [location, navigate] = useLocation();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const { isAuthenticated, user, logout } = useAuth();
   
   // Get user profile data
   const { data: userProfile } = useQuery<any>({
     queryKey: ["/api/user/profile"],
     refetchInterval: 10000,
+    enabled: isAuthenticated,
   });
 
   const hearts = userProfile?.hearts ?? 5;
@@ -102,14 +105,25 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
                 {/* Dropdown Menu */}
                 {showProfileMenu && (
                   <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2">
+                    {isAuthenticated && user && (
+                      <div className="px-4 py-2 border-b border-gray-200 mb-2">
+                        <div className="text-xs text-gray-500">Signed in as</div>
+                        <div className="text-sm font-medium text-gray-900 truncate">{user.email}</div>
+                      </div>
+                    )}
+                    <Link href="/rewards">
+                      <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50">
+                        🏆 Rewards
+                      </button>
+                    </Link>
                     <Link href="/assessment">
                       <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50">
-                        Assessment Test
+                        📊 Assessment Test
                       </button>
                     </Link>
                     <Link href="/voice-translator">
                       <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50">
-                        Voice Translator
+                        🎤 Voice Translator
                       </button>
                     </Link>
                     <hr className="my-2 border-gray-200" />
@@ -117,6 +131,21 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
                       <div className="text-xs text-gray-500 mb-1">Progress</div>
                       <div className="text-sm font-medium">{xp} XP Total</div>
                     </div>
+                    {isAuthenticated && (
+                      <>
+                        <hr className="my-2 border-gray-200" />
+                        <button 
+                          onClick={() => {
+                            setShowProfileMenu(false);
+                            logout();
+                          }}
+                          className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Sign Out
+                        </button>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
