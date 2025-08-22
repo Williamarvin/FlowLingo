@@ -1745,6 +1745,7 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       
       console.log("Returning user profile:", { 
         id: user.id, 
+        email: user.email,
         level: user.level, 
         hearts: user.hearts,
         assessmentCompleted: user.assessmentCompleted 
@@ -2117,6 +2118,36 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     } catch (error) {
       console.error("Error saving practice progress:", error);
       res.status(500).json({ error: "Failed to save practice progress" });
+    }
+  });
+
+  // Dev-only refill hearts endpoint
+  app.post("/api/user/refill-hearts", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.userId;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      
+      // Only allow for development account (specific user ID)
+      if (user.id !== "user_1755801899558_2ufl5w4mb") {
+        return res.status(403).json({ error: "Not authorized - dev only" });
+      }
+      
+      // Refill hearts to 5
+      const updatedUser = await storage.updateUserProgress(userId, { hearts: 5 });
+      
+      console.log("Hearts refilled for dev account:", user.email);
+      res.json({ 
+        success: true, 
+        hearts: 5,
+        message: "Hearts refilled successfully"
+      });
+    } catch (error) {
+      console.error("Error refilling hearts:", error);
+      res.status(500).json({ error: "Failed to refill hearts" });
     }
   });
 

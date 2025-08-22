@@ -1,8 +1,11 @@
 import { Link, useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { ChevronDown, Globe, Menu, User, LogOut } from "lucide-react";
+import { ChevronDown, Globe, Menu, User, LogOut, RefreshCw } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { toast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 interface ModernNavProps {
   currentPage?: string;
@@ -25,6 +28,28 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
   const level = userProfile?.level || 1;
   const streak = userProfile?.streakDays || 0;
   const xp = userProfile?.xp || 0;
+  const userEmail = userProfile?.email;
+
+  // Refill hearts mutation (dev only)
+  const refillHeartsMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("POST", "/api/user/refill-hearts");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+      toast({
+        title: "Hearts Refilled!",
+        description: "You now have 5 hearts.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to refill hearts.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const navTabs = [
     { path: "/levels", label: "Levels", icon: "🗺️" },
@@ -132,6 +157,21 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
                       <div className="text-xs text-gray-500 mb-1">Progress</div>
                       <div className="text-sm font-medium">{xp} XP Total</div>
                     </div>
+                    
+                    {/* Dev-only refill hearts button */}
+                    {(userProfile?.id === "user_1755801899558_2ufl5w4mb" || userEmail === "williamarvin111@gmail.com") && hearts < 5 && (
+                      <>
+                        <hr className="my-2 border-gray-200" />
+                        <button
+                          onClick={() => refillHeartsMutation.mutate()}
+                          disabled={refillHeartsMutation.isPending}
+                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <RefreshCw className={`w-4 h-4 ${refillHeartsMutation.isPending ? 'animate-spin' : ''}`} />
+                          <span className="text-purple-600 font-medium">Refill Hearts (Dev)</span>
+                        </button>
+                      </>
+                    )}
                     {isAuthenticated && (
                       <>
                         <hr className="my-2 border-gray-200" />
