@@ -727,8 +727,8 @@ export class DatabaseStorage implements IStorageExtended {
         }
         console.log(`Level ${level} (multiple of 10) reached! Awarding 2 stickers with better odds`);
       }
-      // Every 3 levels - Get 1 random sticker
-      else if (level % 3 === 0) {
+      // Every level (not covered by special cases above) - Get 1 random sticker
+      else {
         const roll = Math.random() * 100;
         let selectedRarity: string;
         if (roll < 60) selectedRarity = 'common';
@@ -740,7 +740,7 @@ export class DatabaseStorage implements IStorageExtended {
         const stickersOfRarity = stickerCatalog.ANIMAL_STICKERS.filter(s => s.rarity === selectedRarity);
         const randomSticker = stickersOfRarity[Math.floor(Math.random() * stickersOfRarity.length)];
         stickersToAward.push(randomSticker.id);
-        console.log(`Level ${level} (multiple of 3) reached! Awarding 1 sticker`);
+        console.log(`Level ${level} reached! Awarding 1 sticker`);
       }
     }
     
