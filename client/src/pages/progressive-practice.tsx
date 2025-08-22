@@ -448,16 +448,16 @@ function ProgressivePracticeContent() {
       sticker.rarity === 'epic' || sticker.rarity === 'legendary'
     );
     
-    // Double animation duration for epic+ pulls
-    const animationMultiplier = hasEpicOrAbove ? 2 : 1;
+    // Triple animation duration for epic+ pulls for more dramatic effect
+    const animationMultiplier = hasEpicOrAbove ? 3 : 1;
     
     return (
       <div className={`min-h-screen ${hasEpicOrAbove ? 'bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50' : 'bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50'} flex overflow-hidden relative`}>
         <ModernNav />
         
-        {/* Animated confetti background - red sparks for epic+ */}
+        {/* Animated confetti background - yellow to red transition for epic+ */}
         <div className="absolute inset-0 pointer-events-none">
-          {[...Array(hasEpicOrAbove ? 30 : 20)].map((_, i) => (
+          {[...Array(hasEpicOrAbove ? 40 : 20)].map((_, i) => (
             <motion.div
               key={i}
               className="absolute"
@@ -474,15 +474,37 @@ function ProgressivePracticeContent() {
               transition={{
                 duration: (3 + Math.random() * 2) * animationMultiplier,
                 repeat: Infinity,
-                delay: Math.random() * 2,
+                delay: Math.random() * 3, // Longer delay for epic+
                 ease: "linear"
               }}
             >
-              <div className={`${hasEpicOrAbove ? 'w-4 h-4' : 'w-3 h-3'} ${
-                hasEpicOrAbove 
-                  ? ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-red-400', 'bg-orange-400'][Math.floor(Math.random() * 5)]
-                  : ['bg-yellow-400', 'bg-pink-400', 'bg-purple-400', 'bg-blue-400', 'bg-green-400'][Math.floor(Math.random() * 5)]
-              } rounded-full`} />
+              {hasEpicOrAbove ? (
+                // Animated color transition from yellow to red for epic/legendary
+                <motion.div
+                  className="w-4 h-4 rounded-full"
+                  animate={{
+                    backgroundColor: [
+                      '#fbbf24', // yellow-400
+                      '#f59e0b', // amber-500
+                      '#ea580c', // orange-600
+                      '#dc2626', // red-600
+                      '#991b1b', // red-800
+                      '#dc2626', // red-600
+                      '#f59e0b', // amber-500
+                      '#fbbf24', // yellow-400
+                    ]
+                  }}
+                  transition={{
+                    duration: 2 * animationMultiplier,
+                    repeat: Infinity,
+                    ease: "linear"
+                  }}
+                />
+              ) : (
+                <div className={`w-3 h-3 ${
+                  ['bg-yellow-400', 'bg-pink-400', 'bg-purple-400', 'bg-blue-400', 'bg-green-400'][Math.floor(Math.random() * 5)]
+                } rounded-full`} />
+              )}
             </motion.div>
           ))}
         </div>

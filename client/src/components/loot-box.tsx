@@ -52,10 +52,14 @@ export function LootBox({ isOpen, onClose, stickers, onStickerReceived }: LootBo
 
   const openBox = () => {
     setIsOpening(true);
+    // Longer delay for epic/legendary stickers to enjoy the animation
+    const hasLegendary = stickers.some(s => s.rarity === 'legendary' || s.rarity === 'epic');
+    const delay = hasLegendary ? 4000 : 1500; // 4 seconds for legendary, 1.5 for normal
+    
     setTimeout(() => {
       setRevealed(true);
       onStickerReceived?.(stickers);
-    }, 1500);
+    }, delay);
   };
 
   const handleStickerClick = (index: number) => {
@@ -94,13 +98,53 @@ export function LootBox({ isOpen, onClose, stickers, onStickerReceived }: LootBo
                     <div className="relative">
                       <Gift className="w-32 h-32 text-purple-500 mx-auto" />
                       {isOpening && (
-                        <motion.div
-                          className="absolute inset-0"
-                          animate={{ opacity: [0, 1, 0] }}
-                          transition={{ repeat: 3, duration: 0.5 }}
-                        >
-                          <Sparkles className="w-32 h-32 text-yellow-400" />
-                        </motion.div>
+                        <>
+                          {/* Check if any sticker is legendary for special animation */}
+                          {stickers.some(s => s.rarity === 'legendary' || s.rarity === 'epic') ? (
+                            <>
+                              {/* Yellow sparkles that transition to red for legendary */}
+                              <motion.div
+                                className="absolute inset-0"
+                                animate={{ 
+                                  opacity: [0, 1, 0.5, 1, 0],
+                                  scale: [1, 1.2, 1, 1.3, 1]
+                                }}
+                                transition={{ 
+                                  repeat: 6, // More repeats for legendary
+                                  duration: 0.8,
+                                  delay: 0
+                                }}
+                              >
+                                <Sparkles className="w-32 h-32 text-yellow-400" />
+                              </motion.div>
+                              {/* Red sparkles that appear after yellow */}
+                              <motion.div
+                                className="absolute inset-0"
+                                initial={{ opacity: 0 }}
+                                animate={{ 
+                                  opacity: [0, 0, 0, 1, 0.5, 1, 0],
+                                  scale: [1, 1, 1, 1.2, 1, 1.3, 1]
+                                }}
+                                transition={{ 
+                                  repeat: 6,
+                                  duration: 0.8,
+                                  delay: 0.4 // Delayed to create transition effect
+                                }}
+                              >
+                                <Sparkles className="w-32 h-32 text-red-500" />
+                              </motion.div>
+                            </>
+                          ) : (
+                            /* Normal yellow sparkles for regular stickers */
+                            <motion.div
+                              className="absolute inset-0"
+                              animate={{ opacity: [0, 1, 0] }}
+                              transition={{ repeat: 3, duration: 0.5 }}
+                            >
+                              <Sparkles className="w-32 h-32 text-yellow-400" />
+                            </motion.div>
+                          )}
+                        </>
                       )}
                     </div>
                   </motion.div>
