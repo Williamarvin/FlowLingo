@@ -92,7 +92,8 @@ export interface IStorageExtended extends IStorage {
 
 export class DatabaseStorage implements IStorageExtended {
   async getUser(id: string): Promise<User | undefined> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { users } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -101,7 +102,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { users } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -110,7 +112,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { users } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -119,7 +122,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async createUser(insertUser: InsertUser & { id?: string }): Promise<User> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { users } = await import("@shared/schema");
     
     // Generate a unique ID if not provided
@@ -133,7 +137,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async updateUserProgress(userId: string, updates: Partial<User>): Promise<User | undefined> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { users } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -145,7 +150,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async updateUserStreak(userId: string): Promise<User | undefined> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { users } = await import("@shared/schema");
     const { eq, sql } = await import("drizzle-orm");
     
@@ -176,7 +182,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async addXpToUser(userId: string, xp: number): Promise<User | undefined> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { users } = await import("@shared/schema");
     const { eq, sql } = await import("drizzle-orm");
     
@@ -211,7 +218,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async updateUserPassword(userId: string, hashedPassword: string): Promise<User | undefined> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { users } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -227,7 +235,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async getVocabularyWords(userId: string): Promise<VocabularyWord[]> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { vocabularyWords } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -235,7 +244,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async getVocabularyWordsDue(userId: string): Promise<VocabularyWord[]> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { vocabularyWords } = await import("@shared/schema");
     const { eq, lte } = await import("drizzle-orm");
     
@@ -245,7 +255,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async createVocabularyWord(word: InsertVocabularyWord): Promise<VocabularyWord> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { vocabularyWords } = await import("@shared/schema");
     
     const [newWord] = await db.insert(vocabularyWords).values(word).returning();
@@ -253,7 +264,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async updateVocabularyWord(id: string, updates: Partial<VocabularyWord>): Promise<VocabularyWord | undefined> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { vocabularyWords } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -265,7 +277,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async deleteVocabularyWord(id: string): Promise<boolean> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { vocabularyWords } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -274,7 +287,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async getConversations(userId: string): Promise<Conversation[]> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { conversations } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -282,7 +296,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async createConversation(conversation: InsertConversation): Promise<Conversation> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { conversations } = await import("@shared/schema");
     
     const [newConv] = await db.insert(conversations).values(conversation).returning();
@@ -290,7 +305,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async updateConversation(id: string, updates: Partial<Conversation>): Promise<Conversation | undefined> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { conversations } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -302,7 +318,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async getGeneratedTexts(userId: string): Promise<GeneratedText[]> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { generatedTexts } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -310,7 +327,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async createGeneratedText(text: InsertGeneratedText): Promise<GeneratedText> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { generatedTexts } = await import("@shared/schema");
     
     const [newText] = await db.insert(generatedTexts).values(text).returning();
@@ -318,7 +336,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async getPdfDocuments(userId: string): Promise<PdfDocument[]> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { pdfDocuments } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -326,7 +345,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async getMediaDocuments(userId: string): Promise<MediaDocument[]> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { mediaDocuments } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -334,7 +354,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async createMediaDocument(document: InsertMediaDocument): Promise<MediaDocument> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { mediaDocuments } = await import("@shared/schema");
     
     const [newDoc] = await db.insert(mediaDocuments).values(document).returning();
@@ -342,7 +363,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async getMediaDocument(id: string): Promise<MediaDocument | undefined> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { mediaDocuments } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -351,7 +373,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async updateMediaDocument(id: string, updates: Partial<MediaDocument>): Promise<MediaDocument | undefined> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { mediaDocuments } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -363,7 +386,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async deleteMediaDocument(id: string): Promise<boolean> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { mediaDocuments } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -372,7 +396,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async createPdfDocument(document: InsertPdfDocument): Promise<PdfDocument> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { pdfDocuments } = await import("@shared/schema");
     
     const [newDoc] = await db.insert(pdfDocuments).values(document).returning();
@@ -380,7 +405,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async getAssessmentQuestions(difficulty?: number): Promise<any[]> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { assessmentQuestions } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -391,7 +417,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async saveAssessmentResult(result: any): Promise<any> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { assessmentResults } = await import("@shared/schema");
     
     const [newResult] = await db.insert(assessmentResults).values(result).returning();
@@ -399,7 +426,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async getAssessmentResult(userId: string): Promise<any | undefined> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { assessmentResults } = await import("@shared/schema");
     const { eq, desc } = await import("drizzle-orm");
     
@@ -412,7 +440,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async createPracticeSession(session: any): Promise<any> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { practiceSessions } = await import("@shared/schema");
     
     const [newSession] = await db.insert(practiceSessions).values(session).returning();
@@ -420,7 +449,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async getPracticeSessions(userId: string): Promise<any[]> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { practiceSessions } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -428,14 +458,16 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async getAchievements(): Promise<any[]> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { achievements } = await import("@shared/schema");
     
     return await db.select().from(achievements);
   }
 
   async getUserAchievements(userId: string): Promise<any[]> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { userAchievements, achievements } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -446,7 +478,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async unlockAchievement(userId: string, achievementId: string): Promise<any> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { userAchievements } = await import("@shared/schema");
     
     const [newAchievement] = await db.insert(userAchievements)
@@ -456,7 +489,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async getPracticeProgress(userId: string, level: number): Promise<any | undefined> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { practiceProgress } = await import("@shared/schema");
     const { eq, and } = await import("drizzle-orm");
     
@@ -470,7 +504,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async savePracticeProgress(userId: string, level: number, progress: any): Promise<any> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { practiceProgress } = await import("@shared/schema");
     const { eq, and } = await import("drizzle-orm");
     
@@ -510,7 +545,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async clearPracticeProgress(userId: string, level: number): Promise<boolean> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { practiceProgress } = await import("@shared/schema");
     const { eq, and } = await import("drizzle-orm");
     
@@ -523,7 +559,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async getFlashcards(userId: string, filter: string): Promise<any[]> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { flashcards } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -537,7 +574,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async createFlashcard(flashcard: any): Promise<any> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { flashcards } = await import("@shared/schema");
     
     // Check if flashcard already exists for this user and word
@@ -565,7 +603,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async updateFlashcardReview(id: string, correct: boolean): Promise<any> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { flashcards } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -587,7 +626,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
 
   async deleteFlashcard(id: string): Promise<boolean> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { flashcards } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -597,7 +637,8 @@ export class DatabaseStorage implements IStorageExtended {
   
   // Sticker methods
   async getUserStickers(userId: string): Promise<any[]> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { userRewards } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -624,7 +665,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
   
   async awardSticker(userId: string, stickerId: string): Promise<any> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { userRewards } = await import("@shared/schema");
     
     // Award the sticker (can have duplicates)
@@ -719,7 +761,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
   
   async getUserRewards(userId: string): Promise<any[]> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { userRewards } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -739,7 +782,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
   
   async grantReward(userId: string, rewardId: string): Promise<any> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { userRewards } = await import("@shared/schema");
     
     const [reward] = await db.insert(userRewards).values({
@@ -753,7 +797,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
   
   async markRewardsAsSeen(userId: string): Promise<void> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { userRewards } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -764,7 +809,8 @@ export class DatabaseStorage implements IStorageExtended {
   
   // Mascot methods
   async getUserMascot(userId: string): Promise<any | undefined> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { users } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -773,7 +819,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
   
   async updateUserMascot(userId: string, mascot: string): Promise<User | undefined> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { users } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -800,7 +847,8 @@ export class DatabaseStorage implements IStorageExtended {
   
   // Practice level methods
   async getPracticeLevel(userId: string): Promise<any | undefined> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { practiceLevels } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -809,7 +857,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
   
   async updatePracticeLevel(userId: string, xp: number, levelCompleted?: number): Promise<any> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { practiceLevels } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -839,7 +888,8 @@ export class DatabaseStorage implements IStorageExtended {
   
   // XP transaction methods
   async addXpTransaction(userId: string, amount: number, source: string, sourceId?: string, description?: string): Promise<any> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { xpTransactions, users } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
@@ -878,7 +928,8 @@ export class DatabaseStorage implements IStorageExtended {
   }
   
   async getUserRewardProfile(userId: string): Promise<any> {
-    const { db } = await import("./db");
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
     const { users, practiceLevels, userMascots, userRewards } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     
