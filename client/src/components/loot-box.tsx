@@ -37,6 +37,82 @@ const rarityGlows = {
   legendary: 'shadow-orange-400/50'
 };
 
+// Sound effects using Web Audio API
+const playLootBoxSound = (rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'opening') => {
+  try {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    const currentTime = audioContext.currentTime;
+    
+    if (rarity === 'opening') {
+      // Opening sound - ascending notes
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(200, currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(800, currentTime + 0.5);
+      gainNode.gain.setValueAtTime(0.3, currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.5);
+      oscillator.start(currentTime);
+      oscillator.stop(currentTime + 0.5);
+    } else if (rarity === 'legendary') {
+      // Legendary sound - triumphant fanfare
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+      notes.forEach((freq, i) => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0, currentTime + i * 0.15);
+        gain.gain.linearRampToValueAtTime(0.3, currentTime + i * 0.15 + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.01, currentTime + i * 0.15 + 0.5);
+        osc.start(currentTime + i * 0.15);
+        osc.stop(currentTime + i * 0.15 + 0.5);
+      });
+    } else if (rarity === 'epic') {
+      // Epic sound - magical chime
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(880, currentTime); // A5
+      oscillator.frequency.exponentialRampToValueAtTime(1760, currentTime + 0.3); // A6
+      gainNode.gain.setValueAtTime(0.3, currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.4);
+      oscillator.start(currentTime);
+      oscillator.stop(currentTime + 0.4);
+    } else if (rarity === 'rare') {
+      // Rare sound - pleasant ding
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(659.25, currentTime); // E5
+      gainNode.gain.setValueAtTime(0.25, currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.3);
+      oscillator.start(currentTime);
+      oscillator.stop(currentTime + 0.3);
+    } else if (rarity === 'uncommon') {
+      // Uncommon sound - soft chime
+      oscillator.type = 'triangle';
+      oscillator.frequency.setValueAtTime(523.25, currentTime); // C5
+      gainNode.gain.setValueAtTime(0.2, currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.25);
+      oscillator.start(currentTime);
+      oscillator.stop(currentTime + 0.25);
+    } else {
+      // Common sound - simple beep
+      oscillator.type = 'square';
+      oscillator.frequency.setValueAtTime(440, currentTime); // A4
+      gainNode.gain.setValueAtTime(0.15, currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.2);
+      oscillator.start(currentTime);
+      oscillator.stop(currentTime + 0.2);
+    }
+  } catch (error) {
+    console.error('Error playing sound:', error);
+  }
+};
+
 export function LootBox({ isOpen, onClose, stickers, onStickerReceived }: LootBoxProps) {
   const [isOpening, setIsOpening] = useState(false);
   const [revealed, setRevealed] = useState(false);
@@ -52,18 +128,61 @@ export function LootBox({ isOpen, onClose, stickers, onStickerReceived }: LootBo
 
   const openBox = () => {
     setIsOpening(true);
+    
+    // Play opening sound
+    playLootBoxSound('opening');
+    
     // Longer delay for epic/legendary stickers to enjoy the animation
-    const hasLegendary = stickers.some(s => s.rarity === 'legendary' || s.rarity === 'epic');
-    const delay = hasLegendary ? 4000 : 1500; // 4 seconds for legendary, 1.5 for normal
+    const hasLegendary = stickers.some(s => s.rarity === 'legendary');
+    const hasEpic = stickers.some(s => s.rarity === 'epic');
+    const delay = hasLegendary ? 4000 : hasEpic ? 3000 : 1500;
     
     setTimeout(() => {
       setRevealed(true);
+      
+      // Play reveal sound based on highest rarity
+      if (hasLegendary) {
+        playLootBoxSound('legendary');
+      } else if (hasEpic) {
+        playLootBoxSound('epic');
+      } else if (stickers.some(s => s.rarity === 'rare')) {
+        playLootBoxSound('rare');
+      } else if (stickers.some(s => s.rarity === 'uncommon')) {
+        playLootBoxSound('uncommon');
+      } else {
+        playLootBoxSound('common');
+      }
+      
       onStickerReceived?.(stickers);
     }, delay);
   };
 
-  const handleStickerClick = (index: number) => {
+  const handleStickerClick = (index: number, rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary') => {
     setJumpingIndex(index);
+    // Play a quick bounce sound based on rarity
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.type = 'sine';
+      // Higher pitch for rarer stickers
+      const basePitch = rarity === 'legendary' ? 800 : rarity === 'epic' ? 700 : rarity === 'rare' ? 600 : 500;
+      oscillator.frequency.setValueAtTime(basePitch, audioContext.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(basePitch * 1.5, audioContext.currentTime + 0.1);
+      
+      gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.1);
+    } catch (error) {
+      console.error('Error playing bounce sound:', error);
+    }
+    
     setTimeout(() => setJumpingIndex(null), 600);
   };
 
@@ -195,7 +314,7 @@ export function LootBox({ isOpen, onClose, stickers, onStickerReceived }: LootBo
                         initial={{ scale: 0, rotate: -180 }}
                         animate={{ scale: 1, rotate: 0 }}
                         transition={{ delay: index * 0.2, type: "spring" }}
-                        onClick={() => handleStickerClick(index)}
+                        onClick={() => handleStickerClick(index, sticker.rarity)}
                         className="cursor-pointer"
                       >
                         <motion.div
