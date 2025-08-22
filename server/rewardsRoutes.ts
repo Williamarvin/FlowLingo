@@ -45,11 +45,24 @@ export function registerRewardsRoutes(app: Express) {
     }
     
     try {
+      // Find the sticker by emoji to get its ID
+      const stickerInfo = ANIMAL_STICKERS.find(s => s.emoji === mascot);
+      if (!stickerInfo) {
+        return res.status(400).json({ error: "Invalid sticker emoji" });
+      }
+      
       // Check if user has this sticker unlocked
       const userStickers = await storage.getUserStickers(userId);
-      const hasSticker = userStickers.some(s => s.emoji === mascot);
+      const hasSticker = userStickers.some(s => s.stickerId === stickerInfo.id);
       
-      if (!hasSticker && mascot !== "🐬") { // Allow dolphin as default
+      console.log("Mascot change attempt:", { 
+        mascot, 
+        stickerId: stickerInfo.id, 
+        userStickers: userStickers.map(s => s.stickerId),
+        hasSticker 
+      });
+      
+      if (!hasSticker && stickerInfo.id !== "dolphin") { // Allow dolphin as default
         return res.status(403).json({ error: "You don't have this sticker unlocked" });
       }
       

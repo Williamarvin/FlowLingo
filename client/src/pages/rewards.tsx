@@ -62,15 +62,19 @@ function RewardsContent() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/stickers/catalog"] });
       toast({
         title: "Mascot Updated!",
         description: "Your new mascot will appear throughout the app.",
       });
     },
-    onError: () => {
+    onError: (error: any) => {
+      const message = error?.message?.includes("don't have this sticker") 
+        ? "You need to unlock this sticker first! Keep learning to earn more stickers."
+        : "Please try again later.";
       toast({
-        title: "Failed to update mascot",
-        description: "Please try again later.",
+        title: "Cannot Set Mascot",
+        description: message,
         variant: "destructive",
       });
     },
@@ -365,13 +369,14 @@ function RewardsContent() {
                     {sticker.probability}% chance
                   </p>
                   
-                  {sticker.collected && (
+                  {sticker.collected ? (
                     <Button
                       size="sm"
                       variant={userProfile?.selectedMascot === sticker.emoji ? "default" : "outline"}
                       className="mt-2 w-full text-xs"
                       onClick={(e) => {
                         e.stopPropagation();
+                        console.log("Setting mascot:", sticker.emoji, "Collected:", sticker.collected);
                         changeMascotMutation.mutate(sticker.emoji);
                       }}
                       disabled={changeMascotMutation.isPending}
@@ -385,6 +390,10 @@ function RewardsContent() {
                         "Set as Mascot"
                       )}
                     </Button>
+                  ) : (
+                    <div className="mt-2 text-xs text-gray-500 text-center">
+                      🔒 Unlock to use as mascot
+                    </div>
                   )}
                 </CardContent>
               </Card>
