@@ -34,6 +34,7 @@ export interface IStorage {
 
 export interface IStorageExtended extends IStorage {
   // User progress methods
+  initializeUserStats(userId: string): Promise<void>;
   updateUserProgress(userId: string, updates: Partial<User>): Promise<User | undefined>;
   updateUserStreak(userId: string): Promise<User | undefined>;
   addXpToUser(userId: string, xp: number): Promise<User | undefined>;
@@ -135,6 +136,26 @@ export class DatabaseStorage implements IStorageExtended {
     
     const [user] = await db.insert(users).values(userData).returning();
     return user;
+  }
+
+  async initializeUserStats(userId: string): Promise<void> {
+    // Initialize user stats with default values
+    const { getDB } = await import("./db-helper");
+    const { db } = await getDB();
+    const { users } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    
+    await db.update(users)
+      .set({ 
+        level: 1,
+        xp: 0,
+        xpToNextLevel: 1000,
+        hearts: 5,
+        streakDays: 0,
+        assessmentCompleted: false,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId));
   }
 
   async updateUserProgress(userId: string, updates: Partial<User>): Promise<User | undefined> {

@@ -62,10 +62,56 @@ export default function Login() {
   };
 
   const handleGoogleSignIn = async () => {
-    toast({
-      title: "Coming Soon",
-      description: "Google sign-in will be available soon. Please use email and password for now.",
-    });
+    try {
+      // Open Google OAuth popup
+      const width = 500;
+      const height = 600;
+      const left = window.screenX + (window.outerWidth - width) / 2;
+      const top = window.screenY + (window.outerHeight - height) / 2;
+      
+      const popup = window.open(
+        '/api/auth/google',
+        'google-auth',
+        `width=${width},height=${height},left=${left},top=${top}`
+      );
+      
+      // Listen for auth success message
+      const handleMessage = (event: MessageEvent) => {
+        if (event.data.type === 'auth-success') {
+          window.removeEventListener('message', handleMessage);
+          if (popup) popup.close();
+          
+          // Invalidate auth query to refetch user data
+          queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+          
+          toast({
+            title: "Welcome!",
+            description: "Successfully signed in with Google",
+          });
+          
+          // Redirect to home
+          setTimeout(() => {
+            setLocation("/");
+          }, 500);
+        }
+      };
+      
+      window.addEventListener('message', handleMessage);
+      
+      // Clean up if popup is closed manually
+      const checkClosed = setInterval(() => {
+        if (popup?.closed) {
+          clearInterval(checkClosed);
+          window.removeEventListener('message', handleMessage);
+        }
+      }, 1000);
+    } catch (error) {
+      toast({
+        title: "Google Sign-In Error",
+        description: "Failed to open Google sign-in window",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
