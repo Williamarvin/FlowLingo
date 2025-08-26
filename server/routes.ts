@@ -867,9 +867,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           password: null, // No password for Google users
           authMethod: 'google'
         });
-        
-        // Initialize user stats
-        await storage.initializeUserStats(user.id);
       }
       
       // Create session
