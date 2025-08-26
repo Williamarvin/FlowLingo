@@ -442,14 +442,7 @@ export default function Home() {
               
               {/* Mascot Visual */}
               <div className="lg:w-1/3 flex justify-center">
-                <motion.div 
-                  className="relative"
-                  animate={isJumping ? {
-                    y: [0, -40, 0],
-                    rotate: [0, -15, 15, 0]
-                  } : {}}
-                  transition={{ duration: 0.6 }}
-                >
+                <div className="relative">
                   <div 
                     className="w-48 h-48 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full flex items-center justify-center shadow-xl cursor-pointer"
                     onClick={() => {
@@ -457,7 +450,16 @@ export default function Home() {
                       setTimeout(() => setIsJumping(false), 600);
                     }}
                   >
-                    <span className="text-8xl animate-bounce">{userProfile?.selectedMascot || "🐬"}</span>
+                    <motion.span 
+                      className="text-8xl"
+                      animate={isJumping ? {
+                        y: [0, -40, 0],
+                        rotate: [0, -15, 15, 0]
+                      } : {}}
+                      transition={{ duration: 0.6 }}
+                    >
+                      {userProfile?.selectedMascot || "🐬"}
+                    </motion.span>
                   </div>
                   <div className="absolute -bottom-4 -right-2 bg-white rounded-lg px-3 py-2 shadow-md border border-gray-200 min-w-[140px]">
                     <div className="flex items-center gap-2">

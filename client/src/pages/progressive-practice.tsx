@@ -10,6 +10,7 @@ import { Heart, Clock, Trophy, X, ArrowLeft, Gift, Sparkles } from "lucide-react
 import { audioManager } from "@/lib/audioManager";
 import { levelStructure, getLevelInfo } from "../../../shared/levelStructure";
 import { motion } from "framer-motion";
+import { LootBox } from "@/components/loot-box";
 
 interface Question {
   id: string;
@@ -34,23 +35,27 @@ function ProgressivePracticeContent() {
   const [showDifficultyOption, setShowDifficultyOption] = useState(false);
   const [showStickerReward, setShowStickerReward] = useState(false);
   const [stickerRewards, setStickerRewards] = useState<any[]>([]);
-  
+
   // Ref for continue button to scroll to
   const continueButtonRef = useRef<HTMLButtonElement>(null);
-  
+
   // Ref for hover TTS delay
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   // Get level from URL params if provided, otherwise use user's current level
   const urlParams = new URLSearchParams(location.split('?')[1] || '');
   const levelFromUrl = urlParams.get('level');
   const [currentLevel, setCurrentLevel] = useState(levelFromUrl ? parseInt(levelFromUrl) : 1);
-  
+
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [wrongAnswers, setWrongAnswers] = useState(0);
   const [hearts, setHearts] = useState(5);
   const [timeUntilNextHeart, setTimeUntilNextHeart] = useState<number | null>(null);
   const [sessionStartTime] = useState(Date.now());
+
+  // State for loot box animation
+  const [showLootBox, setShowLootBox] = useState(false);
+  const [earnedStickers, setEarnedStickers] = useState<any[]>([]);
 
   // Function to speak Chinese text using OpenAI TTS
   const speakChinese = async (text: string) => {
@@ -61,20 +66,20 @@ function ProgressivePracticeContent() {
       console.error('TTS error:', error);
     }
   };
-  
+
   // Function to speak Chinese with delay for hover events
   const speakChineseWithDelay = (text: string, delay: number = 200) => {
     // Clear any existing timeout
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
     }
-    
+
     // Set a new timeout to speak after delay
     hoverTimeoutRef.current = setTimeout(() => {
       speakChinese(text);
     }, delay);
   };
-  
+
   // Clear hover timeout when component unmounts
   useEffect(() => {
     return () => {
@@ -128,8 +133,14 @@ function ProgressivePracticeContent() {
     mutationFn: async (sessionData: any) => {
       return await apiRequest("POST", "/api/practice/save-session", sessionData);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+
+      // Check for loot box rewards upon successful session save
+      if (data.stickers && data.stickers.length > 0) {
+        setEarnedStickers(data.stickers);
+        setShowLootBox(true);
+      }
     },
   });
 
@@ -139,19 +150,19 @@ function ProgressivePracticeContent() {
       setCurrentLevel(userProfile.level || 1);
       const currentHearts = userProfile.hearts !== undefined ? userProfile.hearts : 5;
       setHearts(currentHearts);
-      
+
       // If hearts are 0, immediately show out of hearts screen
       if (currentHearts === 0) {
         setShowOutOfHeartsScreen(true);
       }
-      
+
       // Calculate time until next heart
       if (userProfile.hearts < userProfile.maxHearts && userProfile.lastHeartLostAt) {
         const lastLost = new Date(userProfile.lastHeartLostAt).getTime();
         const now = Date.now();
         const hoursPassed = Math.floor((now - lastLost) / (1000 * 60 * 60));
         const heartsToRegenerate = Math.min(hoursPassed, userProfile.maxHearts - userProfile.hearts);
-        
+
         if (heartsToRegenerate > 0) {
           // Regenerate hearts
           updateHeartsMutation.mutate(heartsToRegenerate);
@@ -201,7 +212,7 @@ function ProgressivePracticeContent() {
           }
         });
       }, 1000);
-      
+
       return () => clearInterval(interval);
     }
   }, [timeUntilNextHeart]);
@@ -215,7 +226,7 @@ function ProgressivePracticeContent() {
 
   const handleAnswer = async (answer: string) => {
     if (showFeedback) return;
-    
+
     // Don't allow answering if hearts are 0
     if (hearts === 0) {
       setShowOutOfHeartsScreen(true);
@@ -226,19 +237,19 @@ function ProgressivePracticeContent() {
     const correct = answer === currentQ.correctAnswer;
     setIsCorrect(correct);
     setShowFeedback(true);
-    
+
     // Scroll to continue button after a short delay
     setTimeout(() => {
-      continueButtonRef.current?.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center' 
+      continueButtonRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
       });
     }, 100);
 
     if (!correct) {
       setWrongAnswers(prev => prev + 1);
       setWrongAttempts(prev => prev + 1);
-      
+
       // Save wrong answer as flashcard
       try {
         await createFlashcardMutation.mutateAsync({
@@ -251,19 +262,19 @@ function ProgressivePracticeContent() {
       } catch (error) {
         console.error("Error creating flashcard:", error);
       }
-      
+
       // Lose a heart for wrong answer
       const newHearts = Math.max(0, hearts - 1);
       setHearts(newHearts);
       updateHeartsMutation.mutate(-1);
-      
+
       // Check if out of hearts
       if (newHearts === 0) {
         setTimeout(() => {
           setShowOutOfHeartsScreen(true);
         }, 1500);
       }
-      
+
       if (wrongAttempts >= 2) { // After 3 wrong attempts
         setShowDifficultyOption(true);
       }
@@ -284,10 +295,10 @@ function ProgressivePracticeContent() {
         setShowFeedback(false);
         setWrongAttempts(0);
         setShowDifficultyOption(false);
-        
+
         // Scroll to top for better UX
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        
+
         // Save progress to database
         const answeredQuestions = questions.slice(0, nextIndex).map(q => q.id);
         saveProgressMutation.mutate({
@@ -299,7 +310,7 @@ function ProgressivePracticeContent() {
       } else {
         // Complete the lesson
         setShowCompletedScreen(true);
-        
+
         // Clear progress when lesson is completed
         saveProgressMutation.mutate({
           currentQuestion: 1,
@@ -312,7 +323,7 @@ function ProgressivePracticeContent() {
       // Try again - reset for same question
       setSelectedAnswer(null);
       setShowFeedback(false);
-      
+
       // Scroll to top for better UX when trying again
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -327,7 +338,7 @@ function ProgressivePracticeContent() {
         incorrectAnswers: 0,
         answeredQuestions: []
       });
-      
+
       setCurrentLevel(currentLevel - 1);
       queryClient.invalidateQueries({ queryKey: ["/api/practice/questions", currentLevel - 1] });
       queryClient.invalidateQueries({ queryKey: ["/api/practice/progress", currentLevel - 1] });
@@ -338,7 +349,7 @@ function ProgressivePracticeContent() {
       setShowFeedback(false);
       setWrongAttempts(0);
       setShowDifficultyOption(false);
-      
+
       // Scroll to top when going to previous level
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -350,7 +361,7 @@ function ProgressivePracticeContent() {
     const xp = Math.round(accuracy * 10);
     const timeSpent = Math.floor((Date.now() - sessionStartTime) / 1000); // Time in seconds
     const passed = accuracy >= 80; // Pass if 80% or higher
-    
+
     console.log("Saving practice session...", {
       level: currentLevel,
       questionsAnswered: questions.length,
@@ -359,7 +370,7 @@ function ProgressivePracticeContent() {
       accuracy,
       xp
     });
-    
+
     // Save practice session and get the result
     const result: any = await savePracticeMutation.mutateAsync({
       level: currentLevel,
@@ -370,12 +381,12 @@ function ProgressivePracticeContent() {
       xpEarned: xp,
       timeSpent: timeSpent,
     });
-    
+
     console.log("Save session result:", result);
 
     // Refetch profile to update sidebar XP/level display
     await refetchProfile();
-    
+
     // If user leveled up, show sticker animation and continue to next level
     if (result && result.leveledUp) {
       console.log("Level up detected! Result:", result);
@@ -385,7 +396,7 @@ function ProgressivePracticeContent() {
         console.log("Setting showStickerReward to true");
         setShowStickerReward(true);
         setStickerRewards(result.newStickers);
-        
+
         // Auto-continue after showing stickers (give more time to enjoy the animation)
         setTimeout(() => {
           setShowStickerReward(false);
@@ -444,7 +455,14 @@ function ProgressivePracticeContent() {
         <ModernNav />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="text-6xl mb-4 animate-bounce">{userProfile?.selectedMascot || "🐬"}</div>
+            {/* Mascot jump animation is now on the emoji only */}
+            <motion.div
+              className="text-6xl mb-4"
+              animate={{ y: [0, -20, 0] }}
+              transition={{ duration: 1, repeat: Infinity, repeatType: "loop" }}
+            >
+              {userProfile?.selectedMascot || "🐬"}
+            </motion.div>
             <div className="text-2xl font-bold text-green-700">Loading practice session...</div>
           </div>
         </div>
@@ -452,27 +470,23 @@ function ProgressivePracticeContent() {
     );
   }
 
-  // Out of hearts screen
-  // Sticker reward animation screen - Using LootBox component
-  if (showStickerReward && stickerRewards.length > 0) {
-    console.log("Showing LootBox with stickers:", stickerRewards);
-    
+  // LootBox component handles the animation
+  if (showLootBox) {
     return (
       <LootBox
-        stickers={stickerRewards}
+        stickers={earnedStickers}
         onClose={() => {
-          console.log("Closing loot box animation");
-          setShowStickerReward(false);
-          setStickerRewards([]);
-          // Navigate back to practice after animation
-          navigate("/practice");
+          setShowLootBox(false);
+          setEarnedStickers([]);
+          // Proceed to the next question or lesson completion logic if no loot box was shown
+          // If the loot box was triggered by completing a level, this path might need adjustment
+          // For now, assuming it's part of a successful answer progression
+          handleContinue();
         }}
       />
     );
   }
-  
-  // All broken animation code removed - LootBox component handles animation now
-  
+
   if (showOutOfHeartsScreen) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex">
@@ -484,7 +498,7 @@ function ProgressivePracticeContent() {
             <p className="text-xl text-gray-600 mb-6">
               You've run out of hearts. Come back later or wait for them to regenerate.
             </p>
-            
+
             {timeUntilNextHeart && (
               <div className="bg-green-50 rounded-2xl p-4 mb-6">
                 <div className="flex items-center justify-center gap-2 text-green-700">
@@ -494,7 +508,7 @@ function ProgressivePracticeContent() {
                 <p className="text-sm text-gray-600 mt-2">Hearts regenerate 1 per hour</p>
               </div>
             )}
-            
+
             <div className="space-y-3">
               <Button
                 onClick={() => navigate("/")}
@@ -537,7 +551,7 @@ function ProgressivePracticeContent() {
         <ModernNav />
         <div className="flex-1 flex items-center justify-center">
           <div className="bg-white rounded-3xl shadow-xl p-8 text-center max-w-lg">
-            <motion.div 
+            <motion.div
               className="text-6xl mb-6 inline-block"
               animate={{
                 y: [0, -20, 0],
@@ -550,13 +564,13 @@ function ProgressivePracticeContent() {
             <h1 className="text-3xl font-bold text-gray-800 mb-4">
               {passed ? 'Lesson Passed!' : 'Lesson Complete'}
             </h1>
-            
+
             {passed && (
               <div className="bg-green-50 rounded-2xl p-3 mb-4">
                 <p className="text-green-700 font-semibold">Great job! You've mastered this level!</p>
               </div>
             )}
-            
+
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="bg-green-50 rounded-2xl p-4">
                 <div className="text-sm text-gray-600 mb-1">Correct</div>
@@ -567,7 +581,7 @@ function ProgressivePracticeContent() {
                 <div className="text-3xl font-bold text-red-700">{wrongAnswers}</div>
               </div>
             </div>
-            
+
             <div className="space-y-4 mb-6">
               <div className={`${passed ? 'bg-green-100' : 'bg-yellow-100'} rounded-2xl p-4`}>
                 <div className="text-xl font-bold text-gray-700">Accuracy</div>
@@ -575,17 +589,17 @@ function ProgressivePracticeContent() {
                   {Math.round(accuracy)}%
                 </div>
               </div>
-              
+
               <div className="bg-emerald-100 rounded-2xl p-4">
                 <div className="text-xl font-bold text-gray-700">XP Earned</div>
                 <div className="text-3xl font-bold text-emerald-700">+{xp} XP</div>
               </div>
             </div>
-            
+
             <Button
               onClick={handleCompletedLesson}
-              className={`w-full ${passed 
-                ? 'bg-gradient-to-r from-green-400 to-emerald-400 hover:from-green-500 hover:to-emerald-500' 
+              className={`w-full ${passed
+                ? 'bg-gradient-to-r from-green-400 to-emerald-400 hover:from-green-500 hover:to-emerald-500'
                 : 'bg-gradient-to-r from-green-400 to-emerald-400 hover:from-green-500 hover:to-emerald-500'
               } text-white font-bold py-4 text-lg rounded-2xl shadow-lg transform transition hover:scale-105`}
             >
@@ -600,7 +614,7 @@ function ProgressivePracticeContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       <ModernNav />
-      
+
       {/* Main Content Area */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="max-w-2xl mx-auto">
@@ -614,7 +628,7 @@ function ProgressivePracticeContent() {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Levels
             </Button>
-            
+
             {/* Topic Information */}
             <div className="text-center">
               <h2 className="text-lg font-bold text-gray-800">
@@ -624,12 +638,12 @@ function ProgressivePracticeContent() {
                 HSK {getLevelInfo(currentLevel)?.hskLevel || Math.ceil(currentLevel / 10)}
               </p>
             </div>
-            
+
             <div className="w-24"></div> {/* Spacer for centering */}
           </div>
-          
 
-          
+
+
           {/* Top Header with Hearts and Progress */}
           <div className="bg-white rounded-2xl shadow-md p-4 mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -648,11 +662,11 @@ function ProgressivePracticeContent() {
                 </div>
               )}
             </div>
-            
+
             {/* Progress Bar */}
             <div className="flex-1 max-w-xs mx-4">
               <div className="bg-gray-200 rounded-full h-3 relative overflow-hidden">
-                <div 
+                <div
                   className="bg-gradient-to-r from-green-400 to-green-500 h-full rounded-full transition-all duration-500"
                   style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
                 />
@@ -661,7 +675,7 @@ function ProgressivePracticeContent() {
                 {currentQuestionIndex + 1} / {questions.length}
               </p>
             </div>
-            
+
             <Button
               onClick={() => navigate("/")}
               variant="ghost"
@@ -673,10 +687,10 @@ function ProgressivePracticeContent() {
 
           <div className="bg-white rounded-3xl shadow-xl p-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">{currentQ.question}</h2>
-            
+
             {currentQ.type === "multiple-choice" && (
               <div className="text-center mb-8">
-                <div 
+                <div
                   className="text-6xl font-bold text-gray-900 mb-4 p-8 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl inline-block cursor-pointer hover:bg-gradient-to-br hover:from-green-200 hover:to-emerald-200 transition-all duration-200"
                   onMouseEnter={() => speakChineseWithDelay(currentQ.chinese, 150)}
                   onMouseLeave={() => {
@@ -691,7 +705,7 @@ function ProgressivePracticeContent() {
                 </div>
               </div>
             )}
-            
+
             {currentQ.type === "translation" && (
               <div className="text-center mb-8">
                 <div className="text-3xl font-semibold text-gray-700 p-6 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl">
@@ -699,7 +713,7 @@ function ProgressivePracticeContent() {
                 </div>
               </div>
             )}
-            
+
             {/* Answer Options */}
             <div className="grid grid-cols-2 gap-4 mb-6">
               {currentQ.options?.map((option, index) => {
@@ -745,7 +759,7 @@ function ProgressivePracticeContent() {
                 );
               })}
             </div>
-            
+
             {/* Feedback Section */}
             {showFeedback && (
               <div className={`p-6 rounded-2xl mb-6 ${isCorrect ? 'bg-green-50 border-2 border-green-200' : 'bg-red-50 border-2 border-red-200'}`}>
@@ -753,7 +767,7 @@ function ProgressivePracticeContent() {
                   <p className={`font-bold text-xl mb-4 ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
                     {isCorrect ? '✅ Correct!' : '❌ Not quite!'}
                   </p>
-                  
+
                   {!isCorrect && selectedAnswer && (
                     <div className="bg-white rounded-xl p-4 shadow-sm border">
                       <div className="text-center">
@@ -803,7 +817,7 @@ function ProgressivePracticeContent() {
                       </div>
                     </div>
                   )}
-                  
+
                   {isCorrect && (
                     <div className="bg-white rounded-xl p-4 shadow-sm border">
                       <div className="text-4xl font-bold text-gray-800 mb-2">{currentQ.chinese}</div>
@@ -811,7 +825,7 @@ function ProgressivePracticeContent() {
                       <div className="text-lg text-gray-700">{currentQ.english}</div>
                     </div>
                   )}
-                  
+
                   {!isCorrect && (
                     <div className="mt-4 p-3 bg-red-100 rounded-lg">
                       <p className="text-red-700 font-medium">
@@ -819,7 +833,7 @@ function ProgressivePracticeContent() {
                       </p>
                     </div>
                   )}
-                  
+
                   {isCorrect && (
                     <div className="mt-4 p-3 bg-green-100 rounded-lg">
                       <p className="text-green-700 font-medium">
@@ -830,7 +844,7 @@ function ProgressivePracticeContent() {
                 </div>
               </div>
             )}
-            
+
             {/* Continue Button */}
             {showFeedback && (
               <Button
@@ -838,8 +852,8 @@ function ProgressivePracticeContent() {
                 onClick={handleContinue}
                 className={`
                   w-full py-4 text-lg font-bold rounded-2xl shadow-lg transform transition hover:scale-105
-                  ${isCorrect 
-                    ? 'bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 text-white' 
+                  ${isCorrect
+                    ? 'bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 text-white'
                     : 'bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white'
                   }
                 `}
@@ -847,7 +861,7 @@ function ProgressivePracticeContent() {
                 {isCorrect ? 'Continue' : 'Try Again'}
               </Button>
             )}
-            
+
             {/* Difficulty Option - Show after 3 wrong attempts */}
             {showDifficultyOption && !isCorrect && showFeedback && currentLevel > 1 && (
               <div className="mt-4 text-center">
@@ -861,7 +875,7 @@ function ProgressivePracticeContent() {
               </div>
             )}
           </div>
-          
+
           {/* HSK Level Progress Bar - Moved to Bottom */}
           {userProfile && userProfile.level && (
             <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl shadow-sm border border-blue-200 p-4 mb-4 mt-6">
@@ -875,7 +889,7 @@ function ProgressivePracticeContent() {
                   </h4>
                 </div>
               </div>
-              
+
               {(() => {
                 const level = userProfile.level;
                 const currentHSK = Math.ceil(level / 10);
@@ -885,7 +899,7 @@ function ProgressivePracticeContent() {
                 const levelsInHSK = level - hskStartLevel + 1;
                 const progressPercent = (levelsInHSK / 10) * 100;
                 const levelsToNextHSK = hskEndLevel - level;
-                
+
                 return (
                   <div className="space-y-3">
                     <div className="bg-white/80 rounded-lg p-3">
@@ -912,10 +926,10 @@ function ProgressivePracticeContent() {
                           )}
                         </div>
                       </div>
-                      
+
                       {/* HSK Progress Bar */}
                       <div className="relative h-8 bg-gray-200 rounded-full overflow-hidden">
-                        <div 
+                        <div
                           className="absolute h-full bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full transition-all duration-500 ease-out"
                           style={{ width: `${Math.max(5, progressPercent)}%` }}
                         >
@@ -933,14 +947,14 @@ function ProgressivePracticeContent() {
                           <span className="text-xs font-medium text-gray-600">Level {hskEndLevel}</span>
                         </div>
                       </div>
-                      
+
                       <p className="text-xs text-gray-600 mt-2 text-center">
-                        {currentHSK < 6 
+                        {currentHSK < 6
                           ? `Complete ${10 - levelsInHSK + 1} more levels to reach HSK ${nextHSK}`
                           : "You've reached the highest HSK level!"}
                       </p>
                     </div>
-                    
+
                     <div className="flex flex-wrap gap-2 text-xs">
                       <span className="bg-white px-2 py-1 rounded-full">HSK 1-2: Beginner</span>
                       <span className="bg-white px-2 py-1 rounded-full">HSK 3-4: Intermediate</span>
@@ -951,7 +965,7 @@ function ProgressivePracticeContent() {
               })()}
             </div>
           )}
-          
+
           {/* Sticker Rewards Progress Bar - Moved to Bottom */}
           {userProfile && userProfile.level && (
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-sm border border-purple-200 p-4 mb-4">
@@ -968,16 +982,16 @@ function ProgressivePracticeContent() {
                   </div>
                 </div>
               </div>
-              
+
               {(() => {
                 const level = userProfile.level;
                 const nextLevel = level + 1; // Every level gives a sticker box now
-                
+
                 // Default: next level gives a sticker box
                 let nextReward = nextLevel;
                 let rewardType = "sticker box (1-3 random stickers)";
                 let rewardIcon = "🎁";
-                
+
                 // Check for special rewards
                 if (nextLevel % 25 === 0) {
                   rewardType = "special box (2-4 stickers, better odds!)";
@@ -986,10 +1000,10 @@ function ProgressivePracticeContent() {
                   rewardType = "bonus box (better odds!)";
                   rewardIcon = "🎁🎁";
                 }
-                
+
                 const currentXP = userProfile.xp % 100;
                 const progressPercent = currentXP; // XP is already 0-100
-                
+
                 return (
                   <div className="space-y-3">
                     <div className="bg-white/80 rounded-lg p-3">
@@ -1005,10 +1019,10 @@ function ProgressivePracticeContent() {
                           <span className="text-lg font-bold text-purple-700">{currentXP}/100</span>
                         </div>
                       </div>
-                      
+
                       {/* Progress Bar */}
                       <div className="relative h-8 bg-gray-200 rounded-full overflow-hidden">
-                        <div 
+                        <div
                           className="absolute h-full bg-gradient-to-r from-purple-400 to-purple-600 rounded-full transition-all duration-500 ease-out"
                           style={{ width: `${Math.max(5, progressPercent)}%` }}
                         >
@@ -1026,12 +1040,12 @@ function ProgressivePracticeContent() {
                           <span className="text-xs font-medium text-gray-600">100 XP</span>
                         </div>
                       </div>
-                      
+
                       <p className="text-xs text-gray-600 mt-2 text-center">
                         Next level up: {rewardType}
                       </p>
                     </div>
-                    
+
                     <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-2 text-xs">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-semibold text-purple-800">🎁 Every level = 1 sticker box!</span>
