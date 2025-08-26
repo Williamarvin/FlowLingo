@@ -444,13 +444,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         email,
         password: hashedPassword,
         username: username || email.split('@')[0],
-        authMethod: 'email',
-        emailVerified: false,
-        level: 1,
-        xp: 0,
-        xpToNextLevel: 100,
-        hearts: 5,
-        maxHearts: 5,
+        authMethod: 'email'
       });
       
       // Create session
@@ -871,11 +865,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           email,
           username,
           password: null, // No password for Google users
-          level: 1,
-          xp: 0,
-          hearts: 5,
-          streak: 0,
-          lastActive: new Date()
+          authMethod: 'google'
         });
         
         // Initialize user stats
