@@ -720,26 +720,30 @@ export default function Home() {
                               </div>
                             </div>
                             
-                            {/* Progress Bar */}
-                            <div className="space-y-1">
-                              <div className="relative h-8 bg-gray-200 rounded-full overflow-hidden">
+                            {/* Progress Bar with percentage above */}
+                            <div className="space-y-2">
+                              {/* Percentage display above progress bar */}
+                              <div className="flex justify-end">
+                                <span className="text-sm font-bold text-purple-600">
+                                  {Math.round(progressPercent)}% Complete
+                                </span>
+                              </div>
+                              
+                              {/* Clean progress bar without any text inside */}
+                              <div className="relative h-6 bg-gray-200 rounded-full overflow-hidden">
                                 <div 
                                   className="absolute h-full bg-gradient-to-r from-purple-400 to-purple-600 rounded-full transition-all duration-500 ease-out"
                                   style={{ width: `${Math.max(5, progressPercent)}%` }}
-                                >
-                                  <div className="h-full flex items-center justify-end pr-3">
-                                    {progressPercent > 10 && (
-                                      <span className="text-sm text-white font-bold drop-shadow-sm">
-                                        {Math.round(progressPercent)}%
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
+                                />
                               </div>
-                              {/* XP markers - moved outside the progress bar */}
-                              <div className="flex items-center justify-between px-1">
-                                <span className="text-xs font-medium text-gray-500">0 XP</span>
-                                <span className="text-xs font-medium text-gray-500">{progressPercent < 85 && "100 XP"}</span>
+                              
+                              {/* XP scale markers below */}
+                              <div className="flex items-center justify-between text-xs text-gray-500">
+                                <span>0</span>
+                                <span>25</span>
+                                <span>50</span>
+                                <span>75</span>
+                                <span>100</span>
                               </div>
                             </div>
                             
