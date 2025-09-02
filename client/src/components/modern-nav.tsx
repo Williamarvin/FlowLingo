@@ -139,8 +139,8 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
     },
     {
       id: "tools",
-      label: "Tools", 
-      icon: "🛠️",
+      label: "Resources", 
+      icon: "📚",
       items: [
         { path: "/text-generator", label: "Text Generator", icon: "📝" },
         { path: "/media-reader", label: "Media Reader", icon: "📱" },
