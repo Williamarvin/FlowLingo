@@ -119,11 +119,10 @@ export default function Sidebar({ currentPage }: SidebarProps) {
         
         {/* Compact Stats Row */}
         <div className="flex items-center justify-between">
-          {/* Streak */}
+          {/* Mascot */}
           <div className="flex items-center gap-1 bg-green-800/30 px-2 py-1 rounded-lg border border-green-400/20">
-            <span className="text-yellow-300">🔥</span>
-            <span className="text-sm font-bold text-green-100">{streak}</span>
-            <span className="text-xs text-green-200/70">day{streak !== 1 ? 's' : ''}</span>
+            <span className="text-2xl">{rewardProfile?.currentMascot || "🐬"}</span>
+            <span className="text-xs text-green-200/70">Mascot</span>
           </div>
           
           {/* Hearts */}
