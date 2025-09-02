@@ -203,7 +203,7 @@ export class DatabaseStorage implements IStorageExtended {
     return updatedUser;
   }
 
-  async addXpToUser(userId: string, xp: number): Promise<User | undefined> {
+  async addXpToUser(userId: string, xp: number): Promise<{ user: User; leveledUp: boolean; newStickers: any[]; oldLevel: number; newLevel: number } | undefined> {
     const { getDB } = await import("./db-helper");
     const { db } = await getDB();
     const { users } = await import("@shared/schema");
@@ -216,14 +216,33 @@ export class DatabaseStorage implements IStorageExtended {
     let newLevel = user.level;
     let newXpToNextLevel = user.xpToNextLevel;
     const oldLevel = user.level;
+    let leveledUp = false;
+    let newStickers: any[] = [];
     
     // Check for level up
     if (newXp >= user.xpToNextLevel) {
       newLevel = user.level + 1;
-      newXpToNextLevel = user.xpToNextLevel + (50 * newLevel); // Progressive XP requirement
+      leveledUp = true;
       
-      // Award stickers for level milestones
-      await this.awardLevelUpStickers(userId, oldLevel, newLevel);
+      // Progressive XP requirement - easier early levels, exponentially harder later
+      let xpRequiredForNextLevel;
+      if (newLevel <= 5) {
+        // Early levels: 100 XP each (10 questions)
+        xpRequiredForNextLevel = 100;
+      } else if (newLevel <= 15) {
+        // Medium levels: grows by 50 XP per level
+        xpRequiredForNextLevel = 100 + (newLevel - 5) * 50;
+      } else {
+        // Hard levels: exponential growth
+        const baseXp = 600; // Level 15 requires 600 XP
+        const exponentialFactor = Math.pow(1.3, newLevel - 15);
+        xpRequiredForNextLevel = Math.floor(baseXp * exponentialFactor);
+      }
+      
+      newXpToNextLevel = newXp + xpRequiredForNextLevel;
+      
+      // Award stickers for level milestones and get the stickers awarded
+      newStickers = await this.awardLevelUpStickersAndReturn(userId, oldLevel, newLevel);
     }
     
     const [updatedUser] = await db.update(users)
@@ -236,7 +255,13 @@ export class DatabaseStorage implements IStorageExtended {
       .where(eq(users.id, userId))
       .returning();
       
-    return updatedUser;
+    return { 
+      user: updatedUser, 
+      leveledUp, 
+      newStickers, 
+      oldLevel, 
+      newLevel 
+    };
   }
 
   async updateUserPassword(userId: string, hashedPassword: string): Promise<User | undefined> {
@@ -758,6 +783,72 @@ export class DatabaseStorage implements IStorageExtended {
         console.error(`Error awarding sticker ${stickerId}:`, error);
       }
     }
+  }
+
+  async awardLevelUpStickersAndReturn(userId: string, oldLevel: number, newLevel: number): Promise<any[]> {
+    const stickerCatalog = await import("./stickerSystem");
+    
+    const stickersToAward: string[] = [];
+    const awardedStickers: any[] = [];
+    
+    // Check each level between old and new (in case of multiple level-ups)
+    for (let level = oldLevel + 1; level <= newLevel; level++) {
+      // Every level gets a sticker box with 1-3 stickers based on random chance
+      const numberOfStickers = this.rollNumberOfStickers(level);
+      
+      console.log(`Level ${level} reached! Opening sticker box with ${numberOfStickers} sticker(s) for API response`);
+      
+      for (let i = 0; i < numberOfStickers; i++) {
+        // Roll for rarity based on probability
+        const roll = Math.random() * 100;
+        let selectedRarity: string;
+        
+        // Standard probability distribution
+        if (roll < 50) selectedRarity = 'common';        // 50% chance
+        else if (roll < 80) selectedRarity = 'uncommon'; // 30% chance  
+        else if (roll < 93) selectedRarity = 'rare';     // 13% chance
+        else if (roll < 99) selectedRarity = 'epic';     // 6% chance
+        else selectedRarity = 'legendary';               // 1% chance
+        
+        // Special bonus chances for milestone levels
+        if (level % 25 === 0) { // Every 25 levels
+          // Better odds for rare+ stickers
+          const bonusRoll = Math.random() * 100;
+          if (bonusRoll < 20) selectedRarity = 'uncommon';
+          else if (bonusRoll < 50) selectedRarity = 'rare';
+          else if (bonusRoll < 80) selectedRarity = 'epic';
+          else selectedRarity = 'legendary';
+        } else if (level % 10 === 0) { // Every 10 levels
+          // Slightly better odds
+          const bonusRoll = Math.random() * 100;
+          if (bonusRoll < 40) selectedRarity = 'common';
+          else if (bonusRoll < 70) selectedRarity = 'uncommon';
+          else if (bonusRoll < 87) selectedRarity = 'rare';
+          else if (bonusRoll < 96) selectedRarity = 'epic';
+          else selectedRarity = 'legendary';
+        }
+        
+        const stickersOfRarity = stickerCatalog.ANIMAL_STICKERS.filter(s => s.rarity === selectedRarity);
+        const randomSticker = stickersOfRarity[Math.floor(Math.random() * stickersOfRarity.length)];
+        stickersToAward.push(randomSticker.id);
+      }
+    }
+    
+    // Award all the stickers and collect the sticker info
+    for (const stickerId of stickersToAward) {
+      try {
+        await this.awardSticker(userId, stickerId);
+        const stickerInfo = stickerCatalog.ANIMAL_STICKERS.find(s => s.id === stickerId);
+        if (stickerInfo) {
+          awardedStickers.push(stickerInfo);
+          console.log(`Awarded sticker: ${stickerInfo.name} (${stickerInfo.rarity})`);
+        }
+      } catch (error) {
+        console.error(`Error awarding sticker ${stickerId}:`, error);
+      }
+    }
+    
+    return awardedStickers;
   }
   
   // Helper function to determine number of stickers in the box

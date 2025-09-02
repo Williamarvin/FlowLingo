@@ -2624,13 +2624,12 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       const userId = req.userId;
       
       // Add XP to user
-      await storage.addXpToUser(userId, xpEarned);
+      const xpResult = await storage.addXpToUser(userId, xpEarned);
       
       // Update statistics
-      const user = await storage.getUser(userId);
-      if (user) {
+      if (xpResult) {
         await storage.updateUserProgress(userId, {
-          lessonsCompleted: user.lessonsCompleted + 1
+          lessonsCompleted: xpResult.user.lessonsCompleted + 1
         });
       }
       
@@ -2650,69 +2649,24 @@ Create substantially more comprehensive responses with extensive vocabulary prac
       // Import sticker system functions
       const { generateLootBoxContents, ANIMAL_STICKERS } = await import("./stickerSystem");
       
-      // Get user's level before awarding XP
-      const userBeforeXP = await storage.getUser(userId);
-      const levelBefore = userBeforeXP?.level || 1;
+      // Award XP to user and get level-up information
+      const xpResult = await storage.addXpToUser(userId, xpEarned);
       
-      // Award XP to user
-      const updatedUser = await storage.addXpToUser(userId, xpEarned);
-      
-      if (!updatedUser) {
+      if (!xpResult) {
         throw new Error("User not found");
       }
       
-      // Check if user leveled up from the XP gain (regardless of which practice level they're on)
-      let newLevel = updatedUser.level;
+      const { user: updatedUser, leveledUp, newStickers, oldLevel, newLevel } = xpResult;
       let earnedReward = null;
-      let newStickers: any[] = [];
-      
-      // User leveled up if their new level is higher than before
-      const leveledUp = newLevel > levelBefore;
       
       if (leveledUp) {
         // User reached a new global level!
-        console.log(`User leveled up from ${levelBefore} to ${newLevel}!`);
+        console.log(`User leveled up from ${oldLevel} to ${newLevel}!`);
         
         // Update lessons completed count
         await storage.updateUserProgress(userId, {
           lessonsCompleted: updatedUser.lessonsCompleted + 1
         });
-        
-        // Check if this is a debug level up (should get legendary sticker)
-        const globalWithDebug = global as any;
-        const isDebugLevelUp = globalWithDebug.debugLevelUpUsers && globalWithDebug.debugLevelUpUsers.has(userId);
-        
-        // Award sticker box for leveling up
-        let lootBoxContents;
-        if (isDebugLevelUp) {
-          // For debug level ups, guarantee a legendary sticker (excluding 0 probability ones like Flow Dolphin)
-          const legendaryStickers = ANIMAL_STICKERS.filter(s => 
-            s.rarity === 'legendary' && s.probability > 0
-          );
-          const randomLegendary = legendaryStickers[Math.floor(Math.random() * legendaryStickers.length)];
-          lootBoxContents = [randomLegendary.id];
-          console.log(`DEBUG Level ${newLevel} reached! Awarding legendary sticker: ${randomLegendary.name}`);
-          
-          // Clear the debug flag
-          globalWithDebug.debugLevelUpUsers.delete(userId);
-        } else {
-          // Normal level up sticker generation
-          lootBoxContents = generateLootBoxContents(newLevel);
-          console.log(`Level ${newLevel} reached! Opening sticker box with ${lootBoxContents.length} sticker(s)`);
-        }
-        
-        // Grant each sticker to the user
-        for (const stickerId of lootBoxContents) {
-          try {
-            await storage.awardSticker(userId, stickerId);
-            const stickerInfo = ANIMAL_STICKERS.find(s => s.id === stickerId);
-            if (stickerInfo) {
-              newStickers.push(stickerInfo);
-            }
-          } catch (error) {
-            console.error(`Error granting sticker ${stickerId}:`, error);
-          }
-        }
         
         // Check if there's a reward for completing this level
         if (storage.getAllRewards && storage.grantReward) {
@@ -2757,8 +2711,8 @@ Create substantially more comprehensive responses with extensive vocabulary prac
         success: true, 
         xpEarned,
         newLevel,
-        leveledUp: leveledUp, // Use the actual leveledUp flag based on global level change
-        newStickers: newStickers, // Include the new stickers
+        leveledUp, 
+        newStickers, 
         earnedReward,
         userProfile: {
           level: newLevel,
