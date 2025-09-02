@@ -91,6 +91,23 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
     },
   });
 
+  // State for expandable menus (desktop only)
+  const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
+
+  // Close expanded menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (expandedMenu && !(event.target as Element).closest('[data-nav-dropdown]')) {
+        setExpandedMenu(null);
+      }
+    };
+    
+    if (expandedMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [expandedMenu]);
+  
   const navTabs = [
     { path: "/levels", label: "Levels", icon: "🗺️" },
     { path: "/practice", label: "Practice", icon: "🎯" },
@@ -98,6 +115,37 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
     { path: "/flashcards", label: "Flashcards", icon: "📚" },
     { path: "/text-generator", label: "Texts", icon: "📝" },
     { path: "/media-reader", label: "Media", icon: "📱" },
+  ];
+
+  // Grouped navigation for desktop expandable menus
+  const navGroups = [
+    {
+      id: "quest",
+      label: "Quest",
+      icon: "🎯",
+      items: [
+        { path: "/levels", label: "Levels", icon: "🗺️" },
+        { path: "/practice", label: "Practice", icon: "🎯" },
+        { path: "/flashcards", label: "Flashcards", icon: "📚" },
+      ]
+    },
+    {
+      id: "conversation", 
+      label: "Conversation",
+      icon: "💬",
+      items: [
+        { path: "/ai-conversation", label: "AI Chat", icon: "💬" },
+      ]
+    },
+    {
+      id: "tools",
+      label: "Tools", 
+      icon: "🛠️",
+      items: [
+        { path: "/text-generator", label: "Text Generator", icon: "📝" },
+        { path: "/media-reader", label: "Media Reader", icon: "📱" },
+      ]
+    }
   ];
 
   return (
@@ -116,25 +164,55 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
               </div>
             </Link>
 
-            {/* Center Navigation - Desktop */}
-            <div className="hidden lg:flex items-center gap-3 bg-gray-50 rounded-full p-2 shadow-sm border border-gray-200">
-              {navTabs.map((tab, index) => (
-                <Link key={tab.path} href={tab.path}>
-                  <button
-                    className={`
-                      px-6 py-3 text-sm font-medium transition-all duration-200 rounded-full
-                      flex items-center gap-2 whitespace-nowrap
-                      ${location === tab.path 
-                        ? 'text-white bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg scale-105' 
-                        : 'text-gray-700 hover:text-gray-900 hover:bg-white hover:shadow-md hover:scale-105'
-                      }
-                    `}
-                  >
-                    <span className="text-lg">{tab.icon}</span>
-                    <span className="font-medium">{tab.label}</span>
-                  </button>
-                </Link>
-              ))}
+            {/* Center Navigation - Desktop with Expandable Menus */}
+            <div className="hidden lg:flex items-center gap-3 bg-gray-50 rounded-full p-2 shadow-sm border border-gray-200 relative">
+              {navGroups.map((group) => {
+                const isExpanded = expandedMenu === group.id;
+                const hasActiveItem = group.items.some(item => location === item.path);
+                
+                return (
+                  <div key={group.id} className="relative" data-nav-dropdown>
+                    <button
+                      onClick={() => setExpandedMenu(isExpanded ? null : group.id)}
+                      className={`
+                        px-6 py-3 text-sm font-medium transition-all duration-200 rounded-full
+                        flex items-center gap-2 whitespace-nowrap
+                        ${hasActiveItem 
+                          ? 'text-white bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg' 
+                          : 'text-gray-700 hover:text-gray-900 hover:bg-white hover:shadow-md'
+                        }
+                      `}
+                    >
+                      <span className="text-lg">{group.icon}</span>
+                      <span className="font-medium">{group.label}</span>
+                      <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+                    </button>
+                    
+                    {/* Dropdown Menu */}
+                    {isExpanded && (
+                      <div className="absolute top-full left-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-200 py-2 min-w-[200px] z-50">
+                        {group.items.map((item) => (
+                          <Link key={item.path} href={item.path}>
+                            <button
+                              onClick={() => setExpandedMenu(null)}
+                              className={`
+                                w-full px-4 py-3 text-left rounded-lg mx-2 transition-colors flex items-center gap-3
+                                ${location === item.path 
+                                  ? 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 font-medium' 
+                                  : 'text-gray-600 hover:bg-gray-50'
+                                }
+                              `}
+                            >
+                              <span className="text-lg">{item.icon}</span>
+                              <span>{item.label}</span>
+                            </button>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             {/* Right Side - Hearts, Mascot & Profile */}
