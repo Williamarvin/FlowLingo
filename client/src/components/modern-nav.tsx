@@ -215,8 +215,15 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
               })}
             </div>
 
-            {/* Right Side - Hearts, Mascot & Profile */}
+            {/* Right Side - Mascot, Hearts & Profile */}
             <div className="flex items-center gap-4">
+              {/* User Mascot */}
+              <Link href="/rewards">
+                <div className="text-3xl cursor-pointer hover:scale-110 transition-transform">
+                  {userProfile?.selectedMascot || '🐬'}
+                </div>
+              </Link>
+
               {/* Hearts Display */}
               <div className="flex items-center gap-2 bg-red-50 px-3 py-2 rounded-full border border-red-200">
                 <div className="flex items-center gap-0.5">
@@ -233,13 +240,6 @@ export default function ModernNav({ currentPage }: ModernNavProps) {
                   </div>
                 )}
               </div>
-
-              {/* User Mascot */}
-              <Link href="/rewards">
-                <div className="text-3xl cursor-pointer hover:scale-110 transition-transform">
-                  {userProfile?.selectedMascot || '🐬'}
-                </div>
-              </Link>
 
               {/* Profile Menu */}
               <div className="relative">
