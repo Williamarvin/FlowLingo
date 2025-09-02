@@ -57,7 +57,7 @@ export default function Navigation() {
             <div className="relative">
               <button 
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="w-10 h-10 rounded-xl bg-white border-2 border-brand-primary hover:bg-brand-primary hover:text-white text-brand-primary transition-all duration-200 flex items-center justify-center shadow-md"
+                className="w-10 h-10 rounded-xl hover:bg-brand-primary hover:text-white text-brand-primary transition-all duration-200 flex items-center justify-center"
               >
                 <svg 
                   className="w-5 h-5" 
