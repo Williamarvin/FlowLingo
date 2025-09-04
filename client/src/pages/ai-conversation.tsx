@@ -883,9 +883,5 @@ function AiConversationContent() {
   );
 }
 export default function AiConversation() {
-  return (
-    <ProtectedRoute>
-      <AiConversationContent />
-    </ProtectedRoute>
-  );
+  return <AiConversationContent />;
 }

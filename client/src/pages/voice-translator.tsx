@@ -308,9 +308,5 @@ function VoiceTranslatorContent() {
   );
 }
 export default function VoiceTranslator() {
-  return (
-    <ProtectedRoute>
-      <VoiceTranslatorContent />
-    </ProtectedRoute>
-  );
+  return <VoiceTranslatorContent />;
 }

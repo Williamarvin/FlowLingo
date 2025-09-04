@@ -10,8 +10,8 @@ import {
 
 export function registerRewardsRoutes(app: Express) {
   // Get user's reward profile (stats and current mascot)
-  app.get("/api/rewards/profile", requireAuth, async (req: any, res) => {
-    const userId = req.userId;
+  app.get("/api/rewards/profile", async (req: any, res) => {
+    const userId = "guest-user"; // Default user since authentication is removed
     
     try {
       const profile = await storage.getUserRewardProfile(userId);
@@ -23,8 +23,8 @@ export function registerRewardsRoutes(app: Express) {
   });
   
   // Get all rewards with user's earned status
-  app.get("/api/rewards", requireAuth, async (req: any, res) => {
-    const userId = req.userId;
+  app.get("/api/rewards", async (req: any, res) => {
+    const userId = "guest-user"; // Default user since authentication is removed
     
     try {
       const rewards = await storage.getRewardsWithUserStatus(userId);
@@ -36,8 +36,8 @@ export function registerRewardsRoutes(app: Express) {
   });
   
   // Change user's mascot
-  app.post("/api/rewards/change-mascot", requireAuth, async (req: any, res) => {
-    const userId = req.userId;
+  app.post("/api/rewards/change-mascot", async (req: any, res) => {
+    const userId = "guest-user"; // Default user since authentication is removed
     const { mascot } = req.body;
     
     if (!mascot) {
@@ -75,8 +75,8 @@ export function registerRewardsRoutes(app: Express) {
   });
   
   // Update mascot name
-  app.post("/api/rewards/update-mascot-name", requireAuth, async (req: any, res) => {
-    const userId = req.userId;
+  app.post("/api/rewards/update-mascot-name", async (req: any, res) => {
+    const userId = "guest-user"; // Default user since authentication is removed
     const { mascotName } = req.body;
     
     if (!mascotName || mascotName.trim().length === 0) {
@@ -98,8 +98,8 @@ export function registerRewardsRoutes(app: Express) {
   });
   
   // Mark rewards as seen (remove NEW badge)
-  app.post("/api/rewards/mark-seen", requireAuth, async (req: any, res) => {
-    const userId = req.userId;
+  app.post("/api/rewards/mark-seen", async (req: any, res) => {
+    const userId = "guest-user"; // Default user since authentication is removed
     
     try {
       await storage.markRewardsAsSeen(userId);
@@ -111,8 +111,8 @@ export function registerRewardsRoutes(app: Express) {
   });
   
   // Grant reward to user (internal use for when level is completed)
-  app.post("/api/rewards/grant", requireAuth, async (req: any, res) => {
-    const userId = req.userId;
+  app.post("/api/rewards/grant", async (req: any, res) => {
+    const userId = "guest-user"; // Default user since authentication is removed
     const { rewardId } = req.body;
     
     if (!rewardId) {
@@ -129,8 +129,8 @@ export function registerRewardsRoutes(app: Express) {
   });
   
   // Add XP to user from various activities
-  app.post("/api/xp/add", requireAuth, async (req: any, res) => {
-    const userId = req.userId;
+  app.post("/api/xp/add", async (req: any, res) => {
+    const userId = "guest-user"; // Default user since authentication is removed
     const { amount, source, sourceId, description } = req.body;
     
     if (!amount || !source) {
@@ -147,9 +147,9 @@ export function registerRewardsRoutes(app: Express) {
   });
 
   // Get all available animal stickers with probabilities
-  app.get("/api/stickers/catalog", requireAuth, async (req: any, res) => {
+  app.get("/api/stickers/catalog", async (req: any, res) => {
     try {
-      const userId = req.userId;
+      const userId = "guest-user"; // Default user since authentication is removed
       const userStickers = await storage.getUserStickers(userId);
       
       const catalog = ANIMAL_STICKERS.map(sticker => ({
@@ -166,8 +166,8 @@ export function registerRewardsRoutes(app: Express) {
   });
 
   // Open a loot box and get random stickers
-  app.post("/api/stickers/open-lootbox", requireAuth, async (req: any, res) => {
-    const userId = req.userId;
+  app.post("/api/stickers/open-lootbox", async (req: any, res) => {
+    const userId = "guest-user"; // Default user since authentication is removed
     const { event = 'manual_open' } = req.body;
     
     try {
@@ -205,8 +205,8 @@ export function registerRewardsRoutes(app: Express) {
   });
 
   // Get user's collected stickers
-  app.get("/api/stickers/collection", requireAuth, async (req: any, res) => {
-    const userId = req.userId;
+  app.get("/api/stickers/collection", async (req: any, res) => {
+    const userId = "guest-user"; // Default user since authentication is removed
     
     try {
       const stickers = await storage.getUserStickers(userId);
@@ -218,8 +218,8 @@ export function registerRewardsRoutes(app: Express) {
   });
 
   // Update mascot name
-  app.post("/api/rewards/update-mascot-name", requireAuth, async (req: any, res) => {
-    const userId = req.userId;
+  app.post("/api/rewards/update-mascot-name", async (req: any, res) => {
+    const userId = "guest-user"; // Default user since authentication is removed
     const { mascotName } = req.body;
     
     if (!mascotName || typeof mascotName !== 'string') {

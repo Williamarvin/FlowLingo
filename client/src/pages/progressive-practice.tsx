@@ -1069,9 +1069,5 @@ function ProgressivePracticeContent() {
   );
 }
 export default function ProgressivePractice() {
-  return (
-    <ProtectedRoute>
-      <ProgressivePracticeContent />
-    </ProtectedRoute>
-  );
+  return <ProgressivePracticeContent />;
 }

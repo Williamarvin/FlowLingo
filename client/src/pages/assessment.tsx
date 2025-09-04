@@ -349,9 +349,5 @@ function AssessmentContent() {
 }
 
 export default function Assessment() {
-  return (
-    <ProtectedRoute>
-      <AssessmentContent />
-    </ProtectedRoute>
-  );
+  return <AssessmentContent />;
 }

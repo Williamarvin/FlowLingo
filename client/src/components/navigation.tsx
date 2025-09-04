@@ -105,17 +105,6 @@ export default function Navigation() {
                   >
                     <i className="fas fa-heart mr-2"></i>Favorites
                   </button>
-                  <hr className="my-1" />
-                  <button 
-                    onClick={() => {
-                      localStorage.clear();
-                      sessionStorage.clear();
-                      window.location.href = '/';
-                    }}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                  >
-                    <i className="fas fa-sign-out-alt mr-2"></i>Sign Out
-                  </button>
                 </div>
               )}
             </div>

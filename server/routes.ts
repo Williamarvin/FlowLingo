@@ -918,9 +918,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ message: "Logged out successfully" });
   });
   
-  app.get("/api/auth/me", requireAuth, async (req: any, res) => {
+  app.get("/api/auth/me", async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.userId);
+      const user = await storage.getUser("guest-user"); // Default user since authentication is removed
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
@@ -932,7 +932,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Text generation endpoint - optimized for speed
-  app.post("/api/generate-text", requireAuth, async (req: any, res) => {
+  app.post("/api/generate-text", async (req: any, res) => {
     try {
       const { topic, difficulty, length } = req.body;
       
@@ -2477,9 +2477,9 @@ Create substantially more comprehensive responses with extensive vocabulary prac
   });
   
   // Get all practice progress for level selection
-  app.get("/api/practice/all-progress", requireAuth, async (req: any, res) => {
+  app.get("/api/practice/all-progress", async (req: any, res) => {
     try {
-      const userId = req.userId;
+      const userId = "guest-user"; // Default user since authentication is removed
       
       // For now, return empty progress (would be fetched from database in production)
       const progressByLevel: Record<number, any> = {};
@@ -2507,10 +2507,10 @@ Create substantially more comprehensive responses with extensive vocabulary prac
   });
 
   // Get practice progress for a specific level
-  app.get("/api/practice/progress/:level", requireAuth, async (req: any, res) => {
+  app.get("/api/practice/progress/:level", async (req: any, res) => {
     try {
       const level = parseInt(req.params.level);
-      const userId = req.userId;
+      const userId = "guest-user"; // Default user since authentication is removed
       
       const progress = await storage.getPracticeProgress(userId, level);
       
@@ -2527,10 +2527,10 @@ Create substantially more comprehensive responses with extensive vocabulary prac
   });
 
   // Save practice progress after each question
-  app.post("/api/practice/progress/:level", requireAuth, async (req: any, res) => {
+  app.post("/api/practice/progress/:level", async (req: any, res) => {
     try {
       const level = parseInt(req.params.level);
-      const userId = req.userId;
+      const userId = "guest-user"; // Default user since authentication is removed
       const progress = req.body;
       
       const savedProgress = await storage.savePracticeProgress(userId, level, progress);
@@ -2601,10 +2601,10 @@ Create substantially more comprehensive responses with extensive vocabulary prac
   });
 
   // Level up endpoint for auto-advancement
-  app.post("/api/user/level-up", requireAuth, async (req: any, res) => {
+  app.post("/api/user/level-up", async (req: any, res) => {
     try {
       const { newLevel, reason } = req.body;
-      const userId = req.userId;
+      const userId = "guest-user"; // Default user since authentication is removed
       
       // Update user level
       await storage.updateUserProgress(userId, {
@@ -2618,10 +2618,10 @@ Create substantially more comprehensive responses with extensive vocabulary prac
     }
   });
 
-  app.post("/api/practice/answer", requireAuth, async (req: any, res) => {
+  app.post("/api/practice/answer", async (req: any, res) => {
     try {
       const { questionType, level, correct, xpEarned } = req.body;
-      const userId = req.userId;
+      const userId = "guest-user"; // Default user since authentication is removed
       
       // Add XP to user
       const xpResult = await storage.addXpToUser(userId, xpEarned);
@@ -2641,10 +2641,10 @@ Create substantially more comprehensive responses with extensive vocabulary prac
   });
 
   // Save practice session and handle level progression
-  app.post("/api/practice/save-session", requireAuth, async (req: any, res) => {
+  app.post("/api/practice/save-session", async (req: any, res) => {
     try {
       const { level, questionsAnswered, correctAnswers, wrongAnswers, accuracy, xpEarned, timeSpent = 0 } = req.body;
-      const userId = req.userId; // Get authenticated user ID
+      const userId = "guest-user"; // Default user since authentication is removed
       
       // Import sticker system functions
       const { generateLootBoxContents, ANIMAL_STICKERS } = await import("./stickerSystem");

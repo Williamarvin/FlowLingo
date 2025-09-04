@@ -680,9 +680,5 @@ function FlashcardsContent() {
   );
 }
 export default function Flashcards() {
-  return (
-    <ProtectedRoute>
-      <FlashcardsContent />
-    </ProtectedRoute>
-  );
+  return <FlashcardsContent />;
 }

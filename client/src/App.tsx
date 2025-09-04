@@ -5,11 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useEffect } from "react";
 import { audioManager } from "@/lib/audioManager";
-import { useAuth } from "@/hooks/useAuth";
-
 import Home from "@/pages/home";
-import Login from "@/pages/login";
-import Signup from "@/pages/signup";
 import TextGenerator from "@/pages/text-generator";
 import AiConversation from "@/pages/ai-conversation";
 import PdfConverter from "@/pages/pdf-converter";
@@ -26,12 +22,8 @@ import NotFound from "@/pages/not-found";
 function Router() {
   return (
     <Switch>
-      {/* Public routes - accessible without authentication */}
+      {/* All routes are public - no authentication required */}
       <Route path="/" component={Home} />
-      <Route path="/login" component={Login} />
-      <Route path="/signup" component={Signup} />
-      
-      {/* Protected routes - require authentication */}
       <Route path="/text-generator" component={TextGenerator} />
       <Route path="/ai-conversation" component={AiConversation} />
       <Route path="/pdf-converter" component={PdfConverter} />

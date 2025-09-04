@@ -450,9 +450,5 @@ function RewardsContent() {
 }
 
 export default function Rewards() {
-  return (
-    <ProtectedRoute>
-      <RewardsContent />
-    </ProtectedRoute>
-  );
+  return <RewardsContent />;
 }

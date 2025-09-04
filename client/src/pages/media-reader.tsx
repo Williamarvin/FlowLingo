@@ -663,9 +663,5 @@ function MediaReaderContent() {
   );
 }
 export default function MediaReader() {
-  return (
-    <ProtectedRoute>
-      <MediaReaderContent />
-    </ProtectedRoute>
-  );
+  return <MediaReaderContent />;
 }
